@@ -1,6 +1,6 @@
 # Quest Blocks status
 
-Last updated: 2026-10-24 — foundation milestone (partial M0 + M1) implemented, uncommitted.
+Last updated: 2026-10-24 — foundation committed (`a36c01d`); jest-expo installed.
 
 ## Current setup
 
@@ -46,7 +46,7 @@ Last updated: 2026-10-24 — foundation milestone (partial M0 + M1) implemented,
 | `npx tsc --noEmit` | Passed, exit 0 |
 | `npx expo-doctor` | Passed, 20/20 |
 | Lint | **Not run: lint is not configured.** No ESLint config or dependency; `expo lint` would install packages. Needs your OK (see next task). |
-| Unit tests | **None exist.** No test runner is configured. |
+| `npm test -- --runInBand` | Passed: 2 suites, 13 tests (schedule parsing/description, reward helpers, demo content sanity). Runner: `jest-expo` preset, Jest 30. **No database or migration tests yet** |
 | Migration SQL in real SQLite (Node 24 `node:sqlite`, throwaway script outside the repo) | Passed: v1 applies; rejects negative amounts, duplicate mission position, duplicate quest instance per date, duplicate idempotency key, bad status; ledger update and delete are blocked |
 | Schedule parsing (same throwaway script) | Passed: 3 demo schedules parse and describe correctly; 4 malformed inputs rejected |
 | `npx expo export` for iOS and Android | Passed, both bundles built |
@@ -57,7 +57,7 @@ Last updated: 2026-10-24 — foundation milestone (partial M0 + M1) implemented,
 | Migration upgrade path (v1 → v2) | Untested; only v1 exists |
 | `npm audit` | Reports 5 high-severity vulnerabilities; not investigated |
 
-The Node migration check was a one-off. It is not a repeatable test and is not in the repo.
+The Node migration check was a one-off. It is not a repeatable test and is not in the repo; migrations still need permanent tests.
 
 ## Known gaps and notes
 
@@ -65,7 +65,7 @@ The Node migration check was a one-off. It is not a repeatable test and is not i
 - Caregiver tab uses the starter's "explore" icon as a placeholder; original icons are needed.
 - `expo-dev-client` was added automatically by `expo install` and then removed on purpose; add it
   when a development build is needed (required for notification and secure-store testing on devices).
-- Migration SQL v1 is not yet tested in-app after an upgrade, and there is no automated test.
+- Migration SQL v1 has no automated test and has not been tested through an upgrade.
 - The app has no player-facing flow yet: no mission play, no payouts, no schedule evaluation.
   Today lists every active quest, not only those scheduled for the day, and says so on screen.
 
@@ -92,9 +92,10 @@ None have been answered. Reward spending remains unresolved and is kept disabled
 **Finish M0 tooling, then M2 (schedule engine).**
 
 1. **Needs your OK:** make `npm run lint` real (install ESLint and `eslint-config-expo` via the
-   Expo route, commit the config) and add `jest-expo` so `npm test -- --runInBand` works.
-   Then turn the one-off Node migration and schedule checks into permanent tests.
-2. M2: pure-domain recurrence engine for daily, every-N-days and weekly rules, idempotent instance
+   Expo route, commit the config).
+2. Turn the one-off Node migration check into permanent tests (needs a small adapter over
+   `node:sqlite`, since `expo-sqlite` is native).
+3. M2: pure-domain recurrence engine for daily, every-N-days and weekly rules, idempotent instance
    generation, table-driven tests including DST, timezone change and midnight rollover.
    It will use the proposed defaults for the unresolved schedule edge cases and name them in
    the tests; write concrete worked examples into `DECISIONS.md` for your approval before merge.
