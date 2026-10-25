@@ -19,6 +19,7 @@ describe('parseSchedule', () => {
     ['empty weekdays', { kind: 'weekly', weekdays: [] }],
     ['out-of-range weekday', { kind: 'weekly', weekdays: [7] }],
     ['interval of 1', { kind: 'everyNDays', intervalDays: 1, anchorDate: '2026-01-01' }],
+    ['impossible anchor date', { kind: 'everyNDays', intervalDays: 3, anchorDate: '2026-02-30' }],
     ['malformed anchor date', { kind: 'everyNDays', intervalDays: 3, anchorDate: 'Jan 1' }],
   ])('rejects %s instead of guessing', (_label, input) => {
     expect(() => parseSchedule(input)).toThrow();

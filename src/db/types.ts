@@ -9,6 +9,6 @@ export interface Db {
   execAsync(source: string): Promise<void>;
   getFirstAsync<T>(source: string, ...params: SQLiteBindValue[]): Promise<T | null>;
   getAllAsync<T>(source: string, ...params: SQLiteBindValue[]): Promise<T[]>;
-  runAsync(source: string, ...params: SQLiteBindValue[]): Promise<unknown>;
+  runAsync(source: string, ...params: SQLiteBindValue[]): Promise<{ changes: number }>;
   withTransactionAsync(task: () => Promise<void>): Promise<void>;
 }

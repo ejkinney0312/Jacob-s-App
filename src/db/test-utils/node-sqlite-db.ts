@@ -31,7 +31,8 @@ export function createTestDb(): TestDb {
       return sqlite.prepare(source).all(...bind(params)).map((row) => ({ ...row }) as T);
     },
     async runAsync(source, ...params) {
-      return sqlite.prepare(source).run(...bind(params));
+      const result = sqlite.prepare(source).run(...bind(params));
+      return { changes: Number(result.changes) };
     },
     // Mirrors expo-sqlite: BEGIN, run the task, COMMIT; ROLLBACK and rethrow on failure.
     async withTransactionAsync(task) {

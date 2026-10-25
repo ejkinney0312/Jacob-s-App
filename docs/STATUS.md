@@ -1,6 +1,6 @@
 # Quest Blocks status
 
-Last updated: 2026-10-24 — foundation committed (`a36c01d`, `0c45db0`); ESLint and database tests added, uncommitted.
+Last updated: 2026-10-24 — foundation, jest, ESLint and database tests committed (through `4688d21`); M2 schedule engine added, uncommitted.
 
 ## Current setup
 
@@ -19,6 +19,13 @@ Last updated: 2026-10-24 — foundation committed (`a36c01d`, `0c45db0`); ESLint
 - No cloud, no backend, no analytics.
 
 ### What was built
+
+- **M2 schedule engine (new, not shown in the UI yet):** `src/domain/local-date.ts` (real calendar
+  validation, exact day arithmetic, weekday, instant → local date in a given time zone),
+  `isScheduledOn` / `questsScheduledOn` / stable ID helpers in `src/domain/schedule.ts`, and
+  `ensureInstancesForDate` / `listQuestInstances` in `src/db/instances.ts` (idempotent, transactional,
+  never resets progress). `parseSchedule` now rejects impossible dates such as `2026-02-30`.
+  Rules are **proposed, not approved**; worked examples are in `docs/DECISIONS.md`.
 
 - **Theme** (`src/constants/theme.ts`): calm original light/dark palette. All text pairs checked
   at ≥ 4.5:1 and border/primary at ≥ 3:1 with a WCAG calculation. Sizing tokens for 48 touch
@@ -48,9 +55,10 @@ Last updated: 2026-10-24 — foundation committed (`a36c01d`, `0c45db0`); ESLint
 | `npx tsc --noEmit` | Passed, exit 0 |
 | `npx expo-doctor` | Passed, 20/20 |
 | `npm run lint` | Passed, exit 0, no warnings. Confirmed it flags bad code (a deliberate probe file was caught, then removed). It found one real error in the starter's `use-color-scheme.web.ts` (setState in an effect); fixed with `useSyncExternalStore`, web file only |
-| `npm test -- --runInBand` | Passed: 4 suites, 31 tests. Domain tests (schedules, rewards, demo content) plus database tests (below) |
+| `npm test -- --runInBand` | Passed: 7 suites, 81 tests. Domain tests (dates, schedules, engine, rewards, demo content) plus database tests (below) |
 | Database tests (`src/db/__tests__/`) | Passed. Run our real migration and query code against real SQLite via Node's `node:sqlite`: fresh install, safe re-run, upgrade with data kept, failed migration rolls back and retries, newer database refused, no spend tables, double-pay rejected, no negative amounts, append-only ledger, one instance per quest per date, bad status and orphan rows rejected, seed is idempotent / all-or-nothing / does not restore removed demo rows, corrupt schedule fails loudly, earned totals sum |
-| Test sensitivity (mutation check) | Broke the code three ways (no migration transaction, no ledger triggers, no seed transaction); each was caught by exactly one test; code restored and re-run green |
+| Schedule engine tests | Passed: valid/invalid dates incl. leap years; day math across month, year, leap day and both 2026 US DST changes; local midnight rollover and the 25-hour and 23-hour days in `America/Chicago`; same instant in four zones; every-N-days from the anchor (not before it, no drift over a year); weekly; demo quests due on Sat 10-24, Fri 10-23 and 2026-01-04; instance creation idempotent, no back-fill of missed days, quest-off keeps history, progress preserved, per-date separation, all-or-nothing, rejects invalid date |
+| Test sensitivity (mutation check) | Broke the code six ways (no migration transaction, no ledger triggers, no seed transaction, due-before-anchor, plain INSERT for instances, recreating missions for existing instances); every break was caught; code restored and re-run green |
 | `npx expo export` for iOS and Android | Passed, both bundles built |
 | Run on iOS simulator (iPhone 16 Plus, iOS 18.6, Expo Go) | Passed: migrations ran, demo data seeded, Today and Caregiver tabs render from SQLite |
 | Android (emulator or device) | **Untested.** Bundle builds, but no Android runtime was available |
@@ -91,10 +99,10 @@ None have been answered. Reward spending remains unresolved and is kept disabled
 
 ## Next implementation task
 
-**M2: schedule engine** (pure domain, no decisions needed to start).
+**M3: Today shows what is scheduled for today, with progress.** It can start now on the proposed rules.
 
-- Recurrence for daily, every-N-days and weekly rules, idempotent instance generation, and
-  table-driven tests including DST, timezone change and midnight rollover.
-- It uses the proposed defaults for the unresolved schedule edge cases and names them in the tests.
-  Write concrete worked examples into `DECISIONS.md` for your approval before merging.
-- Then M3 (Today shows only what is scheduled for the date, with progress) and M4 (mission flow).
+- Wire Today to `toLocalDate(new Date())` and `ensureInstancesForDate`, list that day's instances with
+  mission progress, and handle the empty and all-done states in calm adult wording.
+- Please review the rules in `docs/DECISIONS.md` ("Proposed schedule rules (M2)"). Nothing is blocked on
+  your answer yet, but changing a rule later means changing the engine and its tests.
+- Then M4 (mission flow with replay audio, Help, Complete, and persisted position).

@@ -1,7 +1,7 @@
-import type { Schedule, Weekday } from './types';
+import { daysBetween, isValidLocalDate, weekdayOf } from './local-date';
+import type { LocalDate, Quest, Schedule, Weekday } from './types';
 
 const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const LOCAL_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function isWeekday(value: unknown): value is Weekday {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 6;
@@ -24,8 +24,7 @@ export function parseSchedule(input: unknown): Schedule {
         typeof intervalDays !== 'number' ||
         !Number.isInteger(intervalDays) ||
         intervalDays < 2 ||
-        typeof anchorDate !== 'string' ||
-        !LOCAL_DATE.test(anchorDate)
+        !isValidLocalDate(anchorDate)
       ) {
         throw new Error('Invalid every-N-days schedule');
       }
@@ -53,4 +52,41 @@ export function describeSchedule(schedule: Schedule): string {
     case 'weekly':
       return `Every ${schedule.weekdays.map((d) => WEEKDAY_NAMES[d]).join(', ')}`;
   }
+}
+
+/**
+ * Is a quest with this schedule due on this local date?
+ *
+ * Proposed rules (docs/DECISIONS.md "Proposed schedule rules (M2)", not yet confirmed):
+ * - every-N-days counts calendar days from the anchor date, and the anchor day itself is due;
+ * - nothing is due before the anchor date;
+ * - weekly uses the weekday of the local date.
+ */
+export function isScheduledOn(schedule: Schedule, date: LocalDate): boolean {
+  switch (schedule.kind) {
+    case 'daily':
+      return true;
+    case 'everyNDays': {
+      const elapsed = daysBetween(schedule.anchorDate, date);
+      return elapsed >= 0 && elapsed % schedule.intervalDays === 0;
+    }
+    case 'weekly':
+      return schedule.weekdays.includes(weekdayOf(date));
+  }
+}
+
+/** Active quests due on `date`, in display order. Inactive quests are never due. */
+export function questsScheduledOn(quests: readonly Quest[], date: LocalDate): Quest[] {
+  return quests
+    .filter((quest) => quest.active && isScheduledOn(quest.schedule, date))
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.id.localeCompare(b.id));
+}
+
+/** Stable ids: the same quest on the same date always has the same id, so no duplicates. */
+export function questInstanceId(questId: string, date: LocalDate): string {
+  return `${questId}:${date}`;
+}
+
+export function missionInstanceId(questInstanceId: string, missionId: string): string {
+  return `${questInstanceId}:${missionId}`;
 }
