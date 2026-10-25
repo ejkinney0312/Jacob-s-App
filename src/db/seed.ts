@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { Db } from './types';
 
 import { DEMO_PLAYER, DEMO_QUESTS, DEMO_REWARD_ITEMS } from '@/domain/demo-content';
 
@@ -11,7 +11,7 @@ const SEEDED_KEY = 'demo_content_seeded';
  * Inserts the fictional demo content once. Safe to call on every launch: it records a
  * marker, so deleting or editing demo rows later is not undone on the next start.
  */
-export async function seedDemoContent(db: SQLiteDatabase): Promise<void> {
+export async function seedDemoContent(db: Db): Promise<void> {
   await db.withTransactionAsync(async () => {
     const marker = await db.getFirstAsync<{ value: string }>(
       'SELECT value FROM settings WHERE key = ?',

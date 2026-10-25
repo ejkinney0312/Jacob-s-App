@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { Db } from './types';
 
 import { parseSchedule } from '@/domain/schedule';
 import type { Mission, Quest } from '@/domain/types';
@@ -45,7 +45,7 @@ function toMission(row: MissionRow): Mission {
 }
 
 /** All quests with their missions in order. Inactive quests are included; callers filter. */
-export async function listQuests(db: SQLiteDatabase): Promise<Quest[]> {
+export async function listQuests(db: Db): Promise<Quest[]> {
   const quests = await db.getAllAsync<QuestRow>('SELECT * FROM quests ORDER BY sort_order, id');
   const missions = await db.getAllAsync<MissionRow>(
     'SELECT * FROM missions ORDER BY quest_id, position',

@@ -1,9 +1,9 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { Db } from './types';
 
 import type { EarnedTotals } from '@/domain/types';
 
 /** Lifetime earned totals. Read-only for now; payouts arrive with the reward-ledger milestone. */
-export async function getEarnedTotals(db: SQLiteDatabase): Promise<EarnedTotals> {
+export async function getEarnedTotals(db: Db): Promise<EarnedTotals> {
   const row = await db.getFirstAsync<{ xp: number; emeralds: number; blocks: number }>(
     `SELECT COALESCE(SUM(xp), 0) AS xp,
             COALESCE(SUM(emeralds), 0) AS emeralds,

@@ -1,11 +1,13 @@
 # Quest Blocks status
 
-Last updated: 2026-10-24 — foundation committed (`a36c01d`); jest-expo installed.
+Last updated: 2026-10-24 — foundation committed (`a36c01d`, `0c45db0`); ESLint and database tests added, uncommitted.
 
 ## Current setup
 
 - Expo SDK 58 (`expo ~58.0.19`), React Native 0.88.0, React 19.3.0, TypeScript ~6.0.3
   (`strict: true`), Expo Router (`src/app/`), npm.
+- Tooling: `jest-expo` (Jest 30), ESLint 9 with `eslint-config-expo` (flat config in
+  `eslint.config.js`), `@types/node` ^24 (matches Node 24; used only by the SQLite test helper).
 - Installed with `npx expo install`: `expo-sqlite`, `expo-secure-store`, `expo-notifications`,
   `expo-speech`, `expo-haptics`. Only `expo-sqlite` is used in code so far. The others are
   installed and ready; their features come in later milestones.
@@ -45,19 +47,19 @@ Last updated: 2026-10-24 — foundation committed (`a36c01d`); jest-expo install
 | --- | --- |
 | `npx tsc --noEmit` | Passed, exit 0 |
 | `npx expo-doctor` | Passed, 20/20 |
-| Lint | **Not run: lint is not configured.** No ESLint config or dependency; `expo lint` would install packages. Needs your OK (see next task). |
-| `npm test -- --runInBand` | Passed: 2 suites, 13 tests (schedule parsing/description, reward helpers, demo content sanity). Runner: `jest-expo` preset, Jest 30. **No database or migration tests yet** |
-| Migration SQL in real SQLite (Node 24 `node:sqlite`, throwaway script outside the repo) | Passed: v1 applies; rejects negative amounts, duplicate mission position, duplicate quest instance per date, duplicate idempotency key, bad status; ledger update and delete are blocked |
-| Schedule parsing (same throwaway script) | Passed: 3 demo schedules parse and describe correctly; 4 malformed inputs rejected |
+| `npm run lint` | Passed, exit 0, no warnings. Confirmed it flags bad code (a deliberate probe file was caught, then removed). It found one real error in the starter's `use-color-scheme.web.ts` (setState in an effect); fixed with `useSyncExternalStore`, web file only |
+| `npm test -- --runInBand` | Passed: 4 suites, 31 tests. Domain tests (schedules, rewards, demo content) plus database tests (below) |
+| Database tests (`src/db/__tests__/`) | Passed. Run our real migration and query code against real SQLite via Node's `node:sqlite`: fresh install, safe re-run, upgrade with data kept, failed migration rolls back and retries, newer database refused, no spend tables, double-pay rejected, no negative amounts, append-only ledger, one instance per quest per date, bad status and orphan rows rejected, seed is idempotent / all-or-nothing / does not restore removed demo rows, corrupt schedule fails loudly, earned totals sum |
+| Test sensitivity (mutation check) | Broke the code three ways (no migration transaction, no ledger triggers, no seed transaction); each was caught by exactly one test; code restored and re-run green |
 | `npx expo export` for iOS and Android | Passed, both bundles built |
 | Run on iOS simulator (iPhone 16 Plus, iOS 18.6, Expo Go) | Passed: migrations ran, demo data seeded, Today and Caregiver tabs render from SQLite |
 | Android (emulator or device) | **Untested.** Bundle builds, but no Android runtime was available |
 | Real iPhone / Android hardware | **Untested** |
 | Accessibility (VoiceOver, TalkBack, 200% text, Reduce Motion) | **Untested.** Labels and header roles are set; no assistive-tech check has been done |
-| Migration upgrade path (v1 → v2) | Untested; only v1 exists |
+| Migration upgrade path with real released data | Only tested with a test-only v2; the real app has only v1 |
 | `npm audit` | Reports 5 high-severity vulnerabilities; not investigated |
 
-The Node migration check was a one-off. It is not a repeatable test and is not in the repo; migrations still need permanent tests.
+The database tests use Node's SQLite, not `expo-sqlite`. They prove our SQL and migration logic; they do not prove expo-sqlite's native behavior, which was only checked once on the iOS simulator. Android SQLite is untested.
 
 ## Known gaps and notes
 
@@ -65,7 +67,7 @@ The Node migration check was a one-off. It is not a repeatable test and is not i
 - Caregiver tab uses the starter's "explore" icon as a placeholder; original icons are needed.
 - `expo-dev-client` was added automatically by `expo install` and then removed on purpose; add it
   when a development build is needed (required for notification and secure-store testing on devices).
-- Migration SQL v1 has no automated test and has not been tested through an upgrade.
+- Database tests need Node 22.5+ (`node:sqlite`); this machine runs Node 24. Older Node would fail them.
 - The app has no player-facing flow yet: no mission play, no payouts, no schedule evaluation.
   Today lists every active quest, not only those scheduled for the day, and says so on screen.
 
@@ -89,13 +91,10 @@ None have been answered. Reward spending remains unresolved and is kept disabled
 
 ## Next implementation task
 
-**Finish M0 tooling, then M2 (schedule engine).**
+**M2: schedule engine** (pure domain, no decisions needed to start).
 
-1. **Needs your OK:** make `npm run lint` real (install ESLint and `eslint-config-expo` via the
-   Expo route, commit the config).
-2. Turn the one-off Node migration check into permanent tests (needs a small adapter over
-   `node:sqlite`, since `expo-sqlite` is native).
-3. M2: pure-domain recurrence engine for daily, every-N-days and weekly rules, idempotent instance
-   generation, table-driven tests including DST, timezone change and midnight rollover.
-   It will use the proposed defaults for the unresolved schedule edge cases and name them in
-   the tests; write concrete worked examples into `DECISIONS.md` for your approval before merge.
+- Recurrence for daily, every-N-days and weekly rules, idempotent instance generation, and
+  table-driven tests including DST, timezone change and midnight rollover.
+- It uses the proposed defaults for the unresolved schedule edge cases and names them in the tests.
+  Write concrete worked examples into `DECISIONS.md` for your approval before merging.
+- Then M3 (Today shows only what is scheduled for the date, with progress) and M4 (mission flow).

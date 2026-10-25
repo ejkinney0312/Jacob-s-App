@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { Db } from './types';
 
 export interface Migration {
   /** Strictly increasing, starting at 1. Never edit or reorder a migration once released. */
@@ -117,7 +117,7 @@ export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;
  * Refuses to open a database written by a newer app version rather than guess.
  */
 export async function runMigrations(
-  db: SQLiteDatabase,
+  db: Db,
   migrations: readonly Migration[] = MIGRATIONS,
 ): Promise<void> {
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
