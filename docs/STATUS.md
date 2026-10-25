@@ -1,62 +1,100 @@
 # Quest Blocks status
 
-Last updated: 2026-10-24 (planning only; no features built yet)
+Last updated: 2026-10-24 — foundation milestone (partial M0 + M1) implemented, uncommitted.
 
 ## Current setup
 
 - Expo SDK 58 (`expo ~58.0.19`), React Native 0.88.0, React 19.3.0, TypeScript ~6.0.3
-  with `strict: true`, Expo Router (routes in `src/app/`), npm (`package-lock.json`).
-- Project is still the **unmodified Expo starter template**: tabs titled "Expo Starter",
-  an explore screen and demo components. No Quest Blocks features exist.
-- Not installed yet: `expo-sqlite`, `expo-notifications`, `expo-speech`,
-  `expo-secure-store`, `expo-haptics`, a test runner, ESLint as a project dependency.
-- Git: `main`, two commits. `9b18ef4` fixes the `TabButton` ref type.
-  `CLAUDE.md`, `docs/PRODUCT_REQUIREMENTS.md`, `docs/DECISIONS.md`,
-  `docs/IMPLEMENTATION_PLAN.md` and this file are **uncommitted**.
-- `expo-env.d.ts` exists locally but is gitignored. Expo regenerates it on
-  `npx expo start`; a fresh clone needs that run before `tsc` passes.
-- A stray `eslint` binary is in `node_modules` from an earlier `expo lint` attempt that
-  was reverted in `package.json`. Treat it as untracked; M0 will install it properly.
+  (`strict: true`), Expo Router (`src/app/`), npm.
+- Installed with `npx expo install`: `expo-sqlite`, `expo-secure-store`, `expo-notifications`,
+  `expo-speech`, `expo-haptics`. Only `expo-sqlite` is used in code so far. The others are
+  installed and ready; their features come in later milestones.
+- `app.json`: display name "Quest Blocks"; plugins `expo-sqlite`, `expo-secure-store`,
+  and `expo-notifications` with `enableRemoteNotifications: false` (P0 is local reminders only;
+  push is P1). No bundle IDs or store settings: distribution is undecided.
+- TypeScript fixes preserved: `expo-env.d.ts` (local, gitignored; Expo regenerates it on
+  `expo start`) and the `TabButton` ref type in `src/components/app-tabs.web.tsx`.
+- No cloud, no backend, no analytics.
+
+### What was built
+
+- **Theme** (`src/constants/theme.ts`): calm original light/dark palette. All text pairs checked
+  at ≥ 4.5:1 and border/primary at ≥ 3:1 with a WCAG calculation. Sizing tokens for 48 touch
+  targets and 64 primary buttons. Body text 18/26, links underlined (not color-only).
+- **Navigation**: two tabs, **Today** and **Caregiver** (native tabs on iOS/Android, custom tabs
+  on web). Starter screens and components removed. Tab icons are still the starter's PNGs.
+- **Domain** (`src/domain/`): types for schedules, quests, missions, instances, progress,
+  ledger entries and reward items; schedule parsing/description; reward helpers; demo content.
+  `REDEMPTION_ENABLED = false`. No spendable balance, debit or redemption record exists anywhere.
+- **SQLite** (`src/db/`): versioned migrations using `PRAGMA user_version`, each in a
+  transaction with its version bump; refuses a database from a newer app version.
+  Schema v1: players, quests, missions, quest/mission instances (unique per quest + date),
+  append-only ledger (unique idempotency key, non-negative amounts, update/delete blocked by
+  triggers), reward items, settings.
+- **Demo data**: three fictional quests (daily, every 3 days, Fridays) and two demo rewards, all
+  titled "Demo". Seeded once, development builds only (`__DEV__`). The Bathroom quest is not
+  included, and no total is claimed as verified.
+- **Screens**: Today lists quests from SQLite with schedule text, mission count, and earned
+  totals (all 0). Caregiver is a placeholder that says the PIN lock and reward spending are not
+  active yet. Web shows a "runs on iPhone and Android" notice because SQLite on web needs extra
+  setup.
 
 ## Checks (run 2026-10-24)
 
-| Command | Result |
+| Check | Result |
 | --- | --- |
 | `npx tsc --noEmit` | Passed, exit 0 |
-| `npx expo-doctor` | Passed, 20/20 checks |
-| `npx expo lint` | **Not passing.** No ESLint config or project dependency; the command tried to auto-install and was reverted. Not a code failure. |
-| `npm test` | Not run; no test runner configured |
-| Real iPhone / Android hardware | Untested (nothing to test yet) |
-| `npm audit` | Reported 5 high-severity vulnerabilities during an earlier install; not investigated |
+| `npx expo-doctor` | Passed, 20/20 |
+| Lint | **Not run: lint is not configured.** No ESLint config or dependency; `expo lint` would install packages. Needs your OK (see next task). |
+| Unit tests | **None exist.** No test runner is configured. |
+| Migration SQL in real SQLite (Node 24 `node:sqlite`, throwaway script outside the repo) | Passed: v1 applies; rejects negative amounts, duplicate mission position, duplicate quest instance per date, duplicate idempotency key, bad status; ledger update and delete are blocked |
+| Schedule parsing (same throwaway script) | Passed: 3 demo schedules parse and describe correctly; 4 malformed inputs rejected |
+| `npx expo export` for iOS and Android | Passed, both bundles built |
+| Run on iOS simulator (iPhone 16 Plus, iOS 18.6, Expo Go) | Passed: migrations ran, demo data seeded, Today and Caregiver tabs render from SQLite |
+| Android (emulator or device) | **Untested.** Bundle builds, but no Android runtime was available |
+| Real iPhone / Android hardware | **Untested** |
+| Accessibility (VoiceOver, TalkBack, 200% text, Reduce Motion) | **Untested.** Labels and header roles are set; no assistive-tech check has been done |
+| Migration upgrade path (v1 → v2) | Untested; only v1 exists |
+| `npm audit` | Reports 5 high-severity vulnerabilities; not investigated |
+
+The Node migration check was a one-off. It is not a repeatable test and is not in the repo.
+
+## Known gaps and notes
+
+- Selected-tab color on iOS is the system blue, not the theme's `primary`; set it when icons are redone.
+- Caregiver tab uses the starter's "explore" icon as a placeholder; original icons are needed.
+- `expo-dev-client` was added automatically by `expo install` and then removed on purpose; add it
+  when a development build is needed (required for notification and secure-store testing on devices).
+- Migration SQL v1 is not yet tested in-app after an upgrade, and there is no automated test.
+- The app has no player-facing flow yet: no mission play, no payouts, no schedule evaluation.
+  Today lists every active quest, not only those scheduled for the day, and says so on screen.
 
 ## Unresolved decisions (from `docs/DECISIONS.md`)
 
-None have been answered. Blocks listed are the earliest milestone affected.
+None have been answered. Reward spending remains unresolved and is kept disabled.
 
 | Decision | Blocks |
 | --- | --- |
-| Emerald purchases: do they debit spendable balance? | M13 real redemption (kept disabled) |
-| Prototype/content export (quests, Rook dialogue, rewards) | Real content; M3 uses labeled demo data |
+| Emerald purchases: do they debit spendable balance? | M13 real redemption (disabled). No spend schema exists yet |
+| Prototype/content export (quests, Rook dialogue, rewards) | Real content; demo data stands in |
 | Bathroom fixture totaling 95 XP / 38 emeralds / 1 block | "Verified" claim in M15 |
 | Schedule edge cases (anchor, DST, travel, missed quests, quiet-hours deferral) | M2 merge, M14 |
-| Approval transitions (reject, redo, quest-bonus timing) | M8 |
-| Rook tap-to-talk meaning | M12 (default: preset dialogue via TTS) |
-| Four village structures, story stages, badge thresholds, starting level | M10, M11 |
-| Can P0 add chores, or only enable/disable supplied quests? | Scope of M8; F12 stays P1 unless moved |
-| Target phones and minimum OS | M15 device testing |
+| Approval transitions (reject, redo, quest-bonus timing) | M8 (no "rejected" status exists) |
+| Rook tap-to-talk meaning | M12 |
+| Village structures/stages, badge thresholds, starting level | M10, M11 |
+| Can P0 add chores, or only enable/disable supplied quests? | Scope of M8; F12 stays P1 |
+| Target phones and minimum OS | M15 |
 | Distribution, account holder, final app-name availability | Real bundle IDs; store config |
-| PIN derivation method, retry limits, relock and recovery | M7 real caregiver access (demo PIN only until then) |
-
-Also noted: `CLAUDE.md` asks the plan to map F1–F18. The plan covers P0 (F1–F11) in
-milestones and lists F12–F18 as backlog rows; it does not schedule them.
+| PIN derivation, retry limits, relock, recovery | M7 real caregiver access |
 
 ## Next implementation task
 
-**M0 — Foundation and tooling**, none of which needs a decision:
-1. Make `npm run lint` work (install ESLint via the Expo-supported route and commit the
-   config). This adds dependencies, so confirm with Erin first.
-2. Add `jest-expo` so `npm test -- --runInBand` runs one trivial passing test.
-3. Create `src/domain`, `src/db`, `src/services`, `src/features`.
-4. Replace the starter shell with an empty Today screen, keeping the TypeScript fixes.
+**Finish M0 tooling, then M2 (schedule engine).**
 
-M1 (SQLite + migrations) follows and is also unblocked.
+1. **Needs your OK:** make `npm run lint` real (install ESLint and `eslint-config-expo` via the
+   Expo route, commit the config) and add `jest-expo` so `npm test -- --runInBand` works.
+   Then turn the one-off Node migration and schedule checks into permanent tests.
+2. M2: pure-domain recurrence engine for daily, every-N-days and weekly rules, idempotent instance
+   generation, table-driven tests including DST, timezone change and midnight rollover.
+   It will use the proposed defaults for the unresolved schedule edge cases and name them in
+   the tests; write concrete worked examples into `DECISIONS.md` for your approval before merge.

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "quest-blocks",
+    "name": "Quest Blocks",
     "slug": "quest-blocks",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -31,6 +31,14 @@
           "backgroundColor": "#208AEF",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
+        }
+      ],
+      "expo-sqlite",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "enableRemoteNotifications": false
         }
       ]
     ],
