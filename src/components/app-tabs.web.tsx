@@ -7,6 +7,7 @@ import {
   TabListProps,
 } from 'expo-router/ui';
 import { SymbolView } from 'expo-symbols';
+import type { ComponentProps } from 'react';
 import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
 
 import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -33,7 +34,13 @@ export default function AppTabs() {
   );
 }
 
-export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+// expo-router types `ref` as RefAttributes<View>, which resolves to the View function type under
+// React Native's generated types. Take the ref type from Pressable instead.
+type TabButtonProps = Omit<TabTriggerSlotProps, 'ref'> & {
+  ref?: ComponentProps<typeof Pressable>['ref'];
+};
+
+export function TabButton({ children, isFocused, ...props }: TabButtonProps) {
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
       <ThemedView
