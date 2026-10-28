@@ -139,11 +139,6 @@ describe('completeMission', () => {
     expect(view?.instance.completedAt).toBe(NOW.toISOString());
   });
 
-  it('pays nothing yet: payouts arrive with the reward ledger', async () => {
-    await completeMission(db, ID, M1, NOW);
-    expect(await count('ledger_entries')).toBe(0);
-  });
-
   it('is all-or-nothing if the quest update fails after the mission update', async () => {
     const failing = {
       ...db,

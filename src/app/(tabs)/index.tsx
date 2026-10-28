@@ -68,7 +68,7 @@ export default function TodayScreen() {
             Demo content
           </ThemedText>
           <ThemedText type="small" themeColor="onNotice">
-            These quests are fictional samples. Finishing missions does not earn rewards yet.
+            These quests are fictional samples. Anything earned here is for testing only.
           </ThemedText>
         </ThemedView>
       )}

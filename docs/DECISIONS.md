@@ -67,3 +67,20 @@ Status: **proposed, not approved.** Implemented as described; each point is easy
 Not decided here, and worth deciding before the metrics exist: the PRD's success metric "missions completed without tapping *I need help*" needs help taps to be recorded. M4 records nothing, to keep data minimal. Say if you want a count stored on the device (no names, no content).
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed reward payout rules (M5): awaiting Erin's confirmation
+
+Status: **proposed, not approved.** Implemented as described (`src/db/ledger.ts`, `src/db/quest-flow.ts`).
+Real spending is **not** part of this and stays disabled; see "Emerald purchases" in the table above.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **A self-verify mission pays the moment it is finished**, with the XP, emeralds and blocks stored for that mission. | PRD F3. |
+| 2 | **A key mission pays nothing while it waits**, and pays when a caregiver approves it (built in M8), under the same payout key, so approval can never double-pay. | PRD F3 and acceptance criteria. |
+| 3 | **The quest bonus is paid once, when the quest becomes complete.** If a key mission is waiting, the bonus waits too. | Follows the proposed approval default. Alternative: pay the bonus as soon as Jacob finishes his part. |
+| 4 | **Amounts are copied into the ledger when paid.** Editing a mission's reward later never changes what was already earned. | Earned totals must never change after the fact. |
+| 5 | **Nothing is paid retroactively.** Missions finished before the ledger existed (development testing only) earn nothing. | They were demo data. |
+| 6 | **Earned totals only grow.** The ledger is append-only: no edits, no deletions, no negative amounts, and a reward of zero writes no row. | PRD: "points never removed". |
+| 7 | **The same recurring mission pays again on each new day**, once per day. | Each day is a separate instance. |
+
+Answer (date and confirmed behavior): _not yet answered_
