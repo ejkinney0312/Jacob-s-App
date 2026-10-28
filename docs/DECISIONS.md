@@ -140,3 +140,24 @@ Go), Android Keystore behavior, whether the iOS Keychain really survives a reins
 reader behavior on the PIN forms, and typing a PIN on a real keyboard (no way to tap in this environment).
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed approval and caregiver editing rules (M8): awaiting Erin's confirmation
+
+Status: **proposed, not approved.** This is built on the defaults suggested in the "Approval flow" row of the
+table above. That row is still open; the original text is unchanged. Everything here sits behind the caregiver PIN.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **A finished key mission appears in the caregiver's Approvals list**, from any day, oldest first, with the quest, the mission, the day, and what approving adds. The caregiver has to open the Caregiver tab to see it: there are no notifications in the first release. | Push alerts to a second phone are P1 (F13). |
+| 2 | **Approve** pays the mission once, using the same payout key a self-verify mission uses, so approving can never double-pay, however many times it is tapped. | PRD acceptance criteria. |
+| 3 | **The quest bonus is paid when the last waiting mission is approved**, and only then, if nothing else is still waiting. | Same as the proposed payout rule 3. Alternative: pay the bonus as soon as Jacob finishes his part. |
+| 4 | **The amount paid is the amount stored at the moment of approval**, not at the moment Jacob finished. If a caregiver lowers a reward while a mission waits, the lower amount is paid. | Simple, and earned totals are never reduced. Alternative: lock in the amount when Jacob finishes the mission; that needs a small extra column. |
+| 5 | **"Ask for another try"** sends a waiting mission back to being the current one. It pays nothing and takes nothing away, has no limit on tries, and counts the tries. Jacob sees: "Your caregiver asked for another try on this step. That's okay." | No rejection with a reason and no negative wording. Alternative: let the caregiver type a short message for Jacob (not built). |
+| 6 | **A mission already approved cannot be sent back.** | Nothing earned is ever undone. |
+| 7 | **Approving or asking for another try never changes a paused quest to in progress.** Approving the last waiting mission still completes it. | A caregiver action should not restart something Jacob paused. |
+| 8 | **Turning a quest off hides it from Today straight away** (even if today's day was already created), creates no new days, and keeps all progress. Turning it back on shows it exactly as it was. A waiting mission from a quest that is off can still be approved. *(This sharpens schedule rule 9 above, which only said existing days "stay".)* | Alternative: let today's already-started instance stay on Today until midnight. |
+| 9 | **Reward amounts can be edited per mission and for the quest bonus**, whole numbers from 0 to 1000 in each box. Edits apply to what is earned from now on; **earned totals and the ledger never change.** | 1000 is a typo guard, not a game rule. Setting an amount to 0 is allowed. |
+| 10 | **Not in this release:** adding quests, renaming or reordering missions, editing the words and tips (the P1 quest builder, F12). Whether adding chores must move into the first release is still an open decision in the table above. | |
+| 11 | **Editing and approving run behind the PIN session only.** The session locks when the tab is left, so editing happens inside the Caregiver tab, not on a separate screen. | A separate screen would count as leaving the tab and relock. |
+
+Answer (date and confirmed behavior): _not yet answered_

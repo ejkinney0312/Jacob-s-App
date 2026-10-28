@@ -25,6 +25,8 @@ export interface QuestFlowView {
   currentNumber: number;
   total: number;
   waitingForApproval: number;
+  /** How many times a caregiver has asked for another try on the current mission (0 if never). */
+  currentRedoCount: number;
   /** True once the player has done every mission (some may still wait for a caregiver). */
   finished: boolean;
 }
@@ -38,7 +40,7 @@ interface InstanceRow {
   completed_at: string | null;
 }
 
-async function getInstance(db: Db, instanceId: string): Promise<QuestInstance | null> {
+export async function getInstance(db: Db, instanceId: string): Promise<QuestInstance | null> {
   const row = await db.getFirstAsync<InstanceRow>('SELECT * FROM quest_instances WHERE id = ?', instanceId);
   if (!row) return null;
   return {
@@ -51,7 +53,7 @@ async function getInstance(db: Db, instanceId: string): Promise<QuestInstance | 
   };
 }
 
-async function getMissionStates(db: Db, instanceId: string, quest: Quest): Promise<MissionState[]> {
+export async function getMissionStates(db: Db, instanceId: string, quest: Quest): Promise<MissionState[]> {
   const rows = await db.getAllAsync<{ mission_id: string; status: MissionInstanceStatus }>(
     'SELECT mission_id, status FROM mission_instances WHERE quest_instance_id = ?',
     instanceId,
@@ -74,6 +76,13 @@ export async function loadQuestFlow(db: Db, instanceId: string): Promise<QuestFl
 
   const states = await getMissionStates(db, instanceId, quest);
   const current = currentMission(states);
+  const redo = current
+    ? await db.getFirstAsync<{ redo_count: number }>(
+        'SELECT redo_count FROM mission_instances WHERE quest_instance_id = ? AND mission_id = ?',
+        instanceId,
+        current.mission.id,
+      )
+    : null;
 
   return {
     instance,
@@ -83,6 +92,7 @@ export async function loadQuestFlow(db: Db, instanceId: string): Promise<QuestFl
     currentNumber: current ? current.mission.position : states.length,
     total: states.length,
     waitingForApproval: waitingCount(states),
+    currentRedoCount: redo?.redo_count ?? 0,
     finished: allFinishedByPlayer(states),
   };
 }

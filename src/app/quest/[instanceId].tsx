@@ -60,7 +60,7 @@ export default function QuestScreen() {
     );
   }
 
-  const { quest, finished, waitingForApproval, total, currentNumber } = state.view;
+  const { quest, finished, waitingForApproval, total, currentNumber, currentRedoCount } = state.view;
 
   if (finished || !current) {
     const waiting = waitingForApproval > 0;
@@ -124,6 +124,11 @@ export default function QuestScreen() {
         {current.title}
       </ThemedText>
       <ThemedText style={styles.centered}>{current.instruction}</ThemedText>
+      {currentRedoCount > 0 && (
+        <ThemedText type="small" themeColor="textSecondary" style={styles.centered}>
+          Your caregiver asked for another try on this step. That&apos;s okay.
+        </ThemedText>
+      )}
 
       <View style={styles.buttons}>
         <Button

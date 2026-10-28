@@ -105,6 +105,16 @@ describe('loadToday', () => {
     expect(view.items).toEqual([]);
   });
 
+  it('hides a quest the caregiver switched off, even after its day was created', async () => {
+    await loadToday(db, new Date('2026-10-24T14:00:00Z'), CHICAGO); // creates today's instance
+    await db.runAsync("UPDATE quests SET active = 0 WHERE id = 'demo-workshop'");
+
+    const view = await loadToday(db, new Date('2026-10-24T14:00:00Z'), CHICAGO);
+
+    expect(view.items).toEqual([]);
+    expect(await count('quest_instances')).toBe(1); // history kept
+  });
+
   it('reports earned totals from the ledger', async () => {
     await db.runAsync("INSERT INTO ledger_entries VALUES ('a', 'k1', 'mission', 'm1', 5, 2, 0, 'now')");
     const view = await loadToday(db, new Date('2026-10-24T14:00:00Z'), CHICAGO);

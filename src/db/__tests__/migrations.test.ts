@@ -126,6 +126,56 @@ describe('upgrade', () => {
   });
 });
 
+describe('migration v2: tries-again counter', () => {
+  it('upgrades a v1 database, keeping every row, with the new counter at zero', async () => {
+    await runMigrations(db, [MIGRATIONS[0]]);
+    await db.runAsync(
+      "INSERT INTO quests (id, title, icon, schedule_json) VALUES ('q', 'Q', 'i', '{\"kind\":\"daily\"}')",
+    );
+    await db.runAsync(
+      "INSERT INTO missions (id, quest_id, position, title, icon, instruction, tip) VALUES ('m1', 'q', 1, 't', 'i', 'x', 'y')",
+    );
+    await db.runAsync("INSERT INTO quest_instances (id, quest_id, local_date) VALUES ('qi', 'q', '2026-10-24')");
+    await db.runAsync(
+      "INSERT INTO mission_instances (id, quest_instance_id, mission_id, status) VALUES ('mi', 'qi', 'm1', 'completed')",
+    );
+    await db.runAsync("INSERT INTO ledger_entries VALUES ('l', 'k', 'mission', 'mi', 5, 2, 0, 'now')");
+    expect(await userVersion()).toBe(1);
+
+    await runMigrations(db);
+
+    expect(await userVersion()).toBe(LATEST_SCHEMA_VERSION);
+    expect(LATEST_SCHEMA_VERSION).toBeGreaterThanOrEqual(2);
+    expect(await db.getFirstAsync('SELECT status, redo_count FROM mission_instances WHERE id = ?', 'mi')).toEqual({
+      status: 'completed',
+      redo_count: 0,
+    });
+    expect(await db.getFirstAsync('SELECT SUM(xp) AS xp FROM ledger_entries')).toEqual({ xp: 5 });
+  });
+
+  it('refuses a negative counter', async () => {
+    await runMigrations(db);
+    await db.runAsync(
+      "INSERT INTO quests (id, title, icon, schedule_json) VALUES ('q', 'Q', 'i', '{}')",
+    );
+    await db.runAsync(
+      "INSERT INTO missions (id, quest_id, position, title, icon, instruction, tip) VALUES ('m1', 'q', 1, 't', 'i', 'x', 'y')",
+    );
+    await db.runAsync("INSERT INTO quest_instances (id, quest_id, local_date) VALUES ('qi', 'q', '2026-10-24')");
+    await expect(
+      db.runAsync(
+        "INSERT INTO mission_instances (id, quest_instance_id, mission_id, redo_count) VALUES ('mi', 'qi', 'm1', -1)",
+      ),
+    ).rejects.toThrow(/CHECK/);
+  });
+
+  it('is applied only once, even if migrations run again', async () => {
+    await runMigrations(db);
+    await expect(runMigrations(db)).resolves.toBeUndefined();
+    expect(await userVersion()).toBe(LATEST_SCHEMA_VERSION);
+  });
+});
+
 describe('integrity rules', () => {
   beforeEach(async () => {
     await runMigrations(db);

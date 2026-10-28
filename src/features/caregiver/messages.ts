@@ -1,3 +1,5 @@
+import type { AnotherTryResult, ApprovalResult } from '@/db/approvals';
+import { describeReward } from '@/domain/rewards';
 import type { GuessFailure } from '@/services/caregiver-pin';
 
 /**
@@ -26,5 +28,31 @@ export function describeGuessFailure(failure: GuessFailure, locale?: string): st
       return 'Nothing is set up yet.';
     case 'damaged':
       return "The saved PIN couldn't be read.";
+  }
+}
+
+/** What to tell the caregiver after tapping Approve. */
+export function describeApprovalResult(result: ApprovalResult): string {
+  switch (result.outcome) {
+    case 'approved':
+      return result.questCompleted
+        ? `Approved. ${describeReward(result.paid)} added. The quest is finished too: ${describeReward(result.bonus)} added.`
+        : `Approved. ${describeReward(result.paid)} added.`;
+    case 'alreadyHandled':
+      return 'That one was already approved.';
+    case 'notWaiting':
+      return "That mission isn't waiting for approval any more.";
+  }
+}
+
+/** What to tell the caregiver after asking for another try. */
+export function describeAnotherTryResult(result: AnotherTryResult): string {
+  switch (result.outcome) {
+    case 'requested':
+      return 'Asked for another try. Nothing was taken away.';
+    case 'alreadyHandled':
+      return "That one was already approved, so it can't be repeated.";
+    case 'notWaiting':
+      return "That mission isn't waiting for approval any more.";
   }
 }

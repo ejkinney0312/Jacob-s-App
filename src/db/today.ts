@@ -62,7 +62,8 @@ export async function loadToday(db: Db, now: Date, timeZone?: string): Promise<T
   const items: TodayItem[] = [];
   for (const instance of instances) {
     const quest = questsById.get(instance.questId);
-    if (!quest) continue;
+    // A quest the caregiver switched off disappears from Today; its progress is kept.
+    if (!quest || !quest.active) continue;
     items.push({
       instance,
       quest,

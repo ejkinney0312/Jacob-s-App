@@ -11,7 +11,10 @@ import { describePinProblem, PIN_LENGTH } from '@/domain/caregiver-pin';
 import { REDEMPTION_ENABLED } from '@/domain/rewards';
 import type { CaregiverPinService, PinStatus } from '@/services/caregiver-pin';
 
+import { ApprovalsPanel } from './approvals-panel';
 import { describeGuessFailure } from './messages';
+import { QuestsPanel } from './quests-panel';
+import { RewardEditor } from './reward-editor';
 import { PinField } from './pin-field';
 import { useCaregiverSession } from './session-context';
 import { usePinService } from './use-pin-service';
@@ -24,6 +27,8 @@ export function CaregiverScreen() {
   const [status, setStatus] = useState<Loaded>({ state: 'loading' });
   const [mode, setMode] = useState<'default' | 'forgot' | 'newCode'>('default');
   const [recoveryCode, setRecoveryCode] = useState<string | null>(null);
+  const [editingQuestId, setEditingQuestId] = useState<string | null>(null);
+  const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!service) return;
@@ -76,8 +81,25 @@ export function CaregiverScreen() {
     content =
       mode === 'newCode' ? (
         <NewCodeForm service={service} onDone={(code) => { setRecoveryCode(code); setMode('default'); }} onBack={() => setMode('default')} />
+      ) : editingQuestId !== null ? (
+        <RewardEditor
+          questId={editingQuestId}
+          onDone={(message) => {
+            setSavedMessage(message);
+            setEditingQuestId(null);
+          }}
+          onCancel={() => setEditingQuestId(null)}
+        />
       ) : (
-        <Home onLock={lock} onNewCode={() => setMode('newCode')} />
+        <Home
+          onLock={lock}
+          onNewCode={() => setMode('newCode')}
+          onEditQuest={(id) => {
+            setSavedMessage(null);
+            setEditingQuestId(id);
+          }}
+          savedMessage={savedMessage}
+        />
       );
   } else {
     content =
@@ -329,10 +351,26 @@ function NewCodeForm({
   );
 }
 
-function Home({ onLock, onNewCode }: { onLock: () => void; onNewCode: () => void }) {
+function Home({
+  onLock,
+  onNewCode,
+  onEditQuest,
+  savedMessage,
+}: {
+  onLock: () => void;
+  onNewCode: () => void;
+  onEditQuest: (questId: string) => void;
+  savedMessage: string | null;
+}) {
   return (
     <>
-      <Notice title="Caregiver mode is open" body="It locks when you leave this tab, when the app goes to the background, or after 5 minutes without a touch." />
+      <Notice
+        title="Caregiver mode is open"
+        body="It locks when you leave this tab, when the app goes to the background, or after 5 minutes without a touch."
+      />
+      {savedMessage && <Message text={savedMessage} />}
+      <ApprovalsPanel />
+      <QuestsPanel onEdit={onEditQuest} />
       <Notice
         title="Reward store"
         body={
@@ -341,7 +379,6 @@ function Home({ onLock, onNewCode }: { onLock: () => void; onNewCode: () => void
             : 'Redeeming rewards is turned off until the household confirms how emeralds are spent.'
         }
       />
-      <Notice title="Approvals and editing" body="Approving key missions and editing rewards arrive in the next milestone." />
       <Button label="Lock now" onPress={onLock} />
       <Button label="New recovery code" variant="secondary" onPress={onNewCode} />
     </>

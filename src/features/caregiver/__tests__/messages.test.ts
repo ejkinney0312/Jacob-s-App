@@ -1,4 +1,4 @@
-import { describeGuessFailure, formatClockTime } from '../messages';
+import { describeAnotherTryResult, describeApprovalResult, describeGuessFailure, formatClockTime } from '../messages';
 
 // 2026-10-27 19:42:00 in UTC; compared in UTC so the test does not depend on where it runs.
 const AT = Date.UTC(2026, 9, 27, 19, 42, 0);
@@ -59,5 +59,52 @@ describe('describeGuessFailure', () => {
       describeGuessFailure({ ok: false, reason: 'damaged' }),
     ].join(' ');
     expect(all).not.toMatch(/\b(wrong|fail(ed|ure)?|denied|invalid|incorrect|stupid|attack|suspicious|intruder)\b/i);
+  });
+});
+
+describe('approval messages', () => {
+  const paid = { xp: 5, emeralds: 2, blocks: 0 };
+  const none = { xp: 0, emeralds: 0, blocks: 0 };
+
+  it('says what was added when a mission is approved', () => {
+    expect(describeApprovalResult({ outcome: 'approved', paid, bonus: none, questCompleted: false })).toBe(
+      'Approved. 5 XP · 2 emeralds · 0 blocks added.',
+    );
+  });
+
+  it('also says so when approving finishes the quest and pays the bonus', () => {
+    expect(
+      describeApprovalResult({
+        outcome: 'approved',
+        paid,
+        bonus: { xp: 10, emeralds: 4, blocks: 1 },
+        questCompleted: true,
+      }),
+    ).toBe('Approved. 5 XP · 2 emeralds · 0 blocks added. The quest is finished too: 10 XP · 4 emeralds · 1 block added.');
+  });
+
+  it('is clear when there was nothing to do', () => {
+    expect(describeApprovalResult({ outcome: 'alreadyHandled', paid: none, bonus: none, questCompleted: false })).toBe(
+      'That one was already approved.',
+    );
+    expect(describeApprovalResult({ outcome: 'notWaiting', paid: none, bonus: none, questCompleted: false })).toBe(
+      "That mission isn't waiting for approval any more.",
+    );
+  });
+
+  it('reassures the caregiver that asking for another try takes nothing away', () => {
+    expect(describeAnotherTryResult({ outcome: 'requested' })).toBe('Asked for another try. Nothing was taken away.');
+    expect(describeAnotherTryResult({ outcome: 'alreadyHandled' })).toMatch(/already approved/);
+    expect(describeAnotherTryResult({ outcome: 'notWaiting' })).toMatch(/isn't waiting/);
+  });
+
+  it('never uses shaming or punishing words', () => {
+    const all = [
+      describeApprovalResult({ outcome: 'approved', paid, bonus: none, questCompleted: false }),
+      describeApprovalResult({ outcome: 'alreadyHandled', paid: none, bonus: none, questCompleted: false }),
+      describeAnotherTryResult({ outcome: 'requested' }),
+      describeAnotherTryResult({ outcome: 'alreadyHandled' }),
+    ].join(' ');
+    expect(all).not.toMatch(/\b(reject(ed)?|denied|fail(ed|ure)?|wrong|penalt(y|ies)|deduct(ed)?|lost|removed)\b/i);
   });
 });

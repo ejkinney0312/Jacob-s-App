@@ -107,6 +107,14 @@ export const MIGRATIONS: readonly Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    description: 'Count how often a caregiver asked for another try on a mission',
+    sql: `
+      ALTER TABLE mission_instances
+        ADD COLUMN redo_count INTEGER NOT NULL DEFAULT 0 CHECK (redo_count >= 0);
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;
