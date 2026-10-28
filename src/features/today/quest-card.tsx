@@ -4,7 +4,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Sizing, Spacing } from '@/constants/theme';
 import type { TodayItem } from '@/db/today';
-import { describeProgress, describeQuestStatus, progressFraction } from '@/domain/progress';
+import {
+  describePausedAt,
+  describeProgress,
+  describeQuestStatus,
+  progressFraction,
+} from '@/domain/progress';
 import { describeSchedule } from '@/domain/schedule';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -16,26 +21,33 @@ export function QuestCard({ item, onPress }: { item: TodayItem; onPress: () => v
   const progressText = describeProgress(progress);
   const fraction = progressFraction(progress);
 
-  const action = instance.status === 'completed' ? 'Opens the quest' : 'Opens the quest to continue';
+  const paused = instance.status === 'paused';
+  const pausedText = paused ? `${describePausedAt(instance.currentPosition, progress.total)}. Tap to resume.` : null;
+  const action = paused
+    ? 'Opens the quest and resumes where you left off'
+    : instance.status === 'completed'
+      ? 'Opens the quest'
+      : 'Opens the quest to continue';
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${quest.title}. ${status}. ${progressText}.`}
+      accessibilityLabel={`${quest.title}. ${status}. ${progressText}.${pausedText ? ` ${pausedText}` : ''}`}
       accessibilityHint={action}
       onPress={onPress}
       style={({ pressed }) => (pressed ? styles.pressed : undefined)}>
       <ThemedView type="backgroundElement" style={styles.card}>
-      <ThemedText type="smallBold">{quest.title}</ThemedText>
-      <ThemedText type="small" themeColor="textSecondary">
-        {status} · {describeSchedule(quest.schedule)}
-      </ThemedText>
-      <View style={[styles.track, { backgroundColor: theme.backgroundSelected }]}>
-        <View
-          style={[styles.fill, { width: `${Math.round(fraction * 100)}%`, backgroundColor: theme.primary }]}
-        />
-      </View>
-      <ThemedText type="small">{progressText}</ThemedText>
+        <ThemedText type="smallBold">{quest.title}</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {status} · {describeSchedule(quest.schedule)}
+        </ThemedText>
+        <View style={[styles.track, { backgroundColor: theme.backgroundSelected }]}>
+          <View
+            style={[styles.fill, { width: `${Math.round(fraction * 100)}%`, backgroundColor: theme.primary }]}
+          />
+        </View>
+        <ThemedText type="small">{progressText}</ThemedText>
+        {pausedText && <ThemedText type="smallBold">{pausedText}</ThemedText>}
       </ThemedView>
     </Pressable>
   );

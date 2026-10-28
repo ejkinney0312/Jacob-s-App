@@ -1,5 +1,6 @@
 import {
   allQuestsDone,
+  describePausedAt,
   describeProgress,
   describeQuestStatus,
   finishedMissions,
@@ -50,5 +51,22 @@ describe('progress', () => {
       ...(['notStarted', 'inProgress', 'paused', 'completed'] as const).map(describeQuestStatus),
     ].join(' ');
     expect(text).not.toMatch(/\b(fail(ed|ure)?|missed|late|overdue|behind|lost|penalt(y|ies))\b/i);
+  });
+});
+
+describe('describePausedAt', () => {
+  it('says where the quest will pick up', () => {
+    expect(describePausedAt(2, 3)).toBe('Paused at mission 2 of 3');
+    expect(describePausedAt(1, 1)).toBe('Paused at mission 1 of 1');
+  });
+
+  it('stays sensible for out-of-range positions', () => {
+    expect(describePausedAt(0, 3)).toBe('Paused at mission 1 of 3');
+    expect(describePausedAt(9, 3)).toBe('Paused at mission 3 of 3');
+    expect(describePausedAt(1, 0)).toBe('Paused at mission 1 of 1');
+  });
+
+  it('uses no shaming or failure wording', () => {
+    expect(describePausedAt(2, 3)).not.toMatch(/\b(fail(ed|ure)?|missed|late|overdue|behind|lost|penalt(y|ies)|stopped|quit)\b/i);
   });
 });

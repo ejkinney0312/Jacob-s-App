@@ -2,7 +2,7 @@ import { DEMO_QUESTS } from '@/domain/demo-content';
 
 import { ensureInstancesForDate } from '../instances';
 import { runMigrations } from '../migrations';
-import { completeMission, loadQuestFlow, startQuest } from '../quest-flow';
+import { completeMission, loadQuestFlow, openQuest } from '../quest-flow';
 import { listQuests } from '../quests';
 import { seedDemoContent } from '../seed';
 import { getAudioEnabled, setAudioEnabled } from '../settings';
@@ -47,14 +47,19 @@ describe('loadQuestFlow', () => {
   });
 });
 
-describe('startQuest', () => {
-  it('marks a not-started quest as in progress, and only that', async () => {
-    await startQuest(db, ID);
+describe('openQuest', () => {
+  it('starts a not-started quest and leaves one already in progress alone', async () => {
+    await openQuest(db, ID);
     expect((await loadQuestFlow(db, ID))?.instance.status).toBe('inProgress');
 
-    await db.runAsync("UPDATE quest_instances SET status = 'paused'");
-    await startQuest(db, ID);
-    expect((await loadQuestFlow(db, ID))?.instance.status).toBe('paused');
+    await openQuest(db, ID);
+    expect((await loadQuestFlow(db, ID))?.instance.status).toBe('inProgress');
+  });
+
+  it('leaves a completed quest completed', async () => {
+    await db.runAsync("UPDATE quest_instances SET status = 'completed'");
+    await openQuest(db, ID);
+    expect((await loadQuestFlow(db, ID))?.instance.status).toBe('completed');
   });
 });
 

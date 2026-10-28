@@ -46,13 +46,18 @@ export function positionToSave(states: readonly MissionState[]): number {
   return Math.max(1, last);
 }
 
-/** The quest's status after the missions change. Never moves backwards. */
+/**
+ * The quest's status after the missions change. Never moves backwards. Finishing a mission means
+ * the player is playing, so a quest that still says `paused` becomes `inProgress`.
+ */
 export function questStatusFor(
   states: readonly MissionState[],
   previous: QuestInstanceStatus,
 ): QuestInstanceStatus {
   if (previous === 'completed') return 'completed';
   if (allFinishedByPlayer(states) && waitingCount(states) === 0) return 'completed';
-  if (previous === 'notStarted' && states.some((s) => isFinishedByPlayer(s.status))) return 'inProgress';
+  if ((previous === 'notStarted' || previous === 'paused') && states.some((s) => isFinishedByPlayer(s.status))) {
+    return 'inProgress';
+  }
   return previous;
 }

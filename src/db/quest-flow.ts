@@ -88,14 +88,31 @@ export async function loadQuestFlow(db: Db, instanceId: string): Promise<QuestFl
 }
 
 /**
- * Marks a quest as started when the player opens it. Does nothing if it was already started,
- * paused or completed, so reopening never changes progress.
+ * Opens a quest: starts it if it was not started, and resumes it if it was paused, exactly where
+ * it was left (the saved position and every finished mission are untouched). Does nothing if it is
+ * already in progress or completed, so reopening never changes progress and never pays.
  */
-export async function startQuest(db: Db, instanceId: string): Promise<void> {
-  await db.runAsync(
-    "UPDATE quest_instances SET status = 'inProgress' WHERE id = ? AND status = 'notStarted'",
-    instanceId,
-  );
+export function openQuest(db: Db, instanceId: string): Promise<void> {
+  return runExclusive(db, async () => {
+    await db.runAsync(
+      "UPDATE quest_instances SET status = 'inProgress' WHERE id = ? AND status IN ('notStarted', 'paused')",
+      instanceId,
+    );
+  });
+}
+
+/**
+ * Pauses a quest that is in progress. Nothing is lost or reset: the saved position and finished
+ * missions stay as they are, and no reward is paid or taken back. Does nothing to a quest that is
+ * not in progress (not started, already paused, or completed), so pressing it twice is harmless.
+ */
+export function pauseQuest(db: Db, instanceId: string): Promise<void> {
+  return runExclusive(db, async () => {
+    await db.runAsync(
+      "UPDATE quest_instances SET status = 'paused' WHERE id = ? AND status = 'inProgress'",
+      instanceId,
+    );
+  });
 }
 
 export interface CompletionResult {

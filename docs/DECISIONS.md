@@ -84,3 +84,19 @@ Real spending is **not** part of this and stays disabled; see "Emerald purchases
 | 7 | **The same recurring mission pays again on each new day**, once per day. | Each day is a separate instance. |
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed pause and resume behavior (M6): awaiting Erin's confirmation
+
+Status: **proposed, not approved.** Implemented as described.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **A Pause button on every mission screen**, between "I need help" and "Mission complete". Pausing returns to Today. It is not on the help screen or the finished screen. | CLAUDE.md: provide Pause and lossless Resume. Alternative: a smaller control in the header. |
+| 2 | **Today shows a paused quest in words:** "Paused at mission 2 of 3. Tap to resume." | A clear Resume on Today (plan M6). |
+| 3 | **Tapping a paused quest resumes it straight away** at the saved mission, with no extra confirmation screen. | Fewer steps for Jacob. Alternative: a "Welcome back, resume?" screen. |
+| 4 | **Leaving with the back button does the same job.** The place is saved either way; the card just says "In progress" instead of "Paused". | Nothing is ever lost. |
+| 5 | **Pausing pays nothing and takes nothing back.** Finished missions, earned totals and waiting-for-approval missions stay exactly as they were. | Rewards never decrease. |
+| 6 | **A paused quest stays on its own date.** At local midnight it is no longer on Today; there is no catch-up and no penalty (schedule rule 7). | Alternative: carry unfinished or paused quests over until done. This is the one most worth deciding. |
+| 7 | **Nothing times out.** A quest can stay paused all day; there are no timers or countdowns on screen. (The app quietly checks once a minute whether the date changed; that is never shown.) | PRD: no timeouts or countdowns that can be lost. |
+
+Answer (date and confirmed behavior): _not yet answered_

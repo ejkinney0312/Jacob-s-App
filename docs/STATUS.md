@@ -1,6 +1,6 @@
 # Quest Blocks status
 
-Last updated: 2026-10-27 — pushed through M4 (`652e2b3`). M5 reward ledger built, uncommitted.
+Last updated: 2026-10-27 — M5 reward ledger committed (`69257a9`, not yet pushed). M6 pause and resume built, uncommitted.
 
 ## Current setup
 
@@ -23,6 +23,16 @@ Last updated: 2026-10-27 — pushed through M4 (`652e2b3`). M5 reward ledger bui
 - No cloud, no backend, no analytics.
 
 ### What was built
+
+- **M6 pause and resume (new):** a **Pause** button on every mission screen (order: Replay audio, I need
+  help, Pause, Mission complete). `pauseQuest` sets an in-progress quest to `paused` and nothing else: the
+  saved position, finished missions and ledger are untouched, it is harmless to press twice, and it does
+  nothing to a quest that is not in progress. `openQuest` (renamed from `startQuest`) starts a
+  not-started quest and **resumes** a paused one at exactly the saved mission. Both calls are queued with
+  `completeMission`, so a pause landing during a completion lines up behind it. Finishing a mission on a
+  quest that still says paused puts it back in progress. Today shows "Paused at mission 2 of 3. Tap to
+  resume." No timers or countdowns. Proposed rules are in `docs/DECISIONS.md` ("Proposed pause and
+  resume behavior (M6)").
 
 - **M5 reward ledger (new):** finishing a mission now pays. `completeMission` runs in ONE transaction:
   mark the mission done, pay its stored reward, save the position, update the quest, and, if that
@@ -94,17 +104,19 @@ Last updated: 2026-10-27 — pushed through M4 (`652e2b3`). M5 reward ledger bui
 | `npx tsc --noEmit` | Passed, exit 0 |
 | `npx expo-doctor` | Passed, 20/20 after `npx expo install --fix` (it had dropped to 19/20 from patch drift). `npx expo install --check`: dependencies up to date |
 | `npm run lint` | Passed, exit 0, no warnings. Confirmed it flags bad code (a deliberate probe file was caught, then removed). It found one real error in the starter's `use-color-scheme.web.ts` (setState in an effect); fixed with `useSyncExternalStore`, web file only |
-| `npm test -- --runInBand` | Passed: 12 suites, 154 tests. Domain tests (dates, schedules, engine, rewards, demo content) plus database tests (below) |
+| `npm test -- --runInBand` | Passed: 13 suites, 174 tests. Domain tests (dates, schedules, engine, rewards, demo content) plus database tests (below) |
 | Database tests (`src/db/__tests__/`) | Passed. Run our real migration and query code against real SQLite via Node's `node:sqlite`: fresh install, safe re-run, upgrade with data kept, failed migration rolls back and retries, newer database refused, no spend tables, double-pay rejected, no negative amounts, append-only ledger, one instance per quest per date, bad status and orphan rows rejected, seed is idempotent / all-or-nothing / does not restore removed demo rows, corrupt schedule fails loudly, earned totals sum |
 | Schedule engine tests | Passed: valid/invalid dates incl. leap years; day math across month, year, leap day and both 2026 US DST changes; local midnight rollover and the 25-hour and 23-hour days in `America/Chicago`; same instant in four zones; every-N-days from the anchor (not before it, no drift over a year); weekly; demo quests due on Sat 10-24, Fri 10-23 and 2026-01-04; instance creation idempotent, no back-fill of missed days, quest-off keeps history, progress preserved, per-date separation, all-or-nothing, rejects invalid date |
 | Today tests | Passed: only today's quests; Friday list order; repeat opens don't duplicate or reset progress; completed/approved/waiting counts; rollover at local midnight leaves yesterday untouched; New York vs Chicago for one instant; empty day; ledger totals; all-or-nothing on failure; progress wording; no shaming words; `formatLocalDate` unaffected by device time zone |
 | M4 tests | Passed: mission-flow rules (current mission, waiting vs completed, position to save, quest status); database: starts on first mission, completing saves next position and starts the quest, reads back after a "restart", idempotent double tap, refuses skipping ahead / unknown ids, key mission waits and quest is not done until approved, quest completes when the last mission needs no approval, pays nothing, all-or-nothing on failure, dates stay separate, audio setting default/remembered/no duplicates |
 | M5 tests (`src/db/__tests__/rewards.test.ts`) | Passed: `payOnce` pays once and zero on repeat, rejects negative / fractional / NaN / infinite, no row for zero; self-verify mission pays stored amounts; key mission pays nothing while waiting; double tap, retry and reopen never pay twice; two simultaneous taps pay once; overlapping completions of different missions are ordered; opening/restarting/reloading Today never pays; the same mission pays again on another day; amounts come from content and later edits don't change past payouts; quest bonus paid once, and held back while a mission waits; crash while recording the payout / after it was written / while paying the bonus each roll everything back, and a retry pays exactly once; a failed call doesn't block the queue; ledger sum = Today's displayed totals; totals never decrease; entries can't be changed or removed |
-| Test sensitivity (mutation check) | Broke the code sixteen ways (earlier ones: migration/seed transactions, ledger triggers, schedule and instance rules, mission-order and double-tap guards, key-mission waiting, position saving; M5: plain INSERT for payouts, paying waiting missions, no call serialization, hard-coded rewards, bonus paid while a mission waits, payout key not unique per day); every break was caught; code restored and re-run green |
+| M6 tests (`src/db/__tests__/pause-resume.test.ts` + domain) | Passed: pause keeps position and finished missions exactly; harmless twice; no effect on not-started or completed quests; only that quest on that day; opening a paused quest resumes at the same mission; survives a "force-quit" (state reloaded from storage, Today shows paused at the right place); finishing a mission on a paused quest returns it to in progress; five pause/resume cycles change nothing else; completed quest stays completed; pause/resume/stale taps pay each mission exactly once; pausing pays nothing and removes nothing; a pause racing a completion lines up and pays once; pausing a quest that is only waiting on approval keeps the waiting mission and no bonus; paused wording has no shaming words |
+| Test sensitivity (mutation check) | Broke the code twenty ways (earlier ones: migration/seed transactions, ledger triggers, schedule and instance rules, mission-order and double-tap guards, key-mission waiting, position saving; M5: plain INSERT for payouts, paying waiting missions, no call serialization, hard-coded rewards, bonus paid while a mission waits, payout key not unique per day; M6: pausing any status, opening not resuming, finishing a mission leaving a paused quest paused, pause resetting the position); every break was caught; code restored and re-run green |
 | `npx expo export` for iOS and Android | Passed, both bundles built |
 | Run on iOS simulator (iPhone 16 Plus, iOS 18.6, Expo Go) | Passed: migrations ran, demo data seeded, Today and Caregiver tabs render from SQLite. After M3: Today showed "Tuesday, October 27" with only the daily quest (correct: garden quest not due, trail quest is Fridays), so Hermes handles the `Intl` date calls. At the largest iOS accessibility text size, text wrapped and scrolled with nothing clipped (a smoke check, not a VoiceOver test) |
 | M4 on the iOS simulator | Mission screen, "Mission 3 of 3" after a relaunch with progress put in the database by script, the "All missions finished · 1 waiting" screen, and Today's progress bar all rendered correctly. **Not exercised on-device:** tapping Mission complete / I need help / Replay audio, the read-aloud switch, and actual speech (no way to send taps in this environment; macOS blocked scripted clicks). Their logic is unit-tested, not their wiring |
 | M5 on the iOS simulator | App boots and Today renders with the new ledger code (totals 0, new demo notice). **Payouts were not exercised on-device**: no way to tap Mission complete here. Payout behavior is covered by the database tests against real SQLite via Node, not by expo-sqlite on a device |
+| M6 on the iOS simulator | With the database set to "paused at mission 2" by script, Today showed "Paused · … Paused at mission 2 of 3. Tap to resume." with the bar at one third. Opening the quest (deep link, running the app's real code) changed the stored status `paused` → `inProgress`, position stayed 2, the ledger stayed empty, and the screen showed Mission 2 of 3 with the Pause button. **Not exercised on-device:** tapping Pause itself and the return to Today (no way to send taps here). Its logic and the database write are unit-tested |
 | Android (emulator or device) | **Untested.** Bundle builds, but no Android runtime was available |
 | Real iPhone / Android hardware | **Untested**, including speech, silent mode and volume behavior |
 | Accessibility (VoiceOver, TalkBack, 200% text, Reduce Motion) | **Untested.** Labels and header roles are set; no assistive-tech check has been done |
@@ -120,7 +132,8 @@ The database tests use Node's SQLite, not `expo-sqlite`. They prove our SQL and 
 - `expo-dev-client` was added automatically by `expo install` and then removed on purpose; add it
   when a development build is needed (required for notification and secure-store testing on devices).
 - Database tests need Node 22.5+ (`node:sqlite`); this machine runs Node 24. Older Node would fail them.
-- Quests can be played and pay, but there is no feedback on a payout beyond Today's totals (the celebration is M9). Approving a waiting mission does not exist yet (M8), so a key mission's reward and the quest bonus stay unpaid for now. No pause/resume button yet (M6): leaving a quest keeps the position, but there is no explicit Pause control.
+- A paused quest stays on its own date: at midnight it is no longer on Today (proposed, see DECISIONS).
+- Quests can be played and pay, but there is no feedback on a payout beyond Today's totals (the celebration is M9). Approving a waiting mission does not exist yet (M8), so a key mission's reward and the quest bonus stay unpaid for now.
 - A cold-start deep link (`exp://…/--/quest/…`) opened Today instead of the quest in Expo Go; the same link worked when the app was already running. Normal navigation (tapping a card) is the real path and was not tested by tap. Worth confirming on a real device.
 - Mission icons are system symbols (SF Symbols / Material), not original art. The generic "explore" tab icon is still a placeholder.
 - Help taps are not recorded (privacy-minimal); the PRD success metric needs them. See `docs/DECISIONS.md`.
@@ -147,9 +160,10 @@ None have been answered. Reward spending remains unresolved and is kept disabled
 
 ## Next implementation task
 
-**M6: pause and resume.** An explicit Pause control that is available on every mission and loses
-nothing: pause, force-quit, relaunch, resume at the same mission with no lost or duplicated payouts.
-Position is already saved (M4) and payouts are already idempotent (M5), so this is mostly the control,
-the `paused` status and a clear "Resume" on Today. No timers or countdowns anywhere. Not blocked by decisions.
-After that: M7 (caregiver PIN) and M8 (approvals, which finally pays key missions and the bonus).
-Still waiting for your review of the proposed rules in `docs/DECISIONS.md` (schedule, audio/help, payouts).
+**M7: caregiver PIN.** `expo-secure-store` holds PIN verification material only (never plaintext, never
+logged). Before real access is enabled, evaluate a supported slow salted derivation, retry limiting,
+session relock and recovery, and record the evaluation in `docs/DECISIONS.md`. Until then the caregiver tab
+sits behind a development-only demo PIN. This milestone touches an open decision (PIN hardening) and
+needs a development build, not Expo Go, to test secure storage honestly, so I will check with you on
+adding `expo-dev-client` first. M8 (approvals, which finally pays key missions and the bonus) follows.
+Still waiting for your review of the proposed rules in `docs/DECISIONS.md` (schedule, audio/help, payouts, pause).

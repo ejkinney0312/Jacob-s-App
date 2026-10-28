@@ -47,3 +47,8 @@ export function describeQuestStatus(status: QuestInstanceStatus): string {
 export function allQuestsDone(instances: readonly Pick<QuestInstance, 'status'>[]): boolean {
   return instances.length > 0 && instances.every((i) => i.status === 'completed');
 }
+
+/** Where a paused quest will pick up, e.g. "Paused at mission 2 of 3". */
+export function describePausedAt(position: number, total: number): string {
+  return `Paused at mission ${Math.min(Math.max(1, position), Math.max(1, total))} of ${Math.max(1, total)}`;
+}

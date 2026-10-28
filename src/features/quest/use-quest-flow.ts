@@ -2,7 +2,7 @@ import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useRef, useState } from 'react';
 
-import { completeMission, loadQuestFlow, startQuest, type QuestFlowView } from '@/db/quest-flow';
+import { completeMission, loadQuestFlow, openQuest, pauseQuest, type QuestFlowView } from '@/db/quest-flow';
 
 export type QuestFlowState =
   | { status: 'loading' }
@@ -11,8 +11,9 @@ export type QuestFlowState =
   | { status: 'ready'; view: QuestFlowView };
 
 /**
- * Loads one quest instance and exposes "complete this mission". Opening the quest starts it.
- * Progress lives in the database, so leaving the screen or restarting the app loses nothing.
+ * Loads one quest instance and exposes "complete this mission" and "pause". Opening the quest
+ * starts it, or resumes it if it was paused. Progress lives in the database, so pausing, leaving the
+ * screen or restarting the app loses nothing.
  */
 export function useQuestFlow(instanceId: string) {
   const db = useSQLiteContext();
@@ -33,7 +34,7 @@ export function useQuestFlow(instanceId: string) {
     useCallback(() => {
       void (async () => {
         try {
-          await startQuest(db, instanceId);
+          await openQuest(db, instanceId);
         } catch {
           // Starting is only a status label; loading below reports any real problem.
         }
@@ -59,10 +60,19 @@ export function useQuestFlow(instanceId: string) {
     [db, instanceId, reload],
   );
 
+  const pause = useCallback(async () => {
+    try {
+      await pauseQuest(db, instanceId);
+    } catch (error) {
+      // Progress is already saved; the quest just keeps showing as in progress.
+      if (__DEV__) console.warn('Could not pause quest:', error instanceof Error ? error.message : error);
+    }
+  }, [db, instanceId]);
+
   const retry = useCallback(() => {
     setState({ status: 'loading' });
     void reload();
   }, [reload]);
 
-  return { state, complete, retry };
+  return { state, complete, pause, retry };
 }

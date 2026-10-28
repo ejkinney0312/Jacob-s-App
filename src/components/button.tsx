@@ -10,10 +10,12 @@ interface ButtonProps {
   onPress: () => void;
   variant?: 'primary' | 'secondary';
   disabled?: boolean;
+  /** Extra screen-reader help, read after the label. */
+  hint?: string;
 }
 
 /** At least 64 high (primary) or 48 high (secondary); the label is the accessible name. */
-export function Button({ label, onPress, variant = 'primary', disabled = false }: ButtonProps) {
+export function Button({ label, onPress, variant = 'primary', disabled = false, hint }: ButtonProps) {
   const theme = useTheme();
   const primary = variant === 'primary';
 
@@ -21,6 +23,7 @@ export function Button({ label, onPress, variant = 'primary', disabled = false }
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityHint={hint}
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}

@@ -89,6 +89,18 @@ describe('questStatusFor', () => {
     );
   });
 
+  it('puts a paused quest back in progress when a mission is finished', () => {
+    expect(questStatusFor(states('completed'), 'paused')).toBe('inProgress');
+  });
+
+  it('keeps a paused quest paused when nothing has been finished', () => {
+    expect(questStatusFor(states(), 'paused')).toBe('paused');
+  });
+
+  it('completes a paused quest when the last mission is finished', () => {
+    expect(questStatusFor(states('completed', 'completed', 'completed'), 'paused')).toBe('completed');
+  });
+
   it('never moves a completed quest backwards', () => {
     expect(questStatusFor(states(), 'completed')).toBe('completed');
   });

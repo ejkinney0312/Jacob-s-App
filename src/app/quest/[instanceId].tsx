@@ -20,7 +20,7 @@ function backToToday() {
 
 export default function QuestScreen() {
   const { instanceId } = useLocalSearchParams<{ instanceId: string }>();
-  const { state, complete, retry } = useQuestFlow(instanceId);
+  const { state, complete, pause, retry } = useQuestFlow(instanceId);
   const { audioEnabled } = useAudioEnabled();
   const screenReader = useScreenReader();
   const [helpOpen, setHelpOpen] = useState(false);
@@ -133,6 +133,12 @@ export default function QuestScreen() {
           onPress={() => speak(current.instruction)}
         />
         <Button label="I need help" variant="secondary" onPress={() => setHelpOpen(true)} />
+        <Button
+          label="Pause"
+          variant="secondary"
+          hint="Saves your place so you can pick up here later"
+          onPress={() => void pause().then(backToToday)}
+        />
         <Button label="Mission complete" onPress={() => void complete(current.id)} />
       </View>
     </Screen>

@@ -4,7 +4,7 @@ import { missionPayoutKey, questBonusKey } from '@/domain/rewards';
 import { ensureInstancesForDate } from '../instances';
 import { getEarnedTotals, listLedgerEntries, payOnce } from '../ledger';
 import { runMigrations } from '../migrations';
-import { completeMission, loadQuestFlow, startQuest } from '../quest-flow';
+import { completeMission, loadQuestFlow, openQuest } from '../quest-flow';
 import { listQuests } from '../quests';
 import { seedDemoContent } from '../seed';
 import { createTestDb, type TestDb } from '../test-utils/node-sqlite-db';
@@ -152,7 +152,7 @@ describe('paying for missions', () => {
     const before = await getEarnedTotals(db);
 
     for (let i = 0; i < 3; i++) {
-      await startQuest(db, WORKSHOP);
+      await openQuest(db, WORKSHOP);
       await ensureInstancesForDate(db, await listQuests(db), SAT);
       await loadToday(db, new Date('2026-10-24T15:00:00Z'), 'America/Chicago');
     }
@@ -203,7 +203,7 @@ describe('quest completion bonus', () => {
     await completeMission(db, GARDEN, 'demo-garden-m1', NOW);
     await completeMission(db, GARDEN, 'demo-garden-m2', NOW);
     await completeMission(db, GARDEN, 'demo-garden-m2', NOW);
-    await startQuest(db, GARDEN);
+    await openQuest(db, GARDEN);
 
     expect(await getEarnedTotals(db)).toEqual({ xp: 20, emeralds: 8, blocks: 1 });
     expect(await ledgerCount()).toBe(3);
