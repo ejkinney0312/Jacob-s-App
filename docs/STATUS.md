@@ -1,13 +1,17 @@
 # Quest Blocks status
 
-Last updated: 2026-10-27 — pushed through M2 (`75254bb`; remote `origin` = ejkinney0312/Jacob-s-App). M3 (Today) and a new README are uncommitted.
+Last updated: 2026-10-27 — M3 Today and the new README committed (`b75a9c1`, not yet pushed). Expo patch updates applied, uncommitted.
 
 ## Current setup
 
-- Expo SDK 58 (`expo ~58.0.19`), React Native 0.88.0, React 19.3.0, TypeScript ~6.0.3
+- Expo SDK 58 (`expo ~58.0.20`, `expo-router ~58.0.27`), React Native 0.88.0, React 19.3.0, TypeScript ~6.0.3
   (`strict: true`), Expo Router (`src/app/`), npm.
 - Tooling: `jest-expo` (Jest 30), ESLint 9 with `eslint-config-expo` (flat config in
   `eslint.config.js`), `@types/node` ^24 (matches Node 24; used only by the SQLite test helper).
+- Updated 2026-10-27 with `npx expo install --fix`: `expo` 58.0.19→58.0.20, `expo-router` 58.0.26→58.0.27,
+  `@expo/ui` 58.0.23→58.0.24, `expo-web-browser` 58.0.6→58.0.7. It also added the `expo-web-browser`
+  config plugin to `app.json`. Re-ran tsc, lint, tests and the iOS simulator afterwards: all fine, and
+  the earlier `TabButton` ref fix still type-checks.
 - Installed with `npx expo install`: `expo-sqlite`, `expo-secure-store`, `expo-notifications`,
   `expo-speech`, `expo-haptics`. Only `expo-sqlite` is used in code so far. The others are
   installed and ready; their features come in later milestones.
@@ -63,7 +67,7 @@ Last updated: 2026-10-27 — pushed through M2 (`75254bb`; remote `origin` = ejk
 | Check | Result |
 | --- | --- |
 | `npx tsc --noEmit` | Passed, exit 0 |
-| `npx expo-doctor` | **19/20 on 2026-10-27.** The one failure is patch-version drift: Expo published newer patches after we installed (`expo` 58.0.19→~58.0.20, `expo-router` 58.0.26→~58.0.27, `@expo/ui` 58.0.23→~58.0.24, `expo-web-browser` 58.0.6→~58.0.7). Passed 20/20 before that. Not caused by our code. Fix: `npx expo install --fix` (needs your OK; then re-run tests, lint and the simulator) |
+| `npx expo-doctor` | Passed, 20/20 after `npx expo install --fix` (it had dropped to 19/20 from patch drift). `npx expo install --check`: dependencies up to date |
 | `npm run lint` | Passed, exit 0, no warnings. Confirmed it flags bad code (a deliberate probe file was caught, then removed). It found one real error in the starter's `use-color-scheme.web.ts` (setState in an effect); fixed with `useSyncExternalStore`, web file only |
 | `npm test -- --runInBand` | Passed: 9 suites, 99 tests. Domain tests (dates, schedules, engine, rewards, demo content) plus database tests (below) |
 | Database tests (`src/db/__tests__/`) | Passed. Run our real migration and query code against real SQLite via Node's `node:sqlite`: fresh install, safe re-run, upgrade with data kept, failed migration rolls back and retries, newer database refused, no spend tables, double-pay rejected, no negative amounts, append-only ledger, one instance per quest per date, bad status and orphan rows rejected, seed is idempotent / all-or-nothing / does not restore removed demo rows, corrupt schedule fails loudly, earned totals sum |
