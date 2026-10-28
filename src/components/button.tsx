@@ -9,10 +9,11 @@ interface ButtonProps {
   label: string;
   onPress: () => void;
   variant?: 'primary' | 'secondary';
+  disabled?: boolean;
 }
 
 /** At least 64 high (primary) or 48 high (secondary); the label is the accessible name. */
-export function Button({ label, onPress, variant = 'primary' }: ButtonProps) {
+export function Button({ label, onPress, variant = 'primary', disabled = false }: ButtonProps) {
   const theme = useTheme();
   const primary = variant === 'primary';
 
@@ -20,6 +21,8 @@ export function Button({ label, onPress, variant = 'primary' }: ButtonProps) {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.base,
@@ -27,7 +30,7 @@ export function Button({ label, onPress, variant = 'primary' }: ButtonProps) {
           minHeight: primary ? Sizing.primaryButtonHeight : Sizing.minTouchTarget,
           backgroundColor: primary ? theme.primary : theme.backgroundElement,
           borderColor: primary ? theme.primary : theme.border,
-          opacity: pressed ? 0.8 : 1,
+          opacity: disabled ? 0.6 : pressed ? 0.8 : 1,
         },
       ]}>
       <ThemedText type="smallBold" themeColor={primary ? 'onPrimary' : 'text'}>

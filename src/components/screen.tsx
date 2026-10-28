@@ -6,13 +6,19 @@ import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 
 import { ThemedView } from './themed-view';
 
-/** Scrollable screen with safe-area padding and room for the tab bar. */
-export function Screen({ children }: { children: ReactNode }) {
+interface ScreenProps {
+  children: ReactNode;
+  /** True for screens inside the tab bar, so content clears it. False for screens above it. */
+  withTabBar?: boolean;
+}
+
+/** Scrollable screen with safe-area padding and, by default, room for the tab bar. */
+export function Screen({ children, withTabBar = true }: ScreenProps) {
   return (
     <ThemedView style={styles.root}>
-      <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.root} edges={withTabBar ? ['top', 'left', 'right'] : ['left', 'right', 'bottom']}>
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, { paddingBottom: withTabBar ? BottomTabInset + Spacing.five : Spacing.five }]}
           // Text can grow to 200%, so content scrolls instead of clipping.
           showsVerticalScrollIndicator>
           {children}
@@ -29,7 +35,6 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
     padding: Spacing.four,
-    paddingBottom: BottomTabInset + Spacing.five,
     gap: Spacing.three,
   },
 });

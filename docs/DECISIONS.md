@@ -48,3 +48,22 @@ Open choices inside these rules, if you would rather decide them differently:
 - **Rule 8:** add new missions to quests already started today.
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed audio and help behavior (M4): awaiting Erin's confirmation
+
+Status: **proposed, not approved.** Implemented as described; each point is easy to change.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **Read aloud on arrival.** When a mission appears and audio is on, its instruction is spoken once. "Replay audio" speaks it again. | The PRD calls the button "replay", which implies it plays first. Alternative: speak only when tapped. |
+| 2 | **One audio switch, on Today** ("Read missions aloud", default on), stored on the device. When off, nothing is spoken and "Replay audio" shows as disabled and reads "Audio is off". | PRD: "setting to turn all audio off". Alternative: put it behind the caregiver PIN. |
+| 3 | **Never auto-speak over a screen reader.** If VoiceOver or TalkBack is on, the step is not spoken automatically; "Replay audio" still works. | Avoids two voices talking at once. |
+| 4 | **Silent mode and volume follow the phone.** On iPhone, silent mode mutes speech (documented `expo-speech` behavior). Speech stops when Jacob leaves the screen or moves to the next step. | Matches "respect audio-off, volume and silent behavior". Needs checking on a real iPhone and Android phone. |
+| 5 | **"I need help" shows preset help only.** The step again, the mission's tip, and "it is fine to ask someone nearby for a hand". It contacts no one and records nothing. | CLAUDE.md: no caregiver messaging in P0. |
+| 6 | **Opening a quest marks it started.** A quest that was opened but not progressed shows "In progress". | Alternative: only mark it started after the first mission is finished. |
+| 7 | **Missions must be done in order.** A stale or duplicate tap cannot skip ahead; a repeated tap on a finished mission does nothing. | Prevents double payouts later. |
+| 8 | **A key mission waits and pays nothing.** When Jacob finishes it, he sees "waiting for a caregiver to check". The quest only counts as done once every mission is finished and none is waiting. | Same as the proposed approval default (table above, "Approval flow"). |
+
+Not decided here, and worth deciding before the metrics exist: the PRD's success metric "missions completed without tapping *I need help*" needs help taps to be recorded. M4 records nothing, to keep data minimal. Say if you want a count stored on the device (no names, no content).
+
+Answer (date and confirmed behavior): _not yet answered_

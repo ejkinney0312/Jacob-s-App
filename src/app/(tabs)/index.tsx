@@ -1,4 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { StyleSheet, Switch, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
@@ -8,10 +9,12 @@ import { Spacing } from '@/constants/theme';
 import { formatLocalDate } from '@/domain/local-date';
 import { allQuestsDone } from '@/domain/progress';
 import { QuestCard } from '@/features/today/quest-card';
+import { useAudioEnabled } from '@/features/settings/use-audio-enabled';
 import { useToday } from '@/features/today/use-today';
 
 export default function TodayScreen() {
   const { state, retry } = useToday();
+  const { audioEnabled, setEnabled } = useAudioEnabled();
 
   if (state.status === 'loading') {
     return (
@@ -65,7 +68,7 @@ export default function TodayScreen() {
             Demo content
           </ThemedText>
           <ThemedText type="small" themeColor="onNotice">
-            These quests are fictional samples. Playing a quest arrives in the next milestone.
+            These quests are fictional samples. Finishing missions does not earn rewards yet.
           </ThemedText>
         </ThemedView>
       )}
@@ -93,8 +96,28 @@ export default function TodayScreen() {
       )}
 
       {items.map((item) => (
-        <QuestCard key={item.instance.id} item={item} />
+        <QuestCard
+          key={item.instance.id}
+          item={item}
+          onPress={() =>
+            router.push({ pathname: '/quest/[instanceId]', params: { instanceId: item.instance.id } })
+          }
+        />
       ))}
+
+      <ThemedView type="backgroundElement" style={[styles.card, styles.row]}>
+        <View style={styles.rowText}>
+          <ThemedText type="smallBold">Read missions aloud</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {audioEnabled ? 'On' : 'Off'}
+          </ThemedText>
+        </View>
+        <Switch
+          value={audioEnabled}
+          onValueChange={setEnabled}
+          accessibilityLabel="Read missions aloud"
+        />
+      </ThemedView>
     </Screen>
   );
 }
@@ -105,4 +128,6 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     gap: Spacing.one,
   },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.three },
+  rowText: { flex: 1 },
 });

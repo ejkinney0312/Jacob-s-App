@@ -1,9 +1,8 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
-import AppTabs from '@/components/app-tabs';
 import { Colors } from '@/constants/theme';
 import { DatabaseProvider } from '@/db/database-provider';
 
@@ -38,7 +37,13 @@ export default function RootLayout() {
     <ThemeProvider value={navigationTheme}>
       <DatabaseProvider>
         <HideSplashWhenReady />
-        <AppTabs />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="quest/[instanceId]"
+            options={{ title: '', headerBackTitle: 'Today', headerShadowVisible: false }}
+          />
+        </Stack>
       </DatabaseProvider>
     </ThemeProvider>
   );
