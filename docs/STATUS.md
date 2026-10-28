@@ -1,6 +1,6 @@
 # Quest Blocks status
 
-Last updated: 2026-10-27 — M5 reward ledger committed (`69257a9`, not yet pushed). M6 pause and resume built, uncommitted.
+Last updated: 2026-10-27 — M6 committed (`1082b77`, with M5 not yet pushed). M7 caregiver PIN built, uncommitted.
 
 ## Current setup
 
@@ -23,6 +23,22 @@ Last updated: 2026-10-27 — M5 reward ledger committed (`69257a9`, not yet push
 - No cloud, no backend, no analytics.
 
 ### What was built
+
+- **M7 caregiver PIN (new):** the Caregiver tab is now a real lock. Set a 6-digit PIN (repeats and runs
+  refused), type it again, and get a one-time **recovery code**; enter the PIN to unlock; "Forgot PIN?"
+  takes the recovery code and a new PIN; unlocked mode has Lock now and New recovery code. Only a
+  PBKDF2-HMAC-SHA256 verifier (10,000 iterations, random salt) is stored, in `expo-secure-store`
+  (`WHEN_UNLOCKED_THIS_DEVICE_ONLY`); the PIN and code are never saved or logged. 5 wrong tries, then waits
+  of 30 s doubling to 15 min, shown as a fixed clock time rounded up to the minute (never a countdown); every
+  guess is counted before it is checked, overlapping guesses are queued, a clock set backwards cannot shorten
+  a wait, and an unreadable counter fails closed to "locked". Records carry a per-install id so a PIN left in
+  the iOS Keychain by an earlier install is ignored. Damaged data fails closed and offers recovery.
+  Caregiver mode lives in memory only and locks when the tab is left, when the app leaves the foreground,
+  after 5 idle minutes, and when the app closes. Policy is in `src/domain/caregiver-*.ts`; the service is
+  `src/services/caregiver-pin.ts`. Added `expo-crypto` (secure random numbers) and `@noble/hashes` 1.8.0
+  (PBKDF2; `expo-crypto` has none). **The evaluation CLAUDE.md requires, with measured timings, is in
+  `docs/DECISIONS.md` ("PIN protection evaluation (M7)") and is awaiting your confirmation.** There is no
+  hard-coded demo PIN (a secret in source would defeat the point); in development you set your own.
 
 - **M6 pause and resume (new):** a **Pause** button on every mission screen (order: Replay audio, I need
   help, Pause, Mission complete). `pauseQuest` sets an in-progress quest to `paused` and nothing else: the
@@ -104,19 +120,21 @@ Last updated: 2026-10-27 — M5 reward ledger committed (`69257a9`, not yet push
 | `npx tsc --noEmit` | Passed, exit 0 |
 | `npx expo-doctor` | Passed, 20/20 after `npx expo install --fix` (it had dropped to 19/20 from patch drift). `npx expo install --check`: dependencies up to date |
 | `npm run lint` | Passed, exit 0, no warnings. Confirmed it flags bad code (a deliberate probe file was caught, then removed). It found one real error in the starter's `use-color-scheme.web.ts` (setState in an effect); fixed with `useSyncExternalStore`, web file only |
-| `npm test -- --runInBand` | Passed: 13 suites, 174 tests. Domain tests (dates, schedules, engine, rewards, demo content) plus database tests (below) |
+| `npm test -- --runInBand` | Passed: 17 suites, 270 tests. Domain tests (dates, schedules, engine, rewards, demo content) plus database tests (below) |
 | Database tests (`src/db/__tests__/`) | Passed. Run our real migration and query code against real SQLite via Node's `node:sqlite`: fresh install, safe re-run, upgrade with data kept, failed migration rolls back and retries, newer database refused, no spend tables, double-pay rejected, no negative amounts, append-only ledger, one instance per quest per date, bad status and orphan rows rejected, seed is idempotent / all-or-nothing / does not restore removed demo rows, corrupt schedule fails loudly, earned totals sum |
 | Schedule engine tests | Passed: valid/invalid dates incl. leap years; day math across month, year, leap day and both 2026 US DST changes; local midnight rollover and the 25-hour and 23-hour days in `America/Chicago`; same instant in four zones; every-N-days from the anchor (not before it, no drift over a year); weekly; demo quests due on Sat 10-24, Fri 10-23 and 2026-01-04; instance creation idempotent, no back-fill of missed days, quest-off keeps history, progress preserved, per-date separation, all-or-nothing, rejects invalid date |
 | Today tests | Passed: only today's quests; Friday list order; repeat opens don't duplicate or reset progress; completed/approved/waiting counts; rollover at local midnight leaves yesterday untouched; New York vs Chicago for one instant; empty day; ledger totals; all-or-nothing on failure; progress wording; no shaming words; `formatLocalDate` unaffected by device time zone |
 | M4 tests | Passed: mission-flow rules (current mission, waiting vs completed, position to save, quest status); database: starts on first mission, completing saves next position and starts the quest, reads back after a "restart", idempotent double tap, refuses skipping ahead / unknown ids, key mission waits and quest is not done until approved, quest completes when the last mission needs no approval, pays nothing, all-or-nothing on failure, dates stay separate, audio setting default/remembered/no duplicates |
 | M5 tests (`src/db/__tests__/rewards.test.ts`) | Passed: `payOnce` pays once and zero on repeat, rejects negative / fractional / NaN / infinite, no row for zero; self-verify mission pays stored amounts; key mission pays nothing while waiting; double tap, retry and reopen never pay twice; two simultaneous taps pay once; overlapping completions of different missions are ordered; opening/restarting/reloading Today never pays; the same mission pays again on another day; amounts come from content and later edits don't change past payouts; quest bonus paid once, and held back while a mission waits; crash while recording the payout / after it was written / while paying the bonus each roll everything back, and a retry pays exactly once; a failed call doesn't block the queue; ledger sum = Today's displayed totals; totals never decrease; entries can't be changed or removed |
 | M6 tests (`src/db/__tests__/pause-resume.test.ts` + domain) | Passed: pause keeps position and finished missions exactly; harmless twice; no effect on not-started or completed quests; only that quest on that day; opening a paused quest resumes at the same mission; survives a "force-quit" (state reloaded from storage, Today shows paused at the right place); finishing a mission on a paused quest returns it to in progress; five pause/resume cycles change nothing else; completed quest stays completed; pause/resume/stale taps pay each mission exactly once; pausing pays nothing and removes nothing; a pause racing a completion lines up and pays once; pausing a quest that is only waiting on approval keeps the waiting mission and no bonus; paused wording has no shaming words |
-| Test sensitivity (mutation check) | Broke the code twenty ways (earlier ones: migration/seed transactions, ledger triggers, schedule and instance rules, mission-order and double-tap guards, key-mission waiting, position saving; M5: plain INSERT for payouts, paying waiting missions, no call serialization, hard-coded rewards, bonus paid while a mission waits, payout key not unique per day; M6: pausing any status, opening not resuming, finishing a mission leaving a paused quest paused, pause resetting the position); every break was caught; code restored and re-run green |
+| M7 tests (`src/domain/__tests__/caregiver-*.test.ts`, `src/services/__tests__/caregiver-pin.test.ts`, `src/features/caregiver/__tests__/messages.test.ts`) | Passed. Policy: PIN format, lockout schedule (5 free, 30 s doubling to 15 min, about 27 years to try every PIN at the cap), clock-back protection, recovery-code alphabet (no bias, no look-alikes) and tolerant typing, session idle/clock rules. Service against real PBKDF2: only salted hashes stored (no PIN or code anywhere in storage), refuses weak PINs, different salt every time, right/wrong PIN, wrong guesses counted and locked, wait honoured and the right PIN refused during it, survives restart, counted even if the app stops mid-check, 8 simultaneous guesses count one by one, malformed input not counted, damaged / corrupted / stale-install data fails closed, change PIN, recovery code (typed sloppily, rotated, shares the limit, works when the PIN record is damaged), strength upgrade on next entry, the real 10,000-iteration setting works, no secret in any console method or error message. Messages: fixed clock time rounded up, no countdown, no shaming words |
+| Test sensitivity (mutation check) | Broke the code twenty-eight ways (earlier ones: migration/seed transactions, ledger triggers, schedule and instance rules, mission-order and double-tap guards, key-mission waiting, position saving; M5: plain INSERT for payouts, paying waiting missions, no call serialization, hard-coded rewards, bonus paid while a mission waits, payout key not unique per day; M6: pausing any status, opening not resuming, finishing a mission leaving a paused quest paused, pause resetting the position; M7: counting a guess after checking it, no queueing of overlapping guesses, trusting a clock set back, an unreadable counter resetting to zero, accepting records from another install, storing the PIN in plaintext, not rotating the recovery code, accepting guesses while locked); every break was caught; code restored and re-run green |
 | `npx expo export` for iOS and Android | Passed, both bundles built |
 | Run on iOS simulator (iPhone 16 Plus, iOS 18.6, Expo Go) | Passed: migrations ran, demo data seeded, Today and Caregiver tabs render from SQLite. After M3: Today showed "Tuesday, October 27" with only the daily quest (correct: garden quest not due, trail quest is Fridays), so Hermes handles the `Intl` date calls. At the largest iOS accessibility text size, text wrapped and scrolled with nothing clipped (a smoke check, not a VoiceOver test) |
 | M4 on the iOS simulator | Mission screen, "Mission 3 of 3" after a relaunch with progress put in the database by script, the "All missions finished · 1 waiting" screen, and Today's progress bar all rendered correctly. **Not exercised on-device:** tapping Mission complete / I need help / Replay audio, the read-aloud switch, and actual speech (no way to send taps in this environment; macOS blocked scripted clicks). Their logic is unit-tested, not their wiring |
 | M5 on the iOS simulator | App boots and Today renders with the new ledger code (totals 0, new demo notice). **Payouts were not exercised on-device**: no way to tap Mission complete here. Payout behavior is covered by the database tests against real SQLite via Node, not by expo-sqlite on a device |
 | M6 on the iOS simulator | With the database set to "paused at mission 2" by script, Today showed "Paused · … Paused at mission 2 of 3. Tap to resume." with the bar at one third. Opening the quest (deep link, running the app's real code) changed the stored status `paused` → `inProgress`, position stayed 2, the ledger stayed empty, and the screen showed Mission 2 of 3 with the Pause button. **Not exercised on-device:** tapping Pause itself and the return to Today (no way to send taps here). Its logic and the database write are unit-tested |
+| M7 on the iOS simulator (Hermes, real SecureStore, real `expo-crypto`, Expo Go) | A temporary self-test (removed, nothing left in the repo) ran the real service: set PIN, right and wrong PIN, restart, recovery-code reset, new PIN works and old one is refused, a different install id ignores the entry, nothing secret in stored values, cleanup. All passed. **Timing under Hermes: PBKDF2 at 10,000 iterations 0.73 s, 100,000 7.0 s, 300,000 20.9 s, 600,000 42 s**; with the chosen 10,000, verifying took about 0.7 s and setting a PIN 1.4 s. Screens photographed: set-PIN, enter-PIN, and the locked message ("try again at 8:21 PM"). **Not exercised by tap:** typing digits, the Unlock / Set PIN / Forgot buttons, the recovery-code screen, the unlocked screen and relock on tab-leave / background / idle |
 | Android (emulator or device) | **Untested.** Bundle builds, but no Android runtime was available |
 | Real iPhone / Android hardware | **Untested**, including speech, silent mode and volume behavior |
 | Accessibility (VoiceOver, TalkBack, 200% text, Reduce Motion) | **Untested.** Labels and header roles are set; no assistive-tech check has been done |
@@ -133,6 +151,8 @@ The database tests use Node's SQLite, not `expo-sqlite`. They prove our SQL and 
   when a development build is needed (required for notification and secure-store testing on devices).
 - Database tests need Node 22.5+ (`node:sqlite`); this machine runs Node 24. Older Node would fail them.
 - A paused quest stays on its own date: at midnight it is no longer on Today (proposed, see DECISIONS).
+- Caregiver PIN: no "change PIN" screen yet (the code and tests exist). No Face ID / fingerprint. Secure storage was only exercised in Expo Go on the iOS simulator, **not** on a development build or real hardware, so it is not release-acceptable. Android Keystore is untested. `expo-dev-client` was deliberately not added.
+- Metro prints a harmless warning from `@noble/hashes` 1.8.0 ("crypto.js is not listed in exports ... falling back to file-based resolution"). It still works. Version 2.x is ESM-only and would need Jest changes; not worth it now.
 - Quests can be played and pay, but there is no feedback on a payout beyond Today's totals (the celebration is M9). Approving a waiting mission does not exist yet (M8), so a key mission's reward and the quest bonus stay unpaid for now.
 - A cold-start deep link (`exp://…/--/quest/…`) opened Today instead of the quest in Expo Go; the same link worked when the app was already running. Normal navigation (tapping a card) is the real path and was not tested by tap. Worth confirming on a real device.
 - Mission icons are system symbols (SF Symbols / Material), not original art. The generic "explore" tab icon is still a placeholder.
@@ -160,10 +180,10 @@ None have been answered. Reward spending remains unresolved and is kept disabled
 
 ## Next implementation task
 
-**M7: caregiver PIN.** `expo-secure-store` holds PIN verification material only (never plaintext, never
-logged). Before real access is enabled, evaluate a supported slow salted derivation, retry limiting,
-session relock and recovery, and record the evaluation in `docs/DECISIONS.md`. Until then the caregiver tab
-sits behind a development-only demo PIN. This milestone touches an open decision (PIN hardening) and
-needs a development build, not Expo Go, to test secure storage honestly, so I will check with you on
-adding `expo-dev-client` first. M8 (approvals, which finally pays key missions and the bonus) follows.
-Still waiting for your review of the proposed rules in `docs/DECISIONS.md` (schedule, audio/help, payouts, pause).
+**M8: approvals and caregiver editing.** Behind the PIN: an approvals queue where a caregiver approves a waiting
+key mission, which finally pays its reward (same payout key, so it cannot double-pay) and, if that
+completes the quest, the quest bonus; enable/disable supplied quests; edit reward values (never reducing
+earned totals). Depends on two open decisions: approval transitions (rejection / redo, and bonus timing)
+and **your confirmation of the PIN evaluation**, which should happen before this ships. I will build
+against the proposed defaults and mark them as unconfirmed.
+Still waiting for your review of the proposed rules in `docs/DECISIONS.md` (schedule, audio/help, payouts, pause, PIN).

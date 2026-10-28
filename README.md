@@ -55,11 +55,12 @@ through Node. They do not replace testing on real iPhone and Android hardware.
 ## Layout
 
 ```
-src/app/         Expo Router screens (Today, Caregiver)
+src/app/         Expo Router screens (Today, Caregiver, quest)
 src/components/  Shared UI (themed text/view, tabs, screen)
 src/constants/   Theme: palette, sizing, spacing
 src/domain/      Pure rules and types: schedules, dates, rewards, demo content (no React, no native code)
-src/db/          SQLite: versioned migrations, queries, seeding, schedule instances
+src/db/          SQLite: versioned migrations, queries, seeding, schedule instances, payouts
+src/services/    Device services: speech, secure storage, PIN key derivation and the caregiver PIN service
 src/features/    Screen logic that connects the database to the UI
 ```
 

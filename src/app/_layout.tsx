@@ -5,6 +5,7 @@ import { useColorScheme } from 'react-native';
 
 import { Colors } from '@/constants/theme';
 import { DatabaseProvider } from '@/db/database-provider';
+import { CaregiverSessionProvider } from '@/features/caregiver/session-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,13 +38,15 @@ export default function RootLayout() {
     <ThemeProvider value={navigationTheme}>
       <DatabaseProvider>
         <HideSplashWhenReady />
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="quest/[instanceId]"
-            options={{ title: '', headerBackTitle: 'Today', headerShadowVisible: false }}
-          />
-        </Stack>
+        <CaregiverSessionProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="quest/[instanceId]"
+              options={{ title: '', headerBackTitle: 'Today', headerShadowVisible: false }}
+            />
+          </Stack>
+        </CaregiverSessionProvider>
       </DatabaseProvider>
     </ThemeProvider>
   );

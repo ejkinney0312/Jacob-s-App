@@ -100,3 +100,43 @@ Status: **proposed, not approved.** Implemented as described.
 | 7 | **Nothing times out.** A quest can stay paused all day; there are no timers or countdowns on screen. (The app quietly checks once a minute whether the date changed; that is never shown.) | PRD: no timeouts or countdowns that can be lost. |
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## PIN protection evaluation (M7): awaiting Erin's confirmation
+
+Status: **evaluated and implemented as a proposal; not approved.** CLAUDE.md asks for this evaluation
+before real caregiver access is enabled. Nothing sensitive sits behind the PIN yet (approvals and
+editing arrive in M8), and **M8 should not ship until you confirm or change the points below.**
+Code: `src/domain/caregiver-pin.ts`, `src/domain/caregiver-session.ts`, `src/services/caregiver-pin.ts`.
+
+**What the PIN is for.** Keeping Jacob, a visitor, or someone who picks up the phone from approving
+key missions and editing rewards. It is not meant to stop a determined attacker who has copied the
+phone's storage. That assumption drives most of the choices below.
+
+| Topic | Proposed default | Why, and what I measured |
+| --- | --- | --- |
+| **Format** | Exactly 6 digits. Repeats (111111) and straight runs (123456, 654321, 789012) are refused. | 4 digits is only 10,000 possibilities. Alternatives: 8 digits, or a passphrase (harder to type daily). |
+| **Where it lives** | Only a salted verifier, in `expo-secure-store` (iOS Keychain / Android Keystore), set to `WHEN_UNLOCKED_THIS_DEVICE_ONLY`. The PIN itself is never saved. | Documented: Android SecureStore is excluded from backups; `THIS_DEVICE_ONLY` entries do not move to a new iPhone. |
+| **Reinstalls** | Each record carries a random per-install id kept in the app database. A PIN left in the iOS Keychain by an earlier install is ignored after a reinstall. | Expo's docs say iOS entries *can* survive an uninstall. Without this, a fresh install could demand a PIN nobody remembers. |
+| **Key derivation** | **PBKDF2-HMAC-SHA256 from `@noble/hashes`, 10,000 iterations, 16-byte random salt.** The iteration count is stored with each record, and a PIN is re-stored at the current strength the next time it is entered, so it can be raised later. | `expo-crypto` has **no** key-derivation function (it only has hashes and random numbers), so a library is needed. Measured on the iOS simulator under Hermes (a fast Mac CPU): **10,000 iterations = 0.73 s, 100,000 = 7.0 s, 300,000 = 20.9 s, 600,000 = 42 s.** The same work takes 14 ms to 0.55 s in Node, which is misleading: the usual server-side advice (600,000) is unusable in JavaScript on a phone. At 10,000, checking a PIN took about 0.7 s and setting one about 1.4 s (two derivations). **Real phones are slower, so this must be re-measured on yours.** |
+| **Honest limit of the above** | The slow hash is a modest extra layer, not the main protection. | A 6-digit PIN has only a million possibilities; even a very high iteration count would not stop someone who could copy the stored data and try every PIN on fast hardware. The real protection is secure storage plus the retry limit. |
+| **Other options considered** | (1) A single SHA-256: rejected, far too fast. (2) scrypt in JavaScript: memory-heavy and slower in Hermes; **not measured**, so not chosen. (3) Native PBKDF2/Argon2 (for example `react-native-quick-crypto`): fast and would allow far higher counts, but it is a third-party native module that needs a development build. Worth doing only if you want protection against someone who copies the phone's storage; deferred. | |
+| **Randomness** | Salts and the recovery code use `getRandomValues` from `expo-crypto`. | The docs call that one cryptographically secure; they say `getRandomBytes` can fall back to `Math.random` in development, so it is not used. |
+| **Retry limiting** | 5 wrong tries, then a wait of 30 s that doubles each time up to 15 minutes. Wrong PINs and wrong recovery codes share one counter. A correct entry resets it. The wait is shown as a fixed clock time ("try again at 7:43 PM"), never a ticking countdown. | At the 15-minute cap that is about 100 guesses a day, so trying every 6-digit PIN would take about 27 years. Trade-off: someone mashing the screen can lock the caregiver out for up to 15 minutes. |
+| **How guesses are counted** | The guess is counted **before** it is checked, so stopping the app mid-check gains nothing. Many guesses at once are lined up and counted one by one. Moving the phone's clock back cannot shorten a wait. A retry counter that cannot be read is treated as "locked", never as "reset". | Each of these is covered by a test, and I confirmed the tests fail when the protection is removed. |
+| **Relocking** | Caregiver mode is held in memory only. It locks when you leave the Caregiver tab, when the app leaves the foreground, after 5 minutes without a touch, if the clock goes backwards, and always when the app closes. | Alternative: a longer idle time, or staying open until you tap Lock. |
+| **Forgotten PIN: recovery** | A 10-character recovery code (50 bits, letters and numbers with no look-alikes) is shown **once** when the PIN is set. Only its hash is kept. Entering it lets you choose a new PIN, and it is replaced by a new code each time it is used. A new code can be made from the unlocked screen (needs the PIN). | Without recovery, a forgotten PIN means reinstalling the app, which also erases the quests and progress on the phone. The code should be written on paper and kept somewhere safe, not on this phone. Alternatives: no recovery; or a cloud account (not in the first release). |
+| **If the saved PIN is damaged** | The app never treats a damaged PIN as "no PIN set". It offers the recovery code. If there is no recovery code either, it says so and the only way out is reinstalling. | Failing open would let anyone set a new PIN by corrupting the data. |
+| **Logging** | The PIN and recovery code are never logged or put in an error message. A test watches every `console` method through all PIN flows; I also reviewed every `console` call in the app (4 dev-only warnings of error messages, none in PIN code). | CLAUDE.md privacy rule. |
+| **Face ID / fingerprint** | Not built. | Optional in the PRD. Needs a development build (SecureStore's `requireAuthentication` is not supported in Expo Go) and a Face ID permission message. |
+| **Not built yet** | A "change PIN" screen (the code and tests exist; no screen yet). | Planned with the caregiver tools in M8. |
+
+**Questions for you:** Is a 6-digit PIN right (or 4 or 8)? Are the wait times acceptable? Is 5 minutes idle
+the right relock time? Do you want a recovery code, and who will keep it? Is a wait of roughly a second
+when entering the PIN acceptable, or should I look at a native key-derivation module? Which phones will
+use it, so I can measure there?
+
+**Not verified:** timing and storage on real iPhone and Android hardware (only the iOS simulator in Expo
+Go), Android Keystore behavior, whether the iOS Keychain really survives a reinstall on a device, screen
+reader behavior on the PIN forms, and typing a PIN on a real keyboard (no way to tap in this environment).
+
+Answer (date and confirmed behavior): _not yet answered_

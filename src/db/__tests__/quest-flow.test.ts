@@ -5,7 +5,7 @@ import { runMigrations } from '../migrations';
 import { completeMission, loadQuestFlow, openQuest } from '../quest-flow';
 import { listQuests } from '../quests';
 import { seedDemoContent } from '../seed';
-import { getAudioEnabled, setAudioEnabled } from '../settings';
+import { getAudioEnabled, getOrCreateInstallId, setAudioEnabled } from '../settings';
 import { createTestDb, type TestDb } from '../test-utils/node-sqlite-db';
 
 // Saturday 2026-10-24: only the daily workshop quest is due. Its 3rd mission needs approval.
@@ -189,5 +189,38 @@ describe('audio setting', () => {
     expect(
       await db.getFirstAsync("SELECT COUNT(*) AS n FROM settings WHERE key = 'audio_enabled'"),
     ).toEqual({ n: 1 });
+  });
+});
+
+describe('install id', () => {
+  it('is created once and stays the same', async () => {
+    let n = 0;
+    const generate = () => `id-${++n}`;
+
+    const first = await getOrCreateInstallId(db, generate);
+    const second = await getOrCreateInstallId(db, generate);
+
+    expect(first).toBe('id-1');
+    expect(second).toBe('id-1');
+    expect(n).toBe(1); // not even asked for a new one
+  });
+
+  it('agrees with itself when asked twice at the same moment', async () => {
+    let n = 0;
+    const generate = () => `id-${++n}`;
+    const [a, b] = await Promise.all([getOrCreateInstallId(db, generate), getOrCreateInstallId(db, generate)]);
+    expect(a).toBe(b);
+  });
+
+  it('differs for a different database, as after a reinstall', async () => {
+    const other = createTestDb();
+    await runMigrations(other);
+    try {
+      const a = await getOrCreateInstallId(db, () => 'one');
+      const b = await getOrCreateInstallId(other, () => 'two');
+      expect(a).not.toBe(b);
+    } finally {
+      other.close();
+    }
   });
 });
