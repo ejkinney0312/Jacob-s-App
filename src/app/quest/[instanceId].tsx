@@ -6,9 +6,11 @@ import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { missionLine } from '@/domain/rook';
 import { helpTextFor } from '@/features/quest/help-text';
 import { Celebration } from '@/features/quest/celebration';
 import { MissionIcon } from '@/features/quest/mission-icon';
+import { RookSays } from '@/features/rook/rook-says';
 import { useQuestFlow } from '@/features/quest/use-quest-flow';
 import { useScreenReader } from '@/features/quest/use-screen-reader';
 import { useAudioEnabled } from '@/features/settings/use-audio-enabled';
@@ -91,6 +93,13 @@ export default function QuestScreen() {
   }
 
   const replayLabel = audioEnabled ? 'Replay audio' : 'Audio is off';
+  // Rook welcomes the player to a quest nothing has been finished in yet, and gives the mission's tip.
+  const rookLine = missionLine({
+    questTitle: quest.title,
+    missionCount: total,
+    isStart: state.view.states.every((s) => s.status === 'notStarted'),
+    tip: current.tip,
+  });
 
   if (helpOpen) {
     return (
@@ -160,6 +169,9 @@ export default function QuestScreen() {
           }}
         />
       </View>
+
+      {/* After the controls, so they stay in the same place on every mission. Rook is extra, never in the way. */}
+      {rookLine && <RookSays line={rookLine} audioEnabled={audioEnabled} />}
     </Screen>
   );
 }

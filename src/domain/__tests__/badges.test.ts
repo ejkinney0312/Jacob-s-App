@@ -1,7 +1,6 @@
 import {
   BADGES,
   EMPTY_STATS,
-  describeNewBadges,
   isConditionMet,
   newlyEarnedBadges,
   type ProgressStats,
@@ -86,15 +85,5 @@ describe('newlyEarnedBadges', () => {
       new Set(),
     );
     expect(all.map((b) => b.id).sort()).toEqual(BADGES.map((b) => b.id).sort());
-  });
-});
-
-describe('describeNewBadges', () => {
-  it('says how many are new, singular and plural, and nothing when there are none', () => {
-    expect(describeNewBadges(1)).toBe('1 new badge on the Progress tab.');
-    expect(describeNewBadges(3)).toBe('3 new badges on the Progress tab.');
-    expect(describeNewBadges(0)).toBeNull();
-    expect(describeNewBadges(-1)).toBeNull();
-    expect(describeNewBadges(1.5)).toBeNull();
   });
 });

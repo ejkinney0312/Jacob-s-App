@@ -128,9 +128,3 @@ export function newlyEarnedBadges(
 ): BadgeDefinition[] {
   return definitions.filter((d) => !alreadyEarned.has(d.id) && isConditionMet(d.condition, stats));
 }
-
-/** A calm note about badges earned since Progress was last viewed, or null if there are none. */
-export function describeNewBadges(count: number): string | null {
-  if (!Number.isInteger(count) || count < 1) return null;
-  return `${count} new ${count === 1 ? 'badge' : 'badges'} on the Progress tab.`;
-}

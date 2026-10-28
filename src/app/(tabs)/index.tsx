@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
@@ -6,13 +7,14 @@ import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { describeNewBadges } from '@/domain/badges';
+import { speak } from '@/services/speech';
 import { formatLocalDate } from '@/domain/local-date';
 import { allQuestsDone } from '@/domain/progress';
 import { describeReward } from '@/domain/rewards';
-import { describeLevelReached, levelProgress } from '@/domain/progression';
-import { describeVillageGrowth } from '@/domain/village';
+import { levelProgress } from '@/domain/progression';
+import { lineAt, todayLines } from '@/domain/rook';
 import { LevelBar } from '@/features/progress/level-bar';
+import { RookSays } from '@/features/rook/rook-says';
 import { QuestCard } from '@/features/today/quest-card';
 import { useAudioEnabled } from '@/features/settings/use-audio-enabled';
 import { useHapticsEnabled } from '@/features/settings/use-haptics-enabled';
@@ -23,6 +25,7 @@ export default function TodayScreen() {
   const { state, retry } = useToday();
   const { audioEnabled, setEnabled } = useAudioEnabled();
   const { hapticsEnabled, setEnabled: setHapticsEnabledSetting } = useHapticsEnabled();
+  const [rookIndex, setRookIndex] = useState(0);
 
   if (state.status === 'loading') {
     return (
@@ -50,9 +53,12 @@ export default function TodayScreen() {
   }
 
   const { date, items, totals, pending } = state.view;
-  const levelNote = pending.levelReached ? describeLevelReached(pending.levelReached.from, pending.levelReached.to) : null;
-  const badgeNote = describeNewBadges(pending.unseenBadges);
-  const villageNote = describeVillageGrowth(pending.newVillageStages);
+  const rookLines = todayLines({
+    levelReached: pending.levelReached?.to ?? null,
+    newBadges: pending.unseenBadges,
+    newVillageStages: pending.newVillageStages,
+  });
+  const rookLine = lineAt(rookLines, rookIndex);
   const hasDemo = items.some((item) => item.quest.isDemo);
 
   return (
@@ -61,6 +67,16 @@ export default function TodayScreen() {
         Today
       </ThemedText>
       <ThemedText themeColor="textSecondary">{formatLocalDate(date)}</ThemedText>
+
+      <RookSays
+        line={rookLine}
+        audioEnabled={audioEnabled}
+        onAnother={() => {
+          const nextIndex = rookIndex + 1;
+          setRookIndex(nextIndex);
+          if (audioEnabled) speak(lineAt(rookLines, nextIndex).text); // tap to talk: Rook says it
+        }}
+      />
 
       <ThemedView
         type="backgroundElement"
@@ -71,15 +87,6 @@ export default function TodayScreen() {
         <ThemedText>{describeReward(totals)}</ThemedText>
         <LevelBar progress={levelProgress(totals.xp)} />
       </ThemedView>
-
-      {(levelNote || badgeNote || villageNote) && (
-        <ThemedView type="backgroundElement" style={styles.card} accessibilityLiveRegion="polite">
-          <ThemedText type="smallBold">What&apos;s new</ThemedText>
-          {levelNote && <ThemedText type="small">{levelNote}</ThemedText>}
-          {badgeNote && <ThemedText type="small">{badgeNote}</ThemedText>}
-          {villageNote && <ThemedText type="small">{villageNote}</ThemedText>}
-        </ThemedView>
-      )}
 
       {hasDemo && (
         <ThemedView type="notice" style={styles.card}>

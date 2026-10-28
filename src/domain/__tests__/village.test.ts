@@ -4,7 +4,6 @@ import {
   describeNextGoal,
   describeStageStatus,
   describeStructureStatus,
-  describeVillageGrowth,
   stagesBuiltBetween,
   type VillageStructureDef,
 } from '../village';
@@ -153,13 +152,6 @@ describe('stagesBuiltBetween', () => {
 });
 
 describe('wording', () => {
-  it('describes growth in singular and plural, and nothing when there is none', () => {
-    expect(describeVillageGrowth(1)).toBe('1 new stage in the village.');
-    expect(describeVillageGrowth(3)).toBe('3 new stages in the village.');
-    expect(describeVillageGrowth(0)).toBeNull();
-    expect(describeVillageGrowth(-2)).toBeNull();
-  });
-
   it('describes every stage and structure status in words, so color is never the only signal', () => {
     const village = buildVillage(1);
     expect(village.structures[0].stages.map(describeStageStatus)).toEqual(['Built', 'Next · 1 block', 'Later']);

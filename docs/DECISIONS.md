@@ -226,3 +226,25 @@ structures, their stages and story lines? Should the structures grow one after a
 weeks to finish the placeholder village a good pace?
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed Rook (M12): awaiting Erin's confirmation
+
+Status: **proposed, not approved.** This builds the proposed default from the "Rook tap to talk" row above (preset lines read
+aloud by the phone, no microphone, no AI). No real Rook dialogue or art has been supplied, so **every line is a clearly
+labelled demo placeholder** ("Demo lines" appears on Rook's card). Rook pays nothing and changes nothing.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **"Tap to talk" means tap to hear.** "Hear Rook" reads the line on screen with the phone's text-to-speech, and on Today "Another line" shows and says the next preset line. There is no microphone, no recording, no network and no AI. | PRD F8 does not say. Alternative: a real conversation, which would need a microphone and an AI service (not in the first release). |
+| 2 | **Rook never speaks on his own.** He only talks when tapped. | The mission instruction already reads aloud by itself; a second voice would be confusing. |
+| 3 | **Where Rook appears.** On Today: a greeting, or a reaction to anything new. On a mission: a welcome to the quest (only when nothing has been finished yet) and the mission's tip. The mission card sits **below** the controls, so the buttons stay in the same place on every mission. | Alternative: Rook above the controls, which pushes "Mission complete" down the screen. |
+| 4 | **Reactions to milestones**: a level reached, new badges and village growth, in one line that says where to look ("You reached Level 2 and the village grew. You can see what changed on the Progress and Village tabs."). It shows until Progress or Village is opened. This **replaces** the separate "What's new" card on Today (see the M10 and M11 proposals). | One line so nothing is hidden behind a second tap. |
+| 5 | **"Independent finish" is not built.** The PRD names it as a Rook reaction, but it means finishing a quest without tapping "I need help", and help taps are not recorded (an open decision in the audio and help proposal). | Say if you want help taps counted on the device. |
+| 6 | **Wording.** Adult and warm: no baby talk, no exclamation marks, no pressure ("should", "must", "hurry"), nothing about failing, missing a day, streaks or other people. The same text is shown and spoken. With audio off, the words are still on screen and the button says "Audio is off". | CLAUDE.md. Tests enforce this on every line. |
+| 7 | **The quest welcome is built from the quest's name and mission count; the tip is the mission's own tip.** There is no per-quest introduction yet. | A caregiver-written intro would come with the quest builder (P1, F12). |
+| 8 | **Rook's picture is a system bird symbol**, a placeholder for original art. | Original art only. |
+
+**Questions for you:** What is Rook like (voice, personality), and what should he really say? Is tap-to-hear enough, or
+do you want conversation? Should "independent finish" be counted? Do you want Rook on every mission, or only on request?
+
+Answer (date and confirmed behavior): _not yet answered_

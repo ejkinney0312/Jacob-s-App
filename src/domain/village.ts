@@ -190,12 +190,6 @@ export function stagesBuiltBetween(
   return built;
 }
 
-/** A calm note about stages built since the village was last viewed, or null if there are none. */
-export function describeVillageGrowth(newStages: number): string | null {
-  if (!Number.isInteger(newStages) || newStages < 1) return null;
-  return `${newStages} new ${newStages === 1 ? 'stage' : 'stages'} in the village.`;
-}
-
 /** Plain words for a stage, so its state is never shown by color alone. */
 export function describeStageStatus(stage: StageState): string {
   switch (stage.status) {
