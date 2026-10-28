@@ -55,7 +55,7 @@ through Node. They do not replace testing on real iPhone and Android hardware.
 ## Layout
 
 ```
-src/app/         Expo Router screens (Today, Caregiver, quest)
+src/app/         Expo Router screens (Today, Progress, Village, Caregiver, quest)
 src/components/  Shared UI (themed text/view, tabs, screen)
 src/constants/   Theme: palette, sizing, spacing
 assets/sounds/   The quest chime (original; regenerate with `node scripts/generate-chime.js`)

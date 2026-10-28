@@ -203,3 +203,26 @@ level formula follows the PRD ("flat 100 XP per level"). Nothing here pays or re
 the not-yet-earned badges visible?
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed village (M11): awaiting Erin's confirmation
+
+Status: **proposed, not approved.** The PRD asks for "four structures and story stages" (F9) but never defines
+them, so **every structure, stage and story line is a clearly labelled demo placeholder.** The village pays
+nothing and removes nothing: it only shows what has already been earned.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **The village grows with building blocks earned**, a cumulative total from the ledger. A finished quest earns its block through the quest bonus. **This resolves a conflict in the PRD:** the overview says blocks "grow a village", but F9 says the village grows "with completed quests". | Blocks give the block reward a purpose. Consequence: a quest whose bonus is set to 0 blocks adds nothing to the village. Alternative: count finished quests instead. **This is the main question.** |
+| 2 | **Four placeholder structures, 21 blocks in all:** Workshop (3 stages, 1 + 1 + 1 blocks), Garden (1 + 1 + 2), Lookout (2 + 2 + 2), Bridge (2 + 3 + 3). Each stage has a short story line shown once it is built. | Placeholders. Send the real structures, stages and stories, and they replace these. |
+| 3 | **Blocks are placed in order**, finishing one stage, then the next, one structure after another. | Alternative: all four structures grow at the same time. |
+| 4 | **It never goes backwards.** It is computed only from blocks earned, and the ledger cannot be changed or deleted, so a built stage stays built. There is no decay and nothing is lost for a missed day or for editing rewards later. | CLAUDE.md: cumulative, no punishment. |
+| 5 | **When all 21 blocks are placed the village is "complete for now".** Extra blocks are kept and shown as saved. | Alternative: new structures arrive in a later release. With the demo rewards (1 block per finished quest) 21 blocks is about three weeks of daily quests; please say if the pace feels wrong. |
+| 6 | **New growth is shown once.** Today shows "N new stages in the village" until the Village tab is opened, and the Village tab lists the stages that grew, with their story lines. | Same pattern as badges and levels. |
+| 7 | **Readable without color.** Blocks are filled or outlined squares, and every stage and structure also says "Built / Next / Later" and "Not started / Building / Complete" in words. | CLAUDE.md. |
+| 8 | **The pictures are plain squares and text, placeholders for original art.** | Original art only. |
+
+**Questions for you:** Should the village grow with blocks (proposed) or with finished quests? What are the real four
+structures, their stages and story lines? Should the structures grow one after another or together? Is about three
+weeks to finish the placeholder village a good pace?
+
+Answer (date and confirmed behavior): _not yet answered_

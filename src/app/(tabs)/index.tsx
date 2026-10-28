@@ -11,6 +11,7 @@ import { formatLocalDate } from '@/domain/local-date';
 import { allQuestsDone } from '@/domain/progress';
 import { describeReward } from '@/domain/rewards';
 import { describeLevelReached, levelProgress } from '@/domain/progression';
+import { describeVillageGrowth } from '@/domain/village';
 import { LevelBar } from '@/features/progress/level-bar';
 import { QuestCard } from '@/features/today/quest-card';
 import { useAudioEnabled } from '@/features/settings/use-audio-enabled';
@@ -51,6 +52,7 @@ export default function TodayScreen() {
   const { date, items, totals, pending } = state.view;
   const levelNote = pending.levelReached ? describeLevelReached(pending.levelReached.from, pending.levelReached.to) : null;
   const badgeNote = describeNewBadges(pending.unseenBadges);
+  const villageNote = describeVillageGrowth(pending.newVillageStages);
   const hasDemo = items.some((item) => item.quest.isDemo);
 
   return (
@@ -70,11 +72,12 @@ export default function TodayScreen() {
         <LevelBar progress={levelProgress(totals.xp)} />
       </ThemedView>
 
-      {(levelNote || badgeNote) && (
+      {(levelNote || badgeNote || villageNote) && (
         <ThemedView type="backgroundElement" style={styles.card} accessibilityLiveRegion="polite">
           <ThemedText type="smallBold">What&apos;s new</ThemedText>
           {levelNote && <ThemedText type="small">{levelNote}</ThemedText>}
           {badgeNote && <ThemedText type="small">{badgeNote}</ThemedText>}
+          {villageNote && <ThemedText type="small">{villageNote}</ThemedText>}
         </ThemedView>
       )}
 

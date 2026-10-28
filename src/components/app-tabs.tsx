@@ -25,6 +25,11 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf={{ default: 'star', selected: 'star.fill' }} md="star" />
       </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="village">
+        <NativeTabs.Trigger.Label>Village</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf={{ default: 'house', selected: 'house.fill' }} md="home" />
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="caregiver">
         <NativeTabs.Trigger.Label>Caregiver</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
