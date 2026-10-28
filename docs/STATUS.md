@@ -1,6 +1,6 @@
 # Quest Blocks status
 
-Last updated: 2026-10-24 — foundation, jest, ESLint and database tests committed (through `4688d21`); M2 schedule engine added, uncommitted.
+Last updated: 2026-10-27 — pushed through M2 (`75254bb`; remote `origin` = ejkinney0312/Jacob-s-App). M3 (Today) and a new README are uncommitted.
 
 ## Current setup
 
@@ -19,6 +19,16 @@ Last updated: 2026-10-24 — foundation, jest, ESLint and database tests committ
 - No cloud, no backend, no analytics.
 
 ### What was built
+
+- **M3 Today (new):** Today now shows only the quests scheduled for the device's current local date,
+  with the formatted date, per-quest status and progress in words plus a bar ("0 of 3 missions
+  finished", "Not started · Every day"), earned totals, empty / all-done / loading / error states
+  (error has a 64-high "Try again" button), and the demo notice. `loadToday` (`src/db/today.ts`)
+  creates the day's instances idempotently; `useToday` reloads on focus, on returning to the app,
+  and when the local date changes (checked once a minute while the app is open). Quests are not
+  tappable yet; playing one is M4. New pure helpers: `src/domain/progress.ts`, `formatLocalDate`.
+  A waiting-for-approval mission counts as finished by the player but earns nothing yet.
+- **README** rewritten for Quest Blocks (it was the Expo starter text).
 
 - **M2 schedule engine (new, not shown in the UI yet):** `src/domain/local-date.ts` (real calendar
   validation, exact day arithmetic, weekday, instant → local date in a given time zone),
@@ -53,14 +63,15 @@ Last updated: 2026-10-24 — foundation, jest, ESLint and database tests committ
 | Check | Result |
 | --- | --- |
 | `npx tsc --noEmit` | Passed, exit 0 |
-| `npx expo-doctor` | Passed, 20/20 |
+| `npx expo-doctor` | **19/20 on 2026-10-27.** The one failure is patch-version drift: Expo published newer patches after we installed (`expo` 58.0.19→~58.0.20, `expo-router` 58.0.26→~58.0.27, `@expo/ui` 58.0.23→~58.0.24, `expo-web-browser` 58.0.6→~58.0.7). Passed 20/20 before that. Not caused by our code. Fix: `npx expo install --fix` (needs your OK; then re-run tests, lint and the simulator) |
 | `npm run lint` | Passed, exit 0, no warnings. Confirmed it flags bad code (a deliberate probe file was caught, then removed). It found one real error in the starter's `use-color-scheme.web.ts` (setState in an effect); fixed with `useSyncExternalStore`, web file only |
-| `npm test -- --runInBand` | Passed: 7 suites, 81 tests. Domain tests (dates, schedules, engine, rewards, demo content) plus database tests (below) |
+| `npm test -- --runInBand` | Passed: 9 suites, 99 tests. Domain tests (dates, schedules, engine, rewards, demo content) plus database tests (below) |
 | Database tests (`src/db/__tests__/`) | Passed. Run our real migration and query code against real SQLite via Node's `node:sqlite`: fresh install, safe re-run, upgrade with data kept, failed migration rolls back and retries, newer database refused, no spend tables, double-pay rejected, no negative amounts, append-only ledger, one instance per quest per date, bad status and orphan rows rejected, seed is idempotent / all-or-nothing / does not restore removed demo rows, corrupt schedule fails loudly, earned totals sum |
 | Schedule engine tests | Passed: valid/invalid dates incl. leap years; day math across month, year, leap day and both 2026 US DST changes; local midnight rollover and the 25-hour and 23-hour days in `America/Chicago`; same instant in four zones; every-N-days from the anchor (not before it, no drift over a year); weekly; demo quests due on Sat 10-24, Fri 10-23 and 2026-01-04; instance creation idempotent, no back-fill of missed days, quest-off keeps history, progress preserved, per-date separation, all-or-nothing, rejects invalid date |
+| Today tests | Passed: only today's quests; Friday list order; repeat opens don't duplicate or reset progress; completed/approved/waiting counts; rollover at local midnight leaves yesterday untouched; New York vs Chicago for one instant; empty day; ledger totals; all-or-nothing on failure; progress wording; no shaming words; `formatLocalDate` unaffected by device time zone |
 | Test sensitivity (mutation check) | Broke the code six ways (no migration transaction, no ledger triggers, no seed transaction, due-before-anchor, plain INSERT for instances, recreating missions for existing instances); every break was caught; code restored and re-run green |
 | `npx expo export` for iOS and Android | Passed, both bundles built |
-| Run on iOS simulator (iPhone 16 Plus, iOS 18.6, Expo Go) | Passed: migrations ran, demo data seeded, Today and Caregiver tabs render from SQLite |
+| Run on iOS simulator (iPhone 16 Plus, iOS 18.6, Expo Go) | Passed: migrations ran, demo data seeded, Today and Caregiver tabs render from SQLite. After M3: Today showed "Tuesday, October 27" with only the daily quest (correct: garden quest not due, trail quest is Fridays), so Hermes handles the `Intl` date calls. At the largest iOS accessibility text size, text wrapped and scrolled with nothing clipped (a smoke check, not a VoiceOver test) |
 | Android (emulator or device) | **Untested.** Bundle builds, but no Android runtime was available |
 | Real iPhone / Android hardware | **Untested** |
 | Accessibility (VoiceOver, TalkBack, 200% text, Reduce Motion) | **Untested.** Labels and header roles are set; no assistive-tech check has been done |
@@ -76,8 +87,9 @@ The database tests use Node's SQLite, not `expo-sqlite`. They prove our SQL and 
 - `expo-dev-client` was added automatically by `expo install` and then removed on purpose; add it
   when a development build is needed (required for notification and secure-store testing on devices).
 - Database tests need Node 22.5+ (`node:sqlite`); this machine runs Node 24. Older Node would fail them.
-- The app has no player-facing flow yet: no mission play, no payouts, no schedule evaluation.
-  Today lists every active quest, not only those scheduled for the day, and says so on screen.
+- The app has no way to play a quest yet: no mission play, no payouts. Today lists the right quests but they are not tappable.
+- Not verified on a device: the once-a-minute date check, reload on returning to the app, and the error state (unit tests cover `loadToday`, not the hook or screens; no screen-test library is installed).
+- `package.json` still has the starter's `reset-project` script, which would move `src/app` into `example/`. The new README does not mention it; consider removing the script.
 
 ## Unresolved decisions (from `docs/DECISIONS.md`)
 
@@ -99,10 +111,8 @@ None have been answered. Reward spending remains unresolved and is kept disabled
 
 ## Next implementation task
 
-**M3: Today shows what is scheduled for today, with progress.** It can start now on the proposed rules.
-
-- Wire Today to `toLocalDate(new Date())` and `ensureInstancesForDate`, list that day's instances with
-  mission progress, and handle the empty and all-done states in calm adult wording.
-- Please review the rules in `docs/DECISIONS.md` ("Proposed schedule rules (M2)"). Nothing is blocked on
-  your answer yet, but changing a rule later means changing the engine and its tests.
-- Then M4 (mission flow with replay audio, Help, Complete, and persisted position).
+**M4: mission flow.** One mission per screen with icon, short text, replay audio (`expo-speech`),
+"I need help" and "Mission complete", with the current position saved on every change so the app
+resumes at the same mission after a restart. Not blocked by open decisions. Self-verify payouts
+arrive in M5 (reward ledger), so M4 will mark missions complete without paying until then.
+Still waiting for your review of the proposed schedule rules in `docs/DECISIONS.md`.

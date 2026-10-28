@@ -73,3 +73,17 @@ export function toLocalDate(instant: Date, timeZone?: string): LocalDate {
   const get = (type: string) => formatted.find((p) => p.type === type)?.value ?? '';
   return `${get('year').padStart(4, '0')}-${get('month')}-${get('day')}`;
 }
+
+/**
+ * Human-readable date such as "Saturday, October 24". Formats the calendar date itself
+ * (in UTC), so the device's time zone can never shift it to a neighbouring day.
+ */
+export function formatLocalDate(date: LocalDate, locale?: string): string {
+  const [y, m, d] = assertValid(date);
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: 'UTC',
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(Date.UTC(y, m - 1, d)));
+}

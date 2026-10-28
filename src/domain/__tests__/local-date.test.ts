@@ -2,6 +2,7 @@ import {
   addDays,
   dayNumber,
   daysBetween,
+  formatLocalDate,
   fromDayNumber,
   isValidLocalDate,
   toLocalDate,
@@ -102,5 +103,30 @@ describe('toLocalDate (midnight rollover and time zones)', () => {
     expect(toLocalDate(instant, 'America/New_York')).toBe('2026-10-25');
     expect(toLocalDate(instant, 'America/Los_Angeles')).toBe('2026-10-24');
     expect(toLocalDate(instant, 'Asia/Tokyo')).toBe('2026-10-25');
+  });
+});
+
+describe('formatLocalDate', () => {
+  it('names the weekday and date of the calendar day itself', () => {
+    expect(formatLocalDate('2026-10-24', 'en-US')).toBe('Saturday, October 24');
+    expect(formatLocalDate('2026-11-01', 'en-US')).toBe('Sunday, November 1');
+    expect(formatLocalDate('2028-02-29', 'en-US')).toBe('Tuesday, February 29');
+  });
+
+  it('never shifts a day because of the device time zone', () => {
+    const original = process.env.TZ;
+    try {
+      for (const tz of ['Pacific/Kiritimati', 'Pacific/Pago_Pago', 'America/Chicago']) {
+        process.env.TZ = tz;
+        expect(formatLocalDate('2026-10-24', 'en-US')).toBe('Saturday, October 24');
+      }
+    } finally {
+      if (original === undefined) delete process.env.TZ;
+      else process.env.TZ = original;
+    }
+  });
+
+  it('throws on an invalid date', () => {
+    expect(() => formatLocalDate('2026-02-30')).toThrow(/Invalid local date/);
   });
 });
