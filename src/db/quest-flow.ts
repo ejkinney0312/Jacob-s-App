@@ -12,6 +12,7 @@ import type { Mission, MissionInstanceStatus, Quest, QuestInstance, RewardValue 
 
 import { runExclusive } from './exclusive';
 import { getQuestBonusPaid, payOnce } from './ledger';
+import { awardEarnedBadges } from './progress';
 import { listQuests } from './quests';
 import type { Db } from './types';
 
@@ -267,6 +268,9 @@ async function completeMissionNow(
       questStatus === 'completed' ? (instance.completedAt ?? stamp) : instance.completedAt,
       instanceId,
     );
+
+    // Last, so the quest's new status is counted. Same transaction: a badge can never exist without its payout.
+    await awardEarnedBadges(db, now);
 
     result = { outcome: nextStatus === 'completed' ? 'completed' : 'waitingForApproval', paid, bonus, questCompleted: justCompleted };
   });

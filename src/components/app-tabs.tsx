@@ -20,6 +20,11 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="progress">
+        <NativeTabs.Trigger.Label>Progress</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf={{ default: 'star', selected: 'star.fill' }} md="star" />
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="caregiver">
         <NativeTabs.Trigger.Label>Caregiver</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon

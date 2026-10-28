@@ -179,3 +179,27 @@ paid by the ledger when the quest completes, and the celebration only shows what
 | 8 | **The chime and the block are placeholders for original art and sound.** The chime is synthesized by `scripts/chime-synth.js` (two soft notes, about 1.6 s, quiet) so it is original; the block is a system symbol. | Original art and sound only. |
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed levels and badges (M10): awaiting Erin's confirmation
+
+Status: **proposed, not approved.** CLAUDE.md says the starting level and badge thresholds must be confirmed, and
+no real badge content has been supplied, so **every badge below is a clearly labelled demo placeholder.** The
+level formula follows the PRD ("flat 100 XP per level"). Nothing here pays or removes anything.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **Level = floor(XP ÷ 100) + 1.** 0 to 99 XP is Level 1, 100 to 199 is Level 2, and so on. XP only grows, so a level never goes down. | PRD F10. **The starting level is the open question:** Level 1 at zero (proposed) or Level 0. |
+| 2 | **The six placeholder badges** (ids start with `demo-`): First mission (1 mission paid), First quest (1 quest finished), First block (1 block earned), Three days (a quest finished on 3 different days), Level 2 (100 XP), Emerald pocket (25 emeralds earned in total). | Placeholders only. Send the real badge names, art, and how each is earned, and they replace these. |
+| 3 | **Only cumulative totals and counts, never streaks, time limits or "in a row".** "Three days" means three different days, not three consecutive ones. | CLAUDE.md: no shaming or punishment; a missed day must cost nothing. |
+| 4 | **A badge is earned when the payout that earns it happens**, inside the same transaction, so a badge can never exist without its reward. A key mission counts only once a caregiver approves it; while it waits, it earns no badge. | Matches "a waiting mission earns no payout yet". |
+| 5 | **Earned once and never taken away.** The database refuses to delete or change an earned badge (only the "seen" mark can change), the same way it protects the ledger. | PRD: points and badges never decrease. |
+| 6 | **Catch-up.** Opening Progress awards any badge already earned by progress made before badges existed. | Safe to repeat; it never re-dates or removes one. |
+| 7 | **Where Jacob sees it.** A new **Progress** tab shows the level, a bar, and every badge with its words ("Earned on …" or "Not earned yet") and a "Demo badge" label; Today shows the level and a short "What's new" note (level reached, new badges) until Progress is opened. No pop-ups; Rook's milestone reactions come in M12. | Alternative: hide badges until earned, so there is nothing to "not have yet". |
+| 8 | **Not-yet-earned badges are shown with how to earn them.** | Alternative above, if this feels like pressure. |
+| 9 | **Not built: an "independent finish" badge.** PRD F8 names it as a Rook milestone, but it needs "I need help" taps to be recorded, which is an open decision (see the audio and help proposal). | |
+| 10 | **Badge pictures are system symbols**, placeholders for original art. | Original art only. |
+
+**Questions for you:** Starting level 1 or 0? What should the real badges be, and what earns each? Do you want
+the not-yet-earned badges visible?
+
+Answer (date and confirmed behavior): _not yet answered_

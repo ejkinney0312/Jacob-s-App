@@ -6,8 +6,12 @@ import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
+import { describeNewBadges } from '@/domain/badges';
 import { formatLocalDate } from '@/domain/local-date';
 import { allQuestsDone } from '@/domain/progress';
+import { describeReward } from '@/domain/rewards';
+import { describeLevelReached, levelProgress } from '@/domain/progression';
+import { LevelBar } from '@/features/progress/level-bar';
 import { QuestCard } from '@/features/today/quest-card';
 import { useAudioEnabled } from '@/features/settings/use-audio-enabled';
 import { useHapticsEnabled } from '@/features/settings/use-haptics-enabled';
@@ -44,7 +48,9 @@ export default function TodayScreen() {
     );
   }
 
-  const { date, items, totals } = state.view;
+  const { date, items, totals, pending } = state.view;
+  const levelNote = pending.levelReached ? describeLevelReached(pending.levelReached.from, pending.levelReached.to) : null;
+  const badgeNote = describeNewBadges(pending.unseenBadges);
   const hasDemo = items.some((item) => item.quest.isDemo);
 
   return (
@@ -58,12 +64,19 @@ export default function TodayScreen() {
         type="backgroundElement"
         style={styles.card}
         accessible
-        accessibilityLabel={`Earned so far: ${totals.xp} XP, ${totals.emeralds} emeralds, ${totals.blocks} blocks`}>
+        accessibilityLabel={`Earned so far: ${describeReward(totals)}. Level ${levelProgress(totals.xp).level}.`}>
         <ThemedText type="smallBold">Earned so far</ThemedText>
-        <ThemedText>
-          {totals.xp} XP · {totals.emeralds} emeralds · {totals.blocks} blocks
-        </ThemedText>
+        <ThemedText>{describeReward(totals)}</ThemedText>
+        <LevelBar progress={levelProgress(totals.xp)} />
       </ThemedView>
+
+      {(levelNote || badgeNote) && (
+        <ThemedView type="backgroundElement" style={styles.card} accessibilityLiveRegion="polite">
+          <ThemedText type="smallBold">What&apos;s new</ThemedText>
+          {levelNote && <ThemedText type="small">{levelNote}</ThemedText>}
+          {badgeNote && <ThemedText type="small">{badgeNote}</ThemedText>}
+        </ThemedView>
+      )}
 
       {hasDemo && (
         <ThemedView type="notice" style={styles.card}>

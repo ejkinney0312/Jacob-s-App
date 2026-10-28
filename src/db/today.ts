@@ -4,6 +4,7 @@ import type { EarnedTotals, LocalDate, Quest, QuestInstance } from '@/domain/typ
 
 import { ensureInstancesForDate } from './instances';
 import { getEarnedTotals } from './ledger';
+import { getPendingMilestones, type PendingMilestones } from './progress';
 import { listQuests } from './quests';
 import type { Db } from './types';
 
@@ -17,6 +18,8 @@ export interface TodayView {
   date: LocalDate;
   items: TodayItem[];
   totals: EarnedTotals;
+  /** New since Progress was last viewed: badges and level, for a short note. */
+  pending: PendingMilestones;
 }
 
 interface ProgressRow {
@@ -57,6 +60,7 @@ export async function loadToday(db: Db, now: Date, timeZone?: string): Promise<T
   const instances = await ensureInstancesForDate(db, quests, date);
   const progress = await missionProgressByInstance(db, date);
   const totals = await getEarnedTotals(db);
+  const pending = await getPendingMilestones(db);
 
   const questsById = new Map(quests.map((q) => [q.id, q]));
   const items: TodayItem[] = [];
@@ -71,5 +75,5 @@ export async function loadToday(db: Db, now: Date, timeZone?: string): Promise<T
     });
   }
 
-  return { date, items, totals };
+  return { date, items, totals, pending };
 }

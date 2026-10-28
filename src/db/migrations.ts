@@ -127,6 +127,24 @@ export const MIGRATIONS: readonly Migration[] = [
        WHERE status = 'completed';
     `,
   },
+  {
+    version: 4,
+    description: 'Earned badges: awarded once, never removed',
+    sql: `
+      CREATE TABLE earned_badges (
+        badge_id TEXT PRIMARY KEY NOT NULL,
+        earned_at TEXT NOT NULL,
+        seen_at TEXT
+      );
+
+      -- Like the ledger, earned badges only ever accumulate. Only seen_at may change.
+      CREATE TRIGGER earned_badges_no_delete BEFORE DELETE ON earned_badges
+      BEGIN SELECT RAISE(ABORT, 'earned badges are never removed'); END;
+
+      CREATE TRIGGER earned_badges_keep_identity BEFORE UPDATE OF badge_id, earned_at ON earned_badges
+      BEGIN SELECT RAISE(ABORT, 'earned badges are never changed'); END;
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

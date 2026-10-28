@@ -211,6 +211,35 @@ describe('migration v3: celebrations', () => {
   });
 });
 
+describe('migration v4: earned badges', () => {
+  it('creates the table on a fresh install and upgrades from any earlier version, keeping every row', async () => {
+    await runMigrations(db, MIGRATIONS.slice(0, 3));
+    await db.runAsync("INSERT INTO ledger_entries VALUES ('l', 'k', 'mission', 'm', 5, 2, 0, 'now')");
+    expect(await userVersion()).toBe(3);
+
+    await runMigrations(db);
+
+    expect(await userVersion()).toBe(LATEST_SCHEMA_VERSION);
+    expect(LATEST_SCHEMA_VERSION).toBeGreaterThanOrEqual(4);
+    expect(await tableNames()).toContain('earned_badges');
+    expect(await db.getFirstAsync('SELECT SUM(xp) AS xp FROM ledger_entries')).toEqual({ xp: 5 });
+    expect(await db.getFirstAsync('SELECT COUNT(*) AS n FROM earned_badges')).toEqual({ n: 0 }); // caught up later, in code
+  });
+
+  it('accepts one row per badge and refuses a second', async () => {
+    await runMigrations(db);
+    await db.runAsync("INSERT INTO earned_badges (badge_id, earned_at) VALUES ('b', 'now')");
+    await expect(db.runAsync("INSERT INTO earned_badges (badge_id, earned_at) VALUES ('b', 'later')")).rejects.toThrow(/UNIQUE/);
+  });
+
+  it('never lets an earned badge be removed or changed', async () => {
+    await runMigrations(db);
+    await db.runAsync("INSERT INTO earned_badges (badge_id, earned_at) VALUES ('b', 'now')");
+    await expect(db.runAsync('DELETE FROM earned_badges')).rejects.toThrow(/never removed/);
+    await expect(db.runAsync("UPDATE earned_badges SET earned_at = 'x'")).rejects.toThrow(/never changed/);
+  });
+});
+
 describe('integrity rules', () => {
   beforeEach(async () => {
     await runMigrations(db);

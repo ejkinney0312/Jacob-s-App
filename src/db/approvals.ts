@@ -4,6 +4,7 @@ import type { LocalDate, RewardValue } from '@/domain/types';
 
 import { runExclusive } from './exclusive';
 import { payOnce } from './ledger';
+import { awardEarnedBadges } from './progress';
 import { getInstance, getMissionStates } from './quest-flow';
 import { listQuests } from './quests';
 import type { Db } from './types';
@@ -180,6 +181,7 @@ async function approveNow(db: Db, missionInstanceId: string, now: Date): Promise
       complete ? (instance.completedAt ?? stamp) : instance.completedAt,
       instance.id,
     );
+    await awardEarnedBadges(db, now);
     result = { outcome: 'approved', paid, bonus, questCompleted: justCompleted };
   });
 
