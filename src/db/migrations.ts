@@ -115,6 +115,18 @@ export const MIGRATIONS: readonly Migration[] = [
         ADD COLUMN redo_count INTEGER NOT NULL DEFAULT 0 CHECK (redo_count >= 0);
     `,
   },
+  {
+    version: 3,
+    description: 'Remember whether a finished quest has had its celebration',
+    sql: `
+      ALTER TABLE quest_instances ADD COLUMN celebrated_at TEXT;
+
+      -- Quests finished before this existed are not celebrated retroactively.
+      UPDATE quest_instances
+         SET celebrated_at = COALESCE(completed_at, '1970-01-01T00:00:00.000Z')
+       WHERE status = 'completed';
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

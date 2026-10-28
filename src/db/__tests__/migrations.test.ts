@@ -176,6 +176,41 @@ describe('migration v2: tries-again counter', () => {
   });
 });
 
+describe('migration v3: celebrations', () => {
+  const quest = "INSERT INTO quests (id, title, icon, schedule_json) VALUES ('q', 'Q', 'i', '{\"kind\":\"daily\"}')";
+
+  it('upgrades a v2 database; finished quests are not celebrated retroactively, others are untouched', async () => {
+    await runMigrations(db, MIGRATIONS.slice(0, 2));
+    await db.runAsync(quest);
+    await db.runAsync(
+      "INSERT INTO quest_instances (id, quest_id, local_date, status, completed_at) VALUES ('done', 'q', '2026-10-23', 'completed', '2026-10-23T18:00:00Z')",
+    );
+    await db.runAsync(
+      "INSERT INTO quest_instances (id, quest_id, local_date, status) VALUES ('open', 'q', '2026-10-24', 'inProgress')",
+    );
+    expect(await userVersion()).toBe(2);
+
+    await runMigrations(db);
+
+    expect(await userVersion()).toBe(LATEST_SCHEMA_VERSION);
+    expect(await db.getFirstAsync("SELECT celebrated_at FROM quest_instances WHERE id = 'done'")).toEqual({
+      celebrated_at: '2026-10-23T18:00:00Z',
+    });
+    expect(await db.getFirstAsync("SELECT celebrated_at FROM quest_instances WHERE id = 'open'")).toEqual({
+      celebrated_at: null,
+    });
+  });
+
+  it('upgrades straight from v1 through every step', async () => {
+    await runMigrations(db, [MIGRATIONS[0]]);
+    await runMigrations(db);
+    expect(await userVersion()).toBe(LATEST_SCHEMA_VERSION);
+    expect(LATEST_SCHEMA_VERSION).toBeGreaterThanOrEqual(3);
+    const columns = (await db.getAllAsync<{ name: string }>('PRAGMA table_info(quest_instances)')).map((c) => c.name);
+    expect(columns).toContain('celebrated_at');
+  });
+});
+
 describe('integrity rules', () => {
   beforeEach(async () => {
     await runMigrations(db);

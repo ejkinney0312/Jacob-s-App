@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { StyleSheet, Switch, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
@@ -10,11 +10,14 @@ import { formatLocalDate } from '@/domain/local-date';
 import { allQuestsDone } from '@/domain/progress';
 import { QuestCard } from '@/features/today/quest-card';
 import { useAudioEnabled } from '@/features/settings/use-audio-enabled';
+import { useHapticsEnabled } from '@/features/settings/use-haptics-enabled';
+import { SettingRow } from '@/features/settings/setting-row';
 import { useToday } from '@/features/today/use-today';
 
 export default function TodayScreen() {
   const { state, retry } = useToday();
   const { audioEnabled, setEnabled } = useAudioEnabled();
+  const { hapticsEnabled, setEnabled: setHapticsEnabledSetting } = useHapticsEnabled();
 
   if (state.status === 'loading') {
     return (
@@ -105,19 +108,8 @@ export default function TodayScreen() {
         />
       ))}
 
-      <ThemedView type="backgroundElement" style={[styles.card, styles.row]}>
-        <View style={styles.rowText}>
-          <ThemedText type="smallBold">Read missions aloud</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {audioEnabled ? 'On' : 'Off'}
-          </ThemedText>
-        </View>
-        <Switch
-          value={audioEnabled}
-          onValueChange={setEnabled}
-          accessibilityLabel="Read missions aloud"
-        />
-      </ThemedView>
+      <SettingRow title="Read aloud and sounds" value={audioEnabled} onChange={setEnabled} />
+      <SettingRow title="Gentle vibration" value={hapticsEnabled} onChange={setHapticsEnabledSetting} />
     </Screen>
   );
 }
@@ -128,6 +120,4 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     gap: Spacing.one,
   },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.three },
-  rowText: { flex: 1 },
 });

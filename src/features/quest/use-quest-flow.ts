@@ -2,7 +2,15 @@ import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useRef, useState } from 'react';
 
-import { completeMission, loadQuestFlow, openQuest, pauseQuest, type QuestFlowView } from '@/db/quest-flow';
+import {
+  completeMission,
+  loadQuestFlow,
+  markCelebrated,
+  openQuest,
+  pauseQuest,
+  type QuestFlowView,
+} from '@/db/quest-flow';
+import type { RewardValue } from '@/domain/types';
 
 export type QuestFlowState =
   | { status: 'loading' }
@@ -19,11 +27,19 @@ export function useQuestFlow(instanceId: string) {
   const db = useSQLiteContext();
   const [state, setState] = useState<QuestFlowState>({ status: 'loading' });
   const busy = useRef(false);
+  const celebrationShown = useRef(false);
+  const [celebration, setCelebration] = useState<{ bonus: RewardValue } | null>(null);
 
   const reload = useCallback(async () => {
     try {
       const view = await loadQuestFlow(db, instanceId);
       setState(view ? { status: 'ready', view } : { status: 'notFound' });
+      if (view?.celebration && !celebrationShown.current) {
+        // Show it once. It is recorded as shown straight away, so it never comes back.
+        celebrationShown.current = true;
+        setCelebration(view.celebration);
+        await markCelebrated(db, instanceId).catch(() => false);
+      }
     } catch (error) {
       if (__DEV__) console.warn('Quest failed to load:', error instanceof Error ? error.message : error);
       setState((previous) => (previous.status === 'ready' ? previous : { status: 'error' }));
@@ -74,5 +90,5 @@ export function useQuestFlow(instanceId: string) {
     void reload();
   }, [reload]);
 
-  return { state, complete, pause, retry };
+  return { state, complete, pause, retry, celebration };
 }

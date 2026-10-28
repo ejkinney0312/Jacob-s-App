@@ -7,10 +7,13 @@ import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { helpTextFor } from '@/features/quest/help-text';
+import { Celebration } from '@/features/quest/celebration';
 import { MissionIcon } from '@/features/quest/mission-icon';
 import { useQuestFlow } from '@/features/quest/use-quest-flow';
 import { useScreenReader } from '@/features/quest/use-screen-reader';
 import { useAudioEnabled } from '@/features/settings/use-audio-enabled';
+import { useHapticsEnabled } from '@/features/settings/use-haptics-enabled';
+import { gentleTap } from '@/services/haptics';
 import { speak, stopSpeaking } from '@/services/speech';
 
 function backToToday() {
@@ -20,8 +23,9 @@ function backToToday() {
 
 export default function QuestScreen() {
   const { instanceId } = useLocalSearchParams<{ instanceId: string }>();
-  const { state, complete, pause, retry } = useQuestFlow(instanceId);
+  const { state, complete, pause, retry, celebration } = useQuestFlow(instanceId);
   const { audioEnabled } = useAudioEnabled();
+  const { hapticsEnabled } = useHapticsEnabled();
   const screenReader = useScreenReader();
   const [helpOpen, setHelpOpen] = useState(false);
 
@@ -61,6 +65,10 @@ export default function QuestScreen() {
   }
 
   const { quest, finished, waitingForApproval, total, currentNumber, currentRedoCount } = state.view;
+
+  if (celebration) {
+    return <Celebration questTitle={quest.title} bonus={celebration.bonus} audioEnabled={audioEnabled} onDone={backToToday} />;
+  }
 
   if (finished || !current) {
     const waiting = waitingForApproval > 0;
@@ -144,7 +152,13 @@ export default function QuestScreen() {
           hint="Saves your place so you can pick up here later"
           onPress={() => void pause().then(backToToday)}
         />
-        <Button label="Mission complete" onPress={() => void complete(current.id)} />
+        <Button
+          label="Mission complete"
+          onPress={() => {
+            if (hapticsEnabled) void gentleTap();
+            void complete(current.id);
+          }}
+        />
       </View>
     </Screen>
   );

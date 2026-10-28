@@ -11,7 +11,7 @@ import { missionPayoutKey, questBonusKey } from '@/domain/rewards';
 import type { Mission, MissionInstanceStatus, Quest, QuestInstance, RewardValue } from '@/domain/types';
 
 import { runExclusive } from './exclusive';
-import { payOnce } from './ledger';
+import { getQuestBonusPaid, payOnce } from './ledger';
 import { listQuests } from './quests';
 import type { Db } from './types';
 
@@ -25,6 +25,11 @@ export interface QuestFlowView {
   currentNumber: number;
   total: number;
   waitingForApproval: number;
+  /**
+   * Set when the quest is finished and has not yet been celebrated: the bonus that was paid (zeros if none).
+   * Shown once; call `markCelebrated` when it is on screen.
+   */
+  celebration: { bonus: RewardValue } | null;
   /** How many times a caregiver has asked for another try on the current mission (0 if never). */
   currentRedoCount: number;
   /** True once the player has done every mission (some may still wait for a caregiver). */
@@ -84,17 +89,42 @@ export async function loadQuestFlow(db: Db, instanceId: string): Promise<QuestFl
       )
     : null;
 
+  const celebrated = await db.getFirstAsync<{ celebrated_at: string | null }>(
+    'SELECT celebrated_at FROM quest_instances WHERE id = ?',
+    instanceId,
+  );
+  const celebration =
+    instance.status === 'completed' && celebrated?.celebrated_at == null
+      ? { bonus: (await getQuestBonusPaid(db, instanceId)) ?? { xp: 0, emeralds: 0, blocks: 0 } }
+      : null;
+
   return {
     instance,
     quest,
     states,
     current,
+    celebration,
     currentNumber: current ? current.mission.position : states.length,
     total: states.length,
     waitingForApproval: waitingCount(states),
     currentRedoCount: redo?.redo_count ?? 0,
     finished: allFinishedByPlayer(states),
   };
+}
+
+/**
+ * Records that a finished quest's celebration has been shown, so it is never shown again. Pays nothing
+ * and changes nothing else. Returns false if there was nothing to record.
+ */
+export function markCelebrated(db: Db, instanceId: string, now: Date = new Date()): Promise<boolean> {
+  return runExclusive(db, async () => {
+    const result = await db.runAsync(
+      "UPDATE quest_instances SET celebrated_at = ? WHERE id = ? AND status = 'completed' AND celebrated_at IS NULL",
+      now.toISOString(),
+      instanceId,
+    );
+    return result.changes === 1;
+  });
 }
 
 /**

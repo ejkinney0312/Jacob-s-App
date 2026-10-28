@@ -1,4 +1,4 @@
-import { isValidRewardValue, isZeroReward } from '@/domain/rewards';
+import { isValidRewardValue, isZeroReward, questBonusKey } from '@/domain/rewards';
 import type { EarnedTotals, LedgerEntry, LedgerSourceType, RewardValue } from '@/domain/types';
 
 import type { Db } from './types';
@@ -85,4 +85,17 @@ export async function listLedgerEntries(db: Db): Promise<LedgerEntry[]> {
     blocks: r.blocks,
     createdAt: r.created_at,
   }));
+}
+
+/**
+ * The quest bonus that was actually paid for a quest instance, or null if none was (for example, the
+ * bonus was set to zero). Read from the ledger, so it is always the real amount, even if rewards were
+ * edited afterwards.
+ */
+export async function getQuestBonusPaid(db: Db, questInstanceId: string): Promise<RewardValue | null> {
+  const row = await db.getFirstAsync<{ xp: number; emeralds: number; blocks: number }>(
+    'SELECT xp, emeralds, blocks FROM ledger_entries WHERE idempotency_key = ?',
+    questBonusKey(questInstanceId),
+  );
+  return row ? { xp: row.xp, emeralds: row.emeralds, blocks: row.blocks } : null;
 }

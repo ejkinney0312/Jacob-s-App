@@ -161,3 +161,21 @@ table above. That row is still open; the original text is unchanged. Everything 
 | 11 | **Editing and approving run behind the PIN session only.** The session locks when the tab is left, so editing happens inside the Caregiver tab, not on a separate screen. | A separate screen would count as leaving the tab and relock. |
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed celebration behavior (M9): awaiting Erin's confirmation
+
+Status: **proposed, not approved.** Implemented as described. The celebration pays nothing; the quest bonus is
+paid by the ledger when the quest completes, and the celebration only shows what was paid.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **When.** The celebration appears once per finished quest: right after Jacob finishes the last mission of a quest with no key missions, or the next time he opens the quest after a caregiver approves the last waiting mission. It is recorded as shown the moment it appears, so it never repeats. Quests finished before this existed are not celebrated retroactively. | Alternative: also celebrate on Today when a quest is approved while the app is open (not built). |
+| 2 | **What.** One block settles into place over 0.7 s, the words fade in over 0.45 s, and one soft chime plays. It shows the quest name, the bonus that was actually paid ("Bonus: 10 XP · 4 emeralds · 1 block", left out if the bonus was zero), and "Nice work." Nothing loops, flashes, bounces, counts down or compares scores. | PRD: calm animation, one soft chime. No confetti or streaks on purpose. |
+| 3 | **Reduce Motion.** With the system's Reduce Motion on, nothing moves: the finished picture is shown at once. It is not a shorter animation. | CLAUDE.md. |
+| 4 | **Sound.** The chime plays only if the one audio switch on Today is on. That switch is now labelled **"Read aloud and sounds"** and turns off both. It respects the phone's silent switch (the audio library plays through silent mode by default; the app turns that off) and the volume buttons, and mixes with other audio instead of stopping it. | PRD: a setting to turn all audio off. Alternative: separate switches for reading aloud and for the chime. |
+| 5 | **Vibration.** One light tap each time **Mission complete** is pressed, controlled by a new **"Gentle vibration"** switch on Today (default on). No extra tap at the celebration, to avoid doubling. | PRD: one gentle tap on mission complete, user-toggleable. iPhones skip it in Low Power Mode or when the Taptic Engine is off. |
+| 6 | **Screen readers.** The message is announced once ("Quest finished. Bonus: ... Nice work."). The chime still plays. | |
+| 7 | **Wording.** Adult and warm: no exclamation marks, no childish praise, no pressure to do more. | CLAUDE.md. |
+| 8 | **The chime and the block are placeholders for original art and sound.** The chime is synthesized by `scripts/chime-synth.js` (two soft notes, about 1.6 s, quiet) so it is original; the block is a system symbol. | Original art and sound only. |
+
+Answer (date and confirmed behavior): _not yet answered_

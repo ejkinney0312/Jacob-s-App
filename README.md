@@ -58,6 +58,7 @@ through Node. They do not replace testing on real iPhone and Android hardware.
 src/app/         Expo Router screens (Today, Caregiver, quest)
 src/components/  Shared UI (themed text/view, tabs, screen)
 src/constants/   Theme: palette, sizing, spacing
+assets/sounds/   The quest chime (original; regenerate with `node scripts/generate-chime.js`)
 src/domain/      Pure rules and types: schedules, dates, rewards, demo content (no React, no native code)
 src/db/          SQLite: versioned migrations, queries, seeding, schedule instances, payouts
 src/services/    Device services: speech, secure storage, PIN key derivation and the caregiver PIN service
