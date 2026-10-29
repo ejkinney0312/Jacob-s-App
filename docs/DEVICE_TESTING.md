@@ -20,7 +20,8 @@ what has to be checked. Record each result (pass, fail, or not tested) in `docs/
 - Placeholder identifiers: `com.anonymous.quest-blocks` (iOS) and `com.anonymous.questblocks` (Android). Real ones wait for the Distribution decision.
 - Permissions audited on the generated projects: no microphone, Face ID or background modes. `app.json` turns these off for `expo-audio` and
   `expo-secure-store` and blocks the Android storage permissions. Development builds still include INTERNET, SYSTEM_ALERT_WINDOW and a local-network
-  usage string for the dev server. Remove those for release builds (M15).
+  usage string for the dev server. Release builds drop them: `eas.json` has a `production` profile that sets `QUEST_BLOCKS_RELEASE=1`, which `app.config.ts` reads
+  (locally: `QUEST_BLOCKS_RELEASE=1 npx expo prebuild`). Confirm on a real release build that the app still works without INTERNET (it should; P0 has no network features).
 - After building, start the server with `npx expo start --dev-client` and open the app on the phone. Plain `npx expo start --go` still opens Expo Go.
 
 ## Reminders (M14)

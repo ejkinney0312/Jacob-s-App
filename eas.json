@@ -16,6 +16,11 @@
       "ios": {
         "simulator": true
       }
+    },
+    "production": {
+      "env": {
+        "QUEST_BLOCKS_RELEASE": "1"
+      }
     }
   }
 }

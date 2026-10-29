@@ -269,14 +269,14 @@ phone, so none is accepted.** "Code-level" means checked by tests or by reading 
 
 | Area | Result |
 | --- | --- |
-| Color contrast | Computed all 28 text/background/border pairs in both themes with the WCAG formula: **all pass** (4.5:1 text, 3:1 borders and primary). Not yet enforced by a test. |
+| Color contrast | All 28 text/background/border pairs in both themes pass the WCAG formula (4.5:1 text, 3:1 borders and primary). **Now enforced by a test** (`src/constants/__tests__/theme-contrast.test.ts`, 29 tests); the palette moved to `src/constants/palette.ts` so it can be tested without CSS. Broke two colors on purpose and the test failed both times. |
 | Touch targets | Buttons 64 (primary) / 48 (secondary), text fields at least 56, quest cards at least 48. **Found and fixed:** on/off rows were only tappable on the small native switch (about 31 high on iOS). New `SwitchRow` makes the whole row (at least 48 high) the control, with role `switch` and on/off state; used by Settings, Quests, Rewards and Reminders. Not seen on a device. |
 | Logging | Five `console.warn` calls, all `__DEV__` only, all message text only. None in PIN code. |
 | Network / tracking | None in `src/`. No analytics SDKs in `package.json`. |
 | Notification text | Fixed generic wording by default; custom text is caregiver-written, warned as visible on a locked phone. |
-| Permissions (generated native projects) | No microphone, Face ID or background modes. Dev builds still carry INTERNET, SYSTEM_ALERT_WINDOW and a local-network string; **remove for release builds** (still to do). |
+| Permissions (generated native projects) | No microphone, Face ID or background modes. **Release hardening done in config** (`app.config.ts`, on when `QUEST_BLOCKS_RELEASE=1`, set by the new `production` profile in `eas.json`): Android blocks INTERNET and SYSTEM_ALERT_WINDOW; iOS drops the dev launcher's local-network and Bonjour entries. Checked by generating release and dev projects from a copy and reading the manifests (dev keeps all of them). Tested by `app-config.test.ts`. **Not verified:** an actual release build (no Android SDK; no EAS run), so the merged release manifest and a release install are unconfirmed. iOS still has the template's `NSAllowsLocalNetworking` ATS exemption (harmless; not removed). |
 | Leftover starter packages | `expo-web-browser`, `expo-device`, `expo-glass-effect`, `expo-image`, `@expo/ui` and `expo-linking` are installed; some may be unused. Not removed (cleanup only; needs a check that nothing imports them). |
-| Checks after the change | `tsc` clean, lint clean, 33 suites / 628 tests pass. No test covers `SwitchRow` (no screen-test library is installed). |
+| Checks after the changes | `tsc` clean, lint clean, **35 suites / 661 tests pass**. `expo-doctor` still 19/20 (patch drift only). No test covers `SwitchRow` (no screen-test library is installed). |
 
 ## Known gaps and notes
 
@@ -323,5 +323,5 @@ On 2026-10-28 Erin confirmed every proposed default (M2 to M14, including emeral
 **Finish M15 on real hardware.** The code for F1 to F11 exists and the decisions are confirmed; what is left is proof on a real iPhone and Android phone using
 `docs/DEVICE_TESTING.md`: VoiceOver, TalkBack, 200 percent text, Reduce Motion, reminders (app closed and after restart), secure storage and PIN timing, sound and haptics, and the
 full-quest-unassisted check. In this environment I still have to tap **Open** on the simulator's dev-client prompt myself, so even the simulator run needs you.
-Things I can do without a phone: add a contrast test so the theme cannot regress, remove the dev-only permissions for release builds, and remove unused starter packages.
+Things I can still do without a phone: remove unused starter packages (needs a check that nothing imports them). Contrast tests and release permission hardening are done.
 **Needs you:** phone models, the Bathroom fixture, real content, the redemption rules above, Expo login for EAS (`npx eas-cli@latest login`), and the Distribution decision.
