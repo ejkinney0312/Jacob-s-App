@@ -13,7 +13,7 @@ export interface Migration {
  * How emeralds are spent is still unresolved (docs/DECISIONS.md "Emerald purchases"). The ledger
  * (v1) is earn-only and has no spendable-balance column, and it stays that way. v5 adds only a
  * permanent redemption LOG; redeeming is switched off by policy (`REDEMPTION_ENABLED`) until Erin
- * confirms, so nothing is ever written to it by the app yet. Reminders arrive in a later migration.
+ * confirms, so nothing is ever written to it by the app yet. v6 holds per-quest reminder settings.
  */
 export const MIGRATIONS: readonly Migration[] = [
   {
@@ -167,6 +167,18 @@ export const MIGRATIONS: readonly Migration[] = [
 
       CREATE TRIGGER redemptions_no_delete BEFORE DELETE ON redemptions
       BEGIN SELECT RAISE(ABORT, 'redemptions are a permanent log'); END;
+    `,
+  },
+  {
+    version: 6,
+    description: 'Per-quest reminder settings (quiet hours live in the settings table)',
+    sql: `
+      CREATE TABLE quest_reminders (
+        quest_id TEXT PRIMARY KEY NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+        enabled INTEGER NOT NULL DEFAULT 0 CHECK (enabled IN (0, 1)),
+        time_of_day TEXT NOT NULL CHECK (time_of_day GLOB '[0-2][0-9]:[0-5][0-9]'),
+        message TEXT
+      );
     `,
   },
 ];

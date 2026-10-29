@@ -271,3 +271,38 @@ is redeeming one immediate step, or does the caregiver approve and hand it over?
 are real, and what should they cost?
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed reminders (M14): awaiting Erin's confirmation
+
+Status: **proposed, not approved.** This builds the PRD's local reminders (F11) and fills the gaps the earlier schedule proposal left
+open (quiet hours, travel). **Delivery is best effort and is never promised.** Whether a reminder really arrives with the app closed,
+after a restart, or after a time-zone change has **not** been tested on a phone; `docs/DEVICE_TESTING.md` lists how.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **Per quest, behind the PIN:** a reminder can be switched on, given a time of day, and given its own short wording. It is sent on each day the quest is due (every day, every N days, or chosen weekdays, using the same rules as Today), at that same time. | PRD F11. Times are two number boxes (24-hour); a clock-face picker would need an extra dependency. |
+| 2 | **Quiet hours** (one setting, default 9 PM to 7 AM, on). **Confirmed by Erin, 2026-10-28: a reminder set inside quiet hours moves to the morning**, when they end: 6:30 AM becomes 7:00 AM the same day, and 10:00 PM becomes 7:00 AM the next morning. Nothing is ever sent during quiet hours. *My reading of "move to the morning" for the overnight case: a reminder moved into the next morning is kept only if the quest is also due that morning (so a weekly or every-3-days quest set for 10 PM gets no reminder, because there would be nothing to start); say if you would rather it was sent anyway.* | Never disturb overnight. The 9 PM to 7 AM default itself is not yet confirmed. |
+| 3 | **Planned two weeks ahead, in the phone's current time zone.** Each reminder is its own one-off notification (at most 48 pending, under iOS's limit of 64). The plan is rebuilt when the app opens or returns to the foreground, when a setting changes, when a quest is finished (today's reminder is dropped) and when the time zone changes. **So reminders stop if the app is not opened for about two weeks**, and the caregiver is told so. **Two weeks confirmed as fine by Erin, 2026-10-28.** | Expo's docs do not say how the platform's repeating triggers behave across time-zone changes or reboots, and they cannot express "every N days". Alternative: repeating triggers for daily and weekly quests, which keep going without the app being opened. |
+| 4 | **No duplicates.** Each reminder has a stable id built from the quest, the day, the exact moment and the wording. The plan is compared with what is already scheduled: only what is missing is scheduled, and only our own stale reminders are cancelled. Other notifications are never touched. Overlapping runs are lined up. | A changed time or wording gives a new id, so the old one is cancelled; the docs do not say whether reusing an id replaces it, so this never relies on that. |
+| 5 | **Permission is asked only when it is needed**: when a caregiver turns a reminder on, or presses "Allow notifications", never at launch. If notifications are off, the panel says so and offers "Open phone settings". Nothing is scheduled without permission, and our reminders are removed if permission is taken away. | |
+| 6 | **Lock-screen safe wording.** The notification says "Quest Blocks" and "A quest is ready when you are." It never contains a quest's name or anything about it (care routines may be health-adjacent). A caregiver may write their own short wording (up to 80 characters, plain text) and is warned it can show on a locked phone. **Confirmed by Erin, 2026-10-28.** | CLAUDE.md privacy rule. |
+| 7 | **Gentle.** One reminder per due day, at the set time, with the phone's normal notification sound (no alarm sound), no countdown, and **no follow-up nagging** if it is ignored or the quest is not done. No reminder for a quest already finished today. While the app is open, a reminder shows as a quiet banner with no sound. | PRD: gentle tone, no countdown or alarm sounds. Alternative: a single gentle follow-up (not built). |
+| 8 | **What is not promised.** The phone must allow notifications; Focus and Do Not Disturb can hide them; on Android 12 and later, without the exact-alarm permission (denied by default on Android 14), reminders can arrive a few minutes late. The app does not ask for the exact-alarm permission. | Expo's docs. The PRD target of a median start within 15 minutes of a reminder cannot be measured yet. |
+| 9 | **Not built:** a different time on different days, several reminders a day, snooze, and "you missed it" follow-ups (which would break the no-nagging rule). | |
+
+**Answered 2026-10-28:** two weeks of planning is fine; a reminder inside quiet hours moves to the morning; a caregiver may write their own wording;
+the phones are iOS and Android. **Still open:** whether 9 PM to 7 AM is the right default, the other rules above, and which phone models and Android
+version (see `docs/DEVICE_TESTING.md`).
+
+Answer (date and confirmed behavior): see "Answers recorded" below.
+
+## Answers recorded
+
+Answers Erin has given, with the date. The proposals above stay as written except where a row says "Confirmed".
+
+| Date | Topic | Answer | Effect |
+| --- | --- | --- | --- |
+| 2026-10-28 | Reminders: how far ahead (M14, rule 3) | Two weeks is fine. | Kept as built. Reminders stop if the app is not opened for about two weeks, and the app says so. |
+| 2026-10-28 | Reminders: quiet hours (M14, rule 2) | A reminder inside quiet hours moves to the morning. | Changed from "skip an evening reminder" to "move it to when quiet hours end". Kept for the next morning only if the quest is due then (my reading; open to change). |
+| 2026-10-28 | Reminders: own wording (M14, rule 6) | Yes, a caregiver may write their own. | Kept as built (up to 80 characters, with a lock-screen warning). |
+| 2026-10-28 | Target phones (original "Target phones" row) | iOS and Android. | Both platforms confirmed. **Phone models and the minimum OS version are still unknown.** |

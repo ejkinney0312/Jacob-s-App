@@ -9,6 +9,7 @@ import { Spacing } from '@/constants/theme';
 import { approveMission, listWaitingApprovals, requestAnotherTry, type WaitingApproval } from '@/db/approvals';
 import { formatLocalDate } from '@/domain/local-date';
 import { describeReward } from '@/domain/rewards';
+import { syncReminders } from '@/features/reminders/sync';
 
 import { describeAnotherTryResult, describeApprovalResult } from './messages';
 
@@ -86,7 +87,13 @@ export function ApprovalsPanel() {
             label="Approve"
             disabled={busy}
             hint={`Approves ${item.missionTitle} from ${item.questTitle}`}
-            onPress={() => void act(async () => describeApprovalResult(await approveMission(db, item.missionInstanceId)))}
+            onPress={() =>
+              void act(async () => {
+                const result = await approveMission(db, item.missionInstanceId);
+                if (result.questCompleted) void syncReminders(db); // a finished quest needs no more reminder today
+                return describeApprovalResult(result);
+              })
+            }
           />
           <Button
             label="Ask for another try"

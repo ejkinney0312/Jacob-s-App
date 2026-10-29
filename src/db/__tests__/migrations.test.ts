@@ -269,6 +269,30 @@ describe('migration v5: redemption log', () => {
   });
 });
 
+describe('migration v6: reminder settings', () => {
+  it('creates the table on a fresh install and upgrades from v5, keeping every row', async () => {
+    await runMigrations(db, MIGRATIONS.slice(0, 5));
+    await db.runAsync("INSERT INTO ledger_entries VALUES ('l', 'k', 'mission', 'm', 5, 7, 0, 'now')");
+    expect(await userVersion()).toBe(5);
+
+    await runMigrations(db);
+
+    expect(await userVersion()).toBe(LATEST_SCHEMA_VERSION);
+    expect(LATEST_SCHEMA_VERSION).toBeGreaterThanOrEqual(6);
+    expect(await tableNames()).toContain('quest_reminders');
+    expect(await db.getFirstAsync('SELECT SUM(emeralds) AS e FROM ledger_entries')).toEqual({ e: 7 });
+  });
+
+  it('goes away with its quest, and refuses a reminder for a quest that does not exist', async () => {
+    await runMigrations(db);
+    await db.runAsync("INSERT INTO quests (id, title, icon, schedule_json) VALUES ('q', 'Q', 'i', '{}')");
+    await db.runAsync("INSERT INTO quest_reminders (quest_id, enabled, time_of_day) VALUES ('q', 1, '09:00')");
+    await expect(db.runAsync("INSERT INTO quest_reminders (quest_id, enabled, time_of_day) VALUES ('missing', 1, '09:00')")).rejects.toThrow(/FOREIGN KEY/);
+    await db.runAsync("DELETE FROM quests WHERE id = 'q'");
+    expect(await db.getFirstAsync('SELECT COUNT(*) AS n FROM quest_reminders')).toEqual({ n: 0 });
+  });
+});
+
 describe('integrity rules', () => {
   beforeEach(async () => {
     await runMigrations(db);

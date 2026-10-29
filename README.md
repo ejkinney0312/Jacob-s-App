@@ -17,6 +17,7 @@ Google Play.
 | `docs/PRODUCT_REQUIREMENTS.md` | Snapshot of the product requirements (the original document stays authoritative) |
 | `docs/DECISIONS.md` | Open questions and proposed defaults. Nothing here is approved until recorded |
 | `docs/IMPLEMENTATION_PLAN.md` | Milestones M0–M15 for the first release (F1–F11), plus the backlog |
+| `docs/DEVICE_TESTING.md` | What must be tested on a real iPhone and Android phone, and how to get a development build |
 | `docs/STATUS.md` | What is done, which checks actually passed, blockers, and the next task |
 | `CLAUDE.md`, `AGENTS.md` | Working rules for the AI coding assistant |
 
@@ -29,6 +30,10 @@ npm install
 npx expo start --ios      # iOS simulator (installs Expo Go if needed)
 npx expo start            # then press i (iOS) or a (Android), or scan the QR code with Expo Go
 ```
+
+Plain `npx expo start --go` opens Expo Go. `expo-dev-client` is installed, so `npx expo start` prefers a development build when one exists. Expo Go is
+enough for most screens, but **reminders, secure storage and the other native features must be tested on a development build on a real phone**; see
+`docs/DEVICE_TESTING.md` for how to make one and what to check.
 
 The app stores data on the device only. There is no backend, no account and no analytics. SQLite on web
 is not set up, so the web build shows a notice instead of the app. Expo Go is enough for now; features

@@ -13,6 +13,7 @@ import type { CaregiverPinService, PinStatus } from '@/services/caregiver-pin';
 import { ApprovalsPanel } from './approvals-panel';
 import { describeGuessFailure } from './messages';
 import { QuestsPanel } from './quests-panel';
+import { RemindersPanel } from './reminders-panel';
 import { RewardEditor } from './reward-editor';
 import { RewardsPanel } from './rewards-panel';
 import { PinField } from './pin-field';
@@ -371,6 +372,7 @@ function Home({
       {savedMessage && <Message text={savedMessage} />}
       <ApprovalsPanel />
       <QuestsPanel onEdit={onEditQuest} />
+      <RemindersPanel />
       <RewardsPanel />
       <Button label="Lock now" onPress={onLock} />
       <Button label="New recovery code" variant="secondary" onPress={onNewCode} />

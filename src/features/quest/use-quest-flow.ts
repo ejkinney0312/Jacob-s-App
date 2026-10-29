@@ -11,6 +11,7 @@ import {
   type QuestFlowView,
 } from '@/db/quest-flow';
 import type { RewardValue } from '@/domain/types';
+import { syncReminders } from '@/features/reminders/sync';
 
 export type QuestFlowState =
   | { status: 'loading' }
@@ -64,7 +65,9 @@ export function useQuestFlow(instanceId: string) {
       if (busy.current) return; // ignore a second tap while the first is saving
       busy.current = true;
       try {
-        await completeMission(db, instanceId, missionId);
+        const result = await completeMission(db, instanceId, missionId);
+        // A finished quest needs no more reminder today.
+        if (result.questCompleted) void syncReminders(db);
       } catch (error) {
         // Most likely a stale screen; reloading shows the real current mission.
         if (__DEV__) console.warn('Could not complete mission:', error instanceof Error ? error.message : error);
