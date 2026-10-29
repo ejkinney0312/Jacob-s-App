@@ -1,6 +1,6 @@
-import { StyleSheet, Switch, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
+import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 
@@ -8,25 +8,13 @@ import { Spacing } from '@/constants/theme';
 export function SettingRow({ title, value, onChange }: { title: string; value: boolean; onChange: (value: boolean) => void }) {
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
-      <View style={styles.text}>
-        <ThemedText type="smallBold">{title}</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
-          {value ? 'On' : 'Off'}
-        </ThemedText>
-      </View>
-      <Switch value={value} onValueChange={onChange} accessibilityLabel={title} />
+      <SwitchRow label={title} value={value} onChange={onChange}>
+        <SwitchRowText title={title} caption={value ? 'On' : 'Off'} />
+      </SwitchRow>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.three,
-  },
-  text: { flex: 1 },
+  card: { padding: Spacing.three, borderRadius: Spacing.three },
 });

@@ -1,8 +1,9 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
-import { Linking, StyleSheet, Switch, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -183,15 +184,12 @@ function QuietHoursCard({
 
   return (
     <ThemedView type="background" style={styles.card}>
-      <View style={styles.row}>
-        <View style={styles.rowText}>
-          <ThemedText type="smallBold">Quiet hours</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {enabled ? 'On' : 'Off'} · nothing is sent at these times; it waits until the morning
-          </ThemedText>
-        </View>
-        <Switch value={enabled} onValueChange={setEnabled} accessibilityLabel="Quiet hours" />
-      </View>
+      <SwitchRow label="Quiet hours" value={enabled} onChange={setEnabled}>
+        <SwitchRowText
+          title="Quiet hours"
+          caption={`${enabled ? 'On' : 'Off'} · nothing is sent at these times; it waits until the morning`}
+        />
+      </SwitchRow>
       <ThemedText type="small">Starts (24-hour time)</ThemedText>
       <View style={styles.fields}>
         <NumberField label="Hour (0 to 23)" value={startHour} onChangeText={setStartHour} />
@@ -256,16 +254,12 @@ function ReminderRow({
 
   return (
     <ThemedView type="background" style={styles.card}>
-      <View style={styles.row}>
-        <View style={styles.rowText}>
-          <ThemedText type="smallBold">{quest.title}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            Reminder {enabled ? 'on' : 'off'}
-            {quest.isDemo ? ' · Demo quest' : ''}
-          </ThemedText>
-        </View>
-        <Switch value={enabled} onValueChange={setEnabled} accessibilityLabel={`Remind about ${quest.title}`} />
-      </View>
+      <SwitchRow label={`Remind about ${quest.title}`} value={enabled} onChange={setEnabled}>
+        <SwitchRowText
+          title={quest.title}
+          caption={`Reminder ${enabled ? 'on' : 'off'}${quest.isDemo ? ' · Demo quest' : ''}`}
+        />
+      </SwitchRow>
       <View style={styles.fields}>
         <NumberField label="Hour (0 to 23)" value={hour} onChangeText={setHour} />
         <NumberField label="Minute (0 to 59)" value={minute} onChangeText={setMinute} />
@@ -285,7 +279,5 @@ function ReminderRow({
 const styles = StyleSheet.create({
   panel: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
   card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.three },
-  rowText: { flex: 1 },
   fields: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
 });

@@ -1,8 +1,9 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Switch, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
+import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -67,19 +68,12 @@ export function QuestsPanel({ onEdit }: { onEdit: (questId: string) => void }) {
       )}
       {quests?.map((quest) => (
         <ThemedView key={quest.id} type="background" style={styles.card}>
-          <View style={styles.row}>
-            <View style={styles.rowText}>
-              <ThemedText type="smallBold">{quest.title}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {describeSchedule(quest.schedule)} · {quest.active ? 'On' : 'Off'}
-              </ThemedText>
-            </View>
-            <Switch
-              value={quest.active}
-              onValueChange={(value) => void toggle(quest, value)}
-              accessibilityLabel={`Show ${quest.title} on Today`}
-            />
-          </View>
+          <SwitchRow
+            label={`Show ${quest.title} on Today`}
+            value={quest.active}
+            onChange={(value) => void toggle(quest, value)}>
+            <SwitchRowText title={quest.title} caption={`${describeSchedule(quest.schedule)} · ${quest.active ? 'On' : 'Off'}`} />
+          </SwitchRow>
           <Button
             label="Edit rewards"
             variant="secondary"
@@ -95,6 +89,4 @@ export function QuestsPanel({ onEdit }: { onEdit: (questId: string) => void }) {
 const styles = StyleSheet.create({
   panel: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
   card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.three },
-  rowText: { flex: 1 },
 });

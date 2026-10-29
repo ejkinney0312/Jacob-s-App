@@ -1,8 +1,9 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Switch, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
+import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -162,16 +163,12 @@ function RewardRow({
 
   return (
     <ThemedView type="background" style={styles.card}>
-      <View style={styles.row}>
-        <View style={styles.rowText}>
-          <ThemedText type="smallBold">{reward.title}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {reward.active ? 'Shown' : 'Hidden'}
-            {reward.isDemo ? ' · Demo reward' : ''}
-          </ThemedText>
-        </View>
-        <Switch value={reward.active} onValueChange={(v) => void toggle(v)} accessibilityLabel={`Show ${reward.title} in the store`} />
-      </View>
+      <SwitchRow label={`Show ${reward.title} in the store`} value={reward.active} onChange={(v) => void toggle(v)}>
+        <SwitchRowText
+          title={reward.title}
+          caption={`${reward.active ? 'Shown' : 'Hidden'}${reward.isDemo ? ' · Demo reward' : ''}`}
+        />
+      </SwitchRow>
       <NumberField label="Cost in emeralds" value={cost} onChangeText={setCost} />
       <Button label="Save cost" variant="secondary" disabled={busy} hint={`Saves the cost of ${reward.title}`} onPress={() => void saveCost()} />
     </ThemedView>
@@ -181,6 +178,4 @@ function RewardRow({
 const styles = StyleSheet.create({
   panel: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
   card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.three },
-  rowText: { flex: 1 },
 });

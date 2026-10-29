@@ -1,6 +1,6 @@
 # Quest Blocks status
 
-Last updated: 2026-10-28 — pushed through M13 (`fb91755`). M14 local reminders built, uncommitted; Erin answered the M14 questions (below). `expo-dev-client` added (approved).
+Last updated: 2026-10-28 — pushed through M14 + dev-build config (`053d5e7`). Erin confirmed all proposed defaults in `docs/DECISIONS.md` (see "Answers recorded"). M15 started: code-level accessibility and privacy audit done, P0 acceptance matrix below; **hardware acceptance not done**.
 
 ## Current setup
 
@@ -249,6 +249,35 @@ Last updated: 2026-10-28 — pushed through M13 (`fb91755`). M14 local reminders
 
 The database tests use Node's SQLite, not `expo-sqlite`. They prove our SQL and migration logic; they do not prove expo-sqlite's native behavior, which was only checked once on the iOS simulator. Android SQLite is untested.
 
+## M15: P0 acceptance matrix (2026-10-28)
+
+The PRD says a release is accepted only when every item passes on one recent iPhone and one recent Android phone. **No item has been run on a
+phone, so none is accepted.** "Code-level" means checked by tests or by reading the code here; it is evidence, not acceptance.
+
+| PRD acceptance item | Status | Evidence / what is missing |
+| --- | --- | --- |
+| Jacob completes a full quest unassisted and finds Pause, Help, Replay unaided | **Untested** | Needs Jacob (or a stand-in) on a real phone. Controls are in fixed positions, 64-high primary buttons. |
+| Reminder fires on time with the app closed and after restart | **Untested** | Planning logic tested against a strict fake (`reminders` tests). Native scheduling never observed with permission granted. See `docs/DEVICE_TESTING.md`. |
+| Key mission stays "waiting" until approved, then pays exactly once | **Code-level pass** | `approvals.test.ts`, `rewards.test.ts`, `quest-flow.test.ts` (double tap, retry, reopen). Not exercised by tapping on a phone. |
+| Emeralds, XP, blocks, badges never decrease, including after an app update | **Code-level pass** | Ledger is earn-only with CHECK and triggers blocking update/delete; migration tests keep data across upgrades; store spends only from a separate redemptions log. Not tested across a real app update. |
+| All flows work in airplane mode | **Code-level pass; device untested** | `src/` has no network calls and no analytics or tracking packages (grep, 2026-10-28). Reinstall recovery is P1 and not offered. |
+| VoiceOver, TalkBack, 200% text, Reduce Motion with no clipped content | **Untested** | Roles and labels exist on controls; no `allowFontScaling` overrides, so text should scale; Reduce Motion has a static celebration variant. None of it was heard or seen with a screen reader or at 200%. |
+| Reward math: full Bathroom quest = 95 XP, 38 emeralds, 1 block | **Blocked, not claimed** | No supplied or approved fixture exists. Do not call this verified. |
+| Store checklists: privacy policy, labels, review notes with demo PIN | **Not started** | Out of scope until Distribution is decided (placeholder bundle ids only). |
+
+### M15 audit findings (code-level)
+
+| Area | Result |
+| --- | --- |
+| Color contrast | Computed all 28 text/background/border pairs in both themes with the WCAG formula: **all pass** (4.5:1 text, 3:1 borders and primary). Not yet enforced by a test. |
+| Touch targets | Buttons 64 (primary) / 48 (secondary), text fields at least 56, quest cards at least 48. **Found and fixed:** on/off rows were only tappable on the small native switch (about 31 high on iOS). New `SwitchRow` makes the whole row (at least 48 high) the control, with role `switch` and on/off state; used by Settings, Quests, Rewards and Reminders. Not seen on a device. |
+| Logging | Five `console.warn` calls, all `__DEV__` only, all message text only. None in PIN code. |
+| Network / tracking | None in `src/`. No analytics SDKs in `package.json`. |
+| Notification text | Fixed generic wording by default; custom text is caregiver-written, warned as visible on a locked phone. |
+| Permissions (generated native projects) | No microphone, Face ID or background modes. Dev builds still carry INTERNET, SYSTEM_ALERT_WINDOW and a local-network string; **remove for release builds** (still to do). |
+| Leftover starter packages | `expo-web-browser`, `expo-device`, `expo-glass-effect`, `expo-image`, `@expo/ui` and `expo-linking` are installed; some may be unused. Not removed (cleanup only; needs a check that nothing imports them). |
+| Checks after the change | `tsc` clean, lint clean, 33 suites / 628 tests pass. No test covers `SwitchRow` (no screen-test library is installed). |
+
 ## Known gaps and notes
 
 - Selected-tab color on iOS is the system blue, not the theme's `primary`; set it when icons are redone.
@@ -278,28 +307,21 @@ The database tests use Node's SQLite, not `expo-sqlite`. They prove our SQL and 
 
 ## Unresolved decisions (from `docs/DECISIONS.md`)
 
-None have been answered. Reward spending remains unresolved and is kept disabled.
+On 2026-10-28 Erin confirmed every proposed default (M2 to M14, including emerald spending and the PIN evaluation). What is still open:
 
 | Decision | Blocks |
 | --- | --- |
-| Emerald purchases: do they debit spendable balance? | M13 real redemption (disabled). No spend schema exists yet |
-| Prototype/content export (quests, Rook dialogue, rewards) | Real content; demo data stands in |
-| Bathroom fixture totaling 95 XP / 38 emeralds / 1 block | "Verified" claim in M15 |
-| Schedule edge cases (anchor, DST, travel, missed quests, quiet-hours deferral) | M2 merge, M14 |
-| Approval transitions (reject, redo, quest-bonus timing) | M8 (no "rejected" status exists) |
-| Rook tap-to-talk meaning | M12 |
-| Village structures/stages, badge thresholds, starting level | M10, M11 |
-| Can P0 add chores, or only enable/disable supplied quests? | Scope of M8; F12 stays P1 |
-| Target phones and minimum OS | M15 |
-| Distribution, account holder, final app-name availability | Real bundle IDs; store config |
-| PIN derivation, retry limits, relock, recovery | M7 real caregiver access |
+| How a mistaken redemption is undone, and whether redeeming is one step or caregiver-approved (M13 rules 4 and 5) | Turning on `REDEMPTION_ENABLED` (still `false`; real rewards also needed) |
+| Prototype/content export (quests, Rook dialogue, rewards, badges, village stages) | Real content; demo and placeholder content stands in |
+| Bathroom fixture totaling 95 XP / 38 emeralds / 1 block | The "verified" claim in the PRD acceptance list |
+| Phone models and minimum OS | Hardware testing; PIN timing (10,000 iterations may need tuning) |
+| Distribution, account holder, final app name and real bundle ids | Release builds, store configuration |
+| Can P0 add chores, or only enable/disable supplied quests? | Scope of the caregiver tools; F12 stays P1 |
 
 ## Next implementation task
 
-**M15: accessibility, privacy review and P0 acceptance** (and building the development build that M7, M9 and M14 need). The code for F1 to F11 now exists with demo content, so what is left is
-mostly proof on real hardware: VoiceOver, TalkBack, 200 percent text, Reduce Motion, notifications, secure storage, sound and haptics (`docs/DEVICE_TESTING.md`), plus a privacy review and the
-PRD acceptance list (including the Bathroom total, which needs a fixture you supply or approve).
-**To go further I need you to:** log in to Expo (`npx eas-cli@latest login`, then `init`) so an Android development build can be made with EAS, and use a real iPhone (a free Apple ID works
-for a local build). CocoaPods is installed and a simulator build works; Android Studio is not installed. I can also keep reviewing and tightening the code, but nothing here can be called release-ready until it is tested on a real iPhone and Android phone.
-**Please review the proposed rules in `docs/DECISIONS.md`: schedule, audio/help, payouts, pause, PIN, approvals, celebration, levels and badges, village, Rook, reward store and now reminders.** The PIN evaluation
-should be confirmed before the caregiver tools are used for real, and the "Emerald purchases" decision blocks turning redeeming on.
+**Finish M15 on real hardware.** The code for F1 to F11 exists and the decisions are confirmed; what is left is proof on a real iPhone and Android phone using
+`docs/DEVICE_TESTING.md`: VoiceOver, TalkBack, 200 percent text, Reduce Motion, reminders (app closed and after restart), secure storage and PIN timing, sound and haptics, and the
+full-quest-unassisted check. In this environment I still have to tap **Open** on the simulator's dev-client prompt myself, so even the simulator run needs you.
+Things I can do without a phone: add a contrast test so the theme cannot regress, remove the dev-only permissions for release builds, and remove unused starter packages.
+**Needs you:** phone models, the Bathroom fixture, real content, the redemption rules above, Expo login for EAS (`npx eas-cli@latest login`), and the Distribution decision.

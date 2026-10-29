@@ -18,7 +18,7 @@ These questions come from the PRD or are implementation choices needed to make i
 
 Record answers below with date and confirmed behavior. Update CLAUDE.md and the implementation plan when decisions change. Do not edit the source snapshot to hide conflicts.
 
-## Proposed schedule rules (M2): awaiting Erin's confirmation
+## Proposed schedule rules (M2): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** The schedule engine (`src/domain/schedule.ts`,
 `src/domain/local-date.ts`, `src/db/instances.ts`) implements these defaults and the tests
@@ -47,9 +47,9 @@ Open choices inside these rules, if you would rather decide them differently:
 - **Rule 7:** keep missed quests visible for a day ("catch up") instead of dropping them.
 - **Rule 8:** add new missions to quests already started today.
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed audio and help behavior (M4): awaiting Erin's confirmation
+## Proposed audio and help behavior (M4): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** Implemented as described; each point is easy to change.
 
@@ -66,9 +66,9 @@ Status: **proposed, not approved.** Implemented as described; each point is easy
 
 Not decided here, and worth deciding before the metrics exist: the PRD's success metric "missions completed without tapping *I need help*" needs help taps to be recorded. M4 records nothing, to keep data minimal. Say if you want a count stored on the device (no names, no content).
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed reward payout rules (M5): awaiting Erin's confirmation
+## Proposed reward payout rules (M5): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** Implemented as described (`src/db/ledger.ts`, `src/db/quest-flow.ts`).
 Real spending is **not** part of this and stays disabled; see "Emerald purchases" in the table above.
@@ -83,9 +83,9 @@ Real spending is **not** part of this and stays disabled; see "Emerald purchases
 | 6 | **Earned totals only grow.** The ledger is append-only: no edits, no deletions, no negative amounts, and a reward of zero writes no row. | PRD: "points never removed". |
 | 7 | **The same recurring mission pays again on each new day**, once per day. | Each day is a separate instance. |
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed pause and resume behavior (M6): awaiting Erin's confirmation
+## Proposed pause and resume behavior (M6): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** Implemented as described.
 
@@ -99,9 +99,9 @@ Status: **proposed, not approved.** Implemented as described.
 | 6 | **A paused quest stays on its own date.** At local midnight it is no longer on Today; there is no catch-up and no penalty (schedule rule 7). | Alternative: carry unfinished or paused quests over until done. This is the one most worth deciding. |
 | 7 | **Nothing times out.** A quest can stay paused all day; there are no timers or countdowns on screen. (The app quietly checks once a minute whether the date changed; that is never shown.) | PRD: no timeouts or countdowns that can be lost. |
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## PIN protection evaluation (M7): awaiting Erin's confirmation
+## PIN protection evaluation (M7): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **evaluated and implemented as a proposal; not approved.** CLAUDE.md asks for this evaluation
 before real caregiver access is enabled. Nothing sensitive sits behind the PIN yet (approvals and
@@ -139,9 +139,9 @@ use it, so I can measure there?
 Go), Android Keystore behavior, whether the iOS Keychain really survives a reinstall on a device, screen
 reader behavior on the PIN forms, and typing a PIN on a real keyboard (no way to tap in this environment).
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed approval and caregiver editing rules (M8): awaiting Erin's confirmation
+## Proposed approval and caregiver editing rules (M8): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** This is built on the defaults suggested in the "Approval flow" row of the
 table above. That row is still open; the original text is unchanged. Everything here sits behind the caregiver PIN.
@@ -160,9 +160,9 @@ table above. That row is still open; the original text is unchanged. Everything 
 | 10 | **Not in this release:** adding quests, renaming or reordering missions, editing the words and tips (the P1 quest builder, F12). Whether adding chores must move into the first release is still an open decision in the table above. | |
 | 11 | **Editing and approving run behind the PIN session only.** The session locks when the tab is left, so editing happens inside the Caregiver tab, not on a separate screen. | A separate screen would count as leaving the tab and relock. |
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed celebration behavior (M9): awaiting Erin's confirmation
+## Proposed celebration behavior (M9): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** Implemented as described. The celebration pays nothing; the quest bonus is
 paid by the ledger when the quest completes, and the celebration only shows what was paid.
@@ -178,9 +178,9 @@ paid by the ledger when the quest completes, and the celebration only shows what
 | 7 | **Wording.** Adult and warm: no exclamation marks, no childish praise, no pressure to do more. | CLAUDE.md. |
 | 8 | **The chime and the block are placeholders for original art and sound.** The chime is synthesized by `scripts/chime-synth.js` (two soft notes, about 1.6 s, quiet) so it is original; the block is a system symbol. | Original art and sound only. |
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed levels and badges (M10): awaiting Erin's confirmation
+## Proposed levels and badges (M10): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** CLAUDE.md says the starting level and badge thresholds must be confirmed, and
 no real badge content has been supplied, so **every badge below is a clearly labelled demo placeholder.** The
@@ -202,9 +202,9 @@ level formula follows the PRD ("flat 100 XP per level"). Nothing here pays or re
 **Questions for you:** Starting level 1 or 0? What should the real badges be, and what earns each? Do you want
 the not-yet-earned badges visible?
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed village (M11): awaiting Erin's confirmation
+## Proposed village (M11): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** The PRD asks for "four structures and story stages" (F9) but never defines
 them, so **every structure, stage and story line is a clearly labelled demo placeholder.** The village pays
@@ -225,9 +225,9 @@ nothing and removes nothing: it only shows what has already been earned.
 structures, their stages and story lines? Should the structures grow one after another or together? Is about three
 weeks to finish the placeholder village a good pace?
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed Rook (M12): awaiting Erin's confirmation
+## Proposed Rook (M12): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** This builds the proposed default from the "Rook tap to talk" row above (preset lines read
 aloud by the phone, no microphone, no AI). No real Rook dialogue or art has been supplied, so **every line is a clearly
@@ -247,9 +247,9 @@ labelled demo placeholder** ("Demo lines" appears on Rook's card). Rook pays not
 **Questions for you:** What is Rook like (voice, personality), and what should he really say? Is tap-to-hear enough, or
 do you want conversation? Should "independent finish" be counted? Do you want Rook on every mission, or only on request?
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed reward store (M13): awaiting Erin's confirmation
+## Proposed reward store (M13): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved, and real redemption stays OFF.** This builds the store and the *mechanism* for redeeming,
 but nothing in the app can redeem anything: `REDEMPTION_ENABLED` is `false` and every screen says so. **It does not decide
@@ -270,9 +270,9 @@ the open "Emerald purchases" question.** The two demo rewards ("Demo: Pick a sna
 is redeeming one immediate step, or does the caregiver approve and hand it over? How should a mistake be undone? Which rewards
 are real, and what should they cost?
 
-Answer (date and confirmed behavior): _not yet answered_
+Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed reminders (M14): awaiting Erin's confirmation
+## Proposed reminders (M14): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
 Status: **proposed, not approved.** This builds the PRD's local reminders (F11) and fills the gaps the earlier schedule proposal left
 open (quiet hours, travel). **Delivery is best effort and is never promised.** Whether a reminder really arrives with the app closed,
@@ -306,6 +306,10 @@ Answers Erin has given, with the date. The proposals above stay as written excep
 | 2026-10-28 | Reminders: quiet hours (M14, rule 2) | A reminder inside quiet hours moves to the morning. | Changed from "skip an evening reminder" to "move it to when quiet hours end". Kept for the next morning only if the quest is due then (my reading; open to change). |
 | 2026-10-28 | Reminders: own wording (M14, rule 6) | Yes, a caregiver may write their own. | Kept as built (up to 80 characters, with a lock-screen warning). |
 | 2026-10-28 | Target phones (original "Target phones" row) | iOS and Android. | Both platforms confirmed. **Phone models and the minimum OS version are still unknown.** |
+| 2026-10-28 | Emerald purchases (original table row; M13) | Confirmed: the M13 proposal, as written. | Purchases lower only the spendable "Available" number; "Earned in total" never goes down; no punitive deduction. **`REDEMPTION_ENABLED` is still `false`**: M13 rules 4 and 5 leave two things open (how a mistaken redemption is undone, and whether redeeming is one step or caregiver-approved), the ledger is permanent so a wrong redemption could not be removed, and the only rewards are demo ones. Turning it on is a one-line change once those are settled. |
+| 2026-10-28 | PIN evaluation (M7) | Confirmed: 6-digit PIN, 5 tries then 30 s doubling to 15 min, 5-minute idle relock, recovery code shown once, PBKDF2-HMAC-SHA256 at 10,000 iterations, no biometrics. | The design is approved. **Timing on real phones, Android Keystore and the iOS Keychain-after-reinstall behavior are still unmeasured**, so the PIN is not release-acceptable until `docs/DEVICE_TESTING.md` is done on hardware. The iteration count may need to change once measured. |
+| 2026-10-28 | Proposals M2, M4, M5, M6, M8, M9, M10, M11, M12, M14 | Confirmed as written (including the 9 PM to 7 AM quiet-hours default). | Schedule, audio/help, payouts, pause, approvals, celebration, levels and badges, village, Rook (tap to hear preset lines, no microphone) and reminders are approved as built. **Badge, village and Rook content is still placeholder** until real content is supplied. |
+| 2026-10-28 | Still open (not settled by accepting defaults) | | Bathroom fixture (95 XP, 38 emeralds, 1 block); prototype/content export; phone models and minimum OS; final app name, account holder and real bundle ids (Distribution); whether caregivers must be able to add chores in P0 (F12). |
 
 ## Development identifiers (2026-10-28)
 
