@@ -306,3 +306,9 @@ Answers Erin has given, with the date. The proposals above stay as written excep
 | 2026-10-28 | Reminders: quiet hours (M14, rule 2) | A reminder inside quiet hours moves to the morning. | Changed from "skip an evening reminder" to "move it to when quiet hours end". Kept for the next morning only if the quest is due then (my reading; open to change). |
 | 2026-10-28 | Reminders: own wording (M14, rule 6) | Yes, a caregiver may write their own. | Kept as built (up to 80 characters, with a lock-screen warning). |
 | 2026-10-28 | Target phones (original "Target phones" row) | iOS and Android. | Both platforms confirmed. **Phone models and the minimum OS version are still unknown.** |
+
+## Development identifiers (2026-10-28)
+
+Placeholder application ids were added to `app.json` only so development builds can be made: `com.anonymous.quest-blocks` (iOS) and
+`com.anonymous.questblocks` (Android). They are **not** approved identifiers. The Distribution decision above is still open; changing an id
+later makes a different app, so confirm account ownership and the final name before any store configuration or release build.

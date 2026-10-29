@@ -254,16 +254,20 @@ The database tests use Node's SQLite, not `expo-sqlite`. They prove our SQL and 
 - Selected-tab color on iOS is the system blue, not the theme's `primary`; set it when icons are redone.
 - Caregiver tab uses the starter's "explore" icon as a placeholder; original icons are needed.
 - `expo-dev-client` was added automatically by `expo install` and then removed on purpose; add it
-  when a development build is needed (required for notification and secure-store testing on devices).
+  when a development build is needed. It has since been added deliberately (with approval) and an iOS simulator dev build exists.
 - Database tests need Node 22.5+ (`node:sqlite`); this machine runs Node 24. Older Node would fail them.
 - A paused quest stays on its own date: at midnight it is no longer on Today (proposed, see DECISIONS).
 - Existing progress from before badges existed is only turned into badges when Progress is first opened, so Today's "new badges" note does not appear for it until then (only matters for old development data). The level note works at once.
+- **Development build tooling (2026-10-28).** `brew install cocoapods` done (1.17.0). `npx expo run:ios --device "iPhone 16 Plus"` built, installed and launched the dev
+  client on the simulator (build succeeded; the app itself was not yet opened because iOS showed an "Open in Quest Blocks?" prompt I cannot tap). `eas.json` added with
+  `development` and `development-simulator` profiles; **no EAS build run**, and EAS login (`eas whoami`: not logged in) needs Erin's Expo account. Android SDK is not installed,
+  so no Android build exists. `app.json` now has placeholder bundle ids and permission hardening (see `docs/DEVICE_TESTING.md`). Release hardening still to do in M15:
+  remove INTERNET, SYSTEM_ALERT_WINDOW and the local-network string from release builds.
 - **Reminders are unverified natively.** The logic is tested thoroughly against a strict fake, but no notification has ever been scheduled, shown, or restarted on a
-  real or simulated device with permission granted. A development build could not be made here: CocoaPods and the Android SDK are not installed, and installing system
-  tools was not asked for. Reminders stop after about two weeks if the app is not opened (by design, and stated in the app). Android may deliver late.
+  real device with permission granted (on the simulator, iOS accepted a schedule call with permission undetermined but listed nothing). Reminders stop after about two weeks if the app is not opened (by design, and stated in the app). Android may deliver late.
 - **Sound and haptics are unverified on any device**: the chime was never heard, the silent-switch behavior is untested on a real iPhone (Android has no silent switch; its volume control applies), and haptics do not run on the simulator. The block is a system symbol and the chime is synthesized; both are placeholders for original art and sound.
 - Approvals and editing are only reachable by tapping; none of those taps could be exercised here. The caregiver screens (approvals, quests, editor) have no automated UI tests, only the database, domain and message logic underneath. Nothing notifies the caregiver that a mission is waiting (push is P1).
-- Caregiver PIN: no "change PIN" screen yet (the code and tests exist). No Face ID / fingerprint. Secure storage was only exercised in Expo Go on the iOS simulator, **not** on a development build or real hardware, so it is not release-acceptable. Android Keystore is untested. `expo-dev-client` was deliberately not added.
+- Caregiver PIN: no "change PIN" screen yet (the code and tests exist). No Face ID / fingerprint. Secure storage was only exercised in Expo Go on the iOS simulator, **not** on a development build or real hardware, so it is not release-acceptable. Android Keystore is untested.
 - Metro prints a harmless warning from `@noble/hashes` 1.8.0 ("crypto.js is not listed in exports ... falling back to file-based resolution"). It still works. Version 2.x is ESM-only and would need Jest changes; not worth it now.
 - Quests can be played and pay, but there is no feedback on a payout beyond Today's totals (the celebration is M9). Approving a waiting mission does not exist yet (M8), so a key mission's reward and the quest bonus stay unpaid for now.
 - A cold-start deep link (`exp://…/--/quest/…`) opened Today instead of the quest in Expo Go; the same link worked when the app was already running. Normal navigation (tapping a card) is the real path and was not tested by tap. Worth confirming on a real device.
@@ -295,7 +299,7 @@ None have been answered. Reward spending remains unresolved and is kept disabled
 **M15: accessibility, privacy review and P0 acceptance** (and building the development build that M7, M9 and M14 need). The code for F1 to F11 now exists with demo content, so what is left is
 mostly proof on real hardware: VoiceOver, TalkBack, 200 percent text, Reduce Motion, notifications, secure storage, sound and haptics (`docs/DEVICE_TESTING.md`), plus a privacy review and the
 PRD acceptance list (including the Bathroom total, which needs a fixture you supply or approve).
-**To go further I need a decision from you:** make a development build, which means installing CocoaPods (`brew install cocoapods`) and, for Android, Android Studio, or setting up EAS Build with an
-Expo account. I have not installed any system tools. I can also keep reviewing and tightening the code, but nothing here can be called release-ready until it is tested on a real iPhone and Android phone.
+**To go further I need you to:** log in to Expo (`npx eas-cli@latest login`, then `init`) so an Android development build can be made with EAS, and use a real iPhone (a free Apple ID works
+for a local build). CocoaPods is installed and a simulator build works; Android Studio is not installed. I can also keep reviewing and tightening the code, but nothing here can be called release-ready until it is tested on a real iPhone and Android phone.
 **Please review the proposed rules in `docs/DECISIONS.md`: schedule, audio/help, payouts, pause, PIN, approvals, celebration, levels and badges, village, Rook, reward store and now reminders.** The PIN evaluation
 should be confirmed before the caregiver tools are used for real, and the "Emerald purchases" decision blocks turning redeeming on.
