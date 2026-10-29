@@ -1,3 +1,4 @@
+import { isValidRewardCost } from '@/domain/reward-store';
 import { isEditableRewardValue } from '@/domain/rewards';
 import type { RewardValue } from '@/domain/types';
 
@@ -61,5 +62,26 @@ export function updateQuestRewards(db: Db, questId: string, edit: QuestRewardEdi
         questId,
       );
     });
+  });
+}
+
+/**
+ * Sets what a reward costs, in emeralds (a whole number from 1 to the limit). The new cost applies to
+ * future redemptions only: anything already in the redemption log keeps the cost it had. Returns false if
+ * the reward does not exist.
+ */
+export function updateRewardCost(db: Db, rewardId: string, costEmeralds: number): Promise<boolean> {
+  return runExclusive(db, async () => {
+    if (!isValidRewardCost(costEmeralds)) throw new Error('A reward costs a whole number of emeralds within the allowed range');
+    const result = await db.runAsync('UPDATE reward_items SET cost_emeralds = ? WHERE id = ?', costEmeralds, rewardId);
+    return result.changes === 1;
+  });
+}
+
+/** Shows or hides a reward in the store. Hidden rewards are kept, and anything already redeemed stays in the log. */
+export function setRewardActive(db: Db, rewardId: string, active: boolean): Promise<boolean> {
+  return runExclusive(db, async () => {
+    const result = await db.runAsync('UPDATE reward_items SET active = ? WHERE id = ?', active ? 1 : 0, rewardId);
+    return result.changes === 1;
   });
 }

@@ -248,3 +248,26 @@ labelled demo placeholder** ("Demo lines" appears on Rook's card). Rook pays not
 do you want conversation? Should "independent finish" be counted? Do you want Rook on every mission, or only on request?
 
 Answer (date and confirmed behavior): _not yet answered_
+
+## Proposed reward store (M13): awaiting Erin's confirmation
+
+Status: **proposed, not approved, and real redemption stays OFF.** This builds the store and the *mechanism* for redeeming,
+but nothing in the app can redeem anything: `REDEMPTION_ENABLED` is `false` and every screen says so. **It does not decide
+the open "Emerald purchases" question.** The two demo rewards ("Demo: Pick a snack", 10 emeralds; "Demo: Extra game time",
+20 emeralds) are samples.
+
+| # | Rule (proposed default) | Why / alternative |
+| --- | --- | --- |
+| 1 | **Two separate numbers.** "Earned in total" is every emerald ever earned, from the ledger, and only ever grows. "Available" is earned minus what has been redeemed. Redeeming lowers only "Available". Both are shown, with "This number never goes down" beside the earned one. | CLAUDE.md and the PRD (points are never removed). Alternative if you decide purchases do not use emeralds up: only one number, and the log is just a record. |
+| 2 | **Redeeming is OFF.** The player can see the rewards, their costs, and how many more emeralds are needed ("6 more emeralds to go."). The button says "Redeeming is turned off". The caregiver's panel says "Redeeming: Off" and why. | Until you confirm how emeralds are spent. |
+| 3 | **The ledger never records a spend.** It stays earn-only (no negative amounts, no balance column). A redemption goes in its own permanent log. | So earned totals can never be reduced by any spending path. |
+| 4 | **The redemption log is permanent.** Each entry copies the reward's title and cost when redeemed, so later edits never change history. Entries cannot be edited or deleted. A repeated request (double tap, retry) is recognised and charged once. Available emeralds can never go below zero. | Audit trail. **Open: how a mistaken redemption is corrected.** Proposed: a later "refund" entry, never a deletion. Not built. |
+| 5 | **Redeeming is one immediate step** (when it is eventually on): choose a reward, the emeralds are used, it is logged. | Real-life rewards are handed over by a person, so an alternative is "ask for this reward", then the caregiver approves and marks it given. Not built. |
+| 6 | **Caregiver controls.** Behind the PIN, the caregiver can change each reward's cost (whole emeralds, 1 to 1000; applies from now on) and show or hide it. Hidden rewards stay in the log. | Adding or removing rewards is the quest and reward builder (P1, F12). The Weekly Chest and bigger rewards are P1 (F14). |
+| 7 | **Where the store lives.** The player sees it on the Progress tab, under the level. | Alternative: its own tab (that would make five). |
+
+**Questions for you:** Do purchases use emeralds up (the "available" number goes down), or are emeralds only a score? If they do:
+is redeeming one immediate step, or does the caregiver approve and hand it over? How should a mistake be undone? Which rewards
+are real, and what should they cost?
+
+Answer (date and confirmed behavior): _not yet answered_

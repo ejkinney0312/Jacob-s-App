@@ -10,9 +10,10 @@ export interface Migration {
 /**
  * Append new migrations to the end. Do not change released ones.
  *
- * v1 deliberately has no spendable-balance column and no redemptions table: how emeralds
- * are spent is unresolved (docs/DECISIONS.md "Emerald purchases"). A later migration adds
- * them once Erin confirms. Badges, village state and reminders also arrive in later migrations.
+ * How emeralds are spent is still unresolved (docs/DECISIONS.md "Emerald purchases"). The ledger
+ * (v1) is earn-only and has no spendable-balance column, and it stays that way. v5 adds only a
+ * permanent redemption LOG; redeeming is switched off by policy (`REDEMPTION_ENABLED`) until Erin
+ * confirms, so nothing is ever written to it by the app yet. Reminders arrive in a later migration.
  */
 export const MIGRATIONS: readonly Migration[] = [
   {
@@ -143,6 +144,29 @@ export const MIGRATIONS: readonly Migration[] = [
 
       CREATE TRIGGER earned_badges_keep_identity BEFORE UPDATE OF badge_id, earned_at ON earned_badges
       BEGIN SELECT RAISE(ABORT, 'earned badges are never changed'); END;
+    `,
+  },
+  {
+    version: 5,
+    description: 'Redemption log for the reward store (redeeming itself stays off until confirmed)',
+    sql: `
+      -- A permanent log, like the ledger: never edited, never deleted. Costs and titles are copied in, so
+      -- changing a reward later cannot change what was redeemed. The earned-only ledger is NOT touched:
+      -- redeeming lowers the emeralds AVAILABLE (earned minus spent), never the emeralds EARNED.
+      CREATE TABLE redemptions (
+        id TEXT PRIMARY KEY NOT NULL,
+        request_key TEXT NOT NULL UNIQUE,
+        reward_id TEXT NOT NULL REFERENCES reward_items(id),
+        reward_title TEXT NOT NULL,
+        cost_emeralds INTEGER NOT NULL CHECK (cost_emeralds >= 1),
+        redeemed_at TEXT NOT NULL
+      );
+
+      CREATE TRIGGER redemptions_no_update BEFORE UPDATE ON redemptions
+      BEGIN SELECT RAISE(ABORT, 'redemptions are a permanent log'); END;
+
+      CREATE TRIGGER redemptions_no_delete BEFORE DELETE ON redemptions
+      BEGIN SELECT RAISE(ABORT, 'redemptions are a permanent log'); END;
     `,
   },
 ];

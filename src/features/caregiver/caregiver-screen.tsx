@@ -8,13 +8,13 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { describePinProblem, PIN_LENGTH } from '@/domain/caregiver-pin';
-import { REDEMPTION_ENABLED } from '@/domain/rewards';
 import type { CaregiverPinService, PinStatus } from '@/services/caregiver-pin';
 
 import { ApprovalsPanel } from './approvals-panel';
 import { describeGuessFailure } from './messages';
 import { QuestsPanel } from './quests-panel';
 import { RewardEditor } from './reward-editor';
+import { RewardsPanel } from './rewards-panel';
 import { PinField } from './pin-field';
 import { useCaregiverSession } from './session-context';
 import { usePinService } from './use-pin-service';
@@ -371,14 +371,7 @@ function Home({
       {savedMessage && <Message text={savedMessage} />}
       <ApprovalsPanel />
       <QuestsPanel onEdit={onEditQuest} />
-      <Notice
-        title="Reward store"
-        body={
-          REDEMPTION_ENABLED
-            ? 'Rewards can be redeemed.'
-            : 'Redeeming rewards is turned off until the household confirms how emeralds are spent.'
-        }
-      />
+      <RewardsPanel />
       <Button label="Lock now" onPress={onLock} />
       <Button label="New recovery code" variant="secondary" onPress={onNewCode} />
     </>

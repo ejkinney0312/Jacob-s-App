@@ -11,6 +11,8 @@ import { loadProgress, markProgressSeen, type BadgeStatus, type ProgressSnapshot
 import { formatLocalDate, toLocalDate } from '@/domain/local-date';
 import { describeLevelReached } from '@/domain/progression';
 
+import { RewardStoreSection } from '@/features/store/reward-store-section';
+
 import { BadgeIcon } from './badge-icon';
 import { LevelBar } from './level-bar';
 
@@ -61,6 +63,8 @@ export function ProgressScreen() {
               </ThemedText>
             )}
           </ThemedView>
+
+          <RewardStoreSection />
 
           <ThemedView type="notice" style={styles.card}>
             <ThemedText type="smallBold" themeColor="onNotice">

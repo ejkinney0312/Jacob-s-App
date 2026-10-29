@@ -45,14 +45,15 @@ describe('fresh install', () => {
     );
   });
 
-  it('has no spending tables while the emerald decision is unresolved', async () => {
+  it('keeps the ledger earn-only: no balance column and no spend path, even though a redemption log now exists', async () => {
     await runMigrations(db);
-    const names = await tableNames();
-    expect(names).not.toContain('redemptions');
-    const ledgerColumns = (await db.getAllAsync<{ name: string }>('PRAGMA table_info(ledger_entries)')).map(
-      (c) => c.name,
-    );
+    const ledgerColumns = (await db.getAllAsync<{ name: string }>('PRAGMA table_info(ledger_entries)')).map((c) => c.name);
     expect(ledgerColumns).not.toContain('spendable_balance');
+    expect(ledgerColumns).not.toContain('spent');
+    expect(await tableNames()).toContain('redemptions'); // the log only; redeeming is off by policy
+    await expect(
+      db.runAsync("INSERT INTO ledger_entries VALUES ('neg', 'k', 'mission', 'm', 0, -5, 0, 'now')"),
+    ).rejects.toThrow(/CHECK/); // a spend can never be written into the ledger as a negative amount
   });
 
   it('is safe to run again on every launch', async () => {
@@ -237,6 +238,34 @@ describe('migration v4: earned badges', () => {
     await db.runAsync("INSERT INTO earned_badges (badge_id, earned_at) VALUES ('b', 'now')");
     await expect(db.runAsync('DELETE FROM earned_badges')).rejects.toThrow(/never removed/);
     await expect(db.runAsync("UPDATE earned_badges SET earned_at = 'x'")).rejects.toThrow(/never changed/);
+  });
+});
+
+describe('migration v5: redemption log', () => {
+  it('creates the log on a fresh install and upgrades from v4, keeping every row', async () => {
+    await runMigrations(db, MIGRATIONS.slice(0, 4));
+    await db.runAsync("INSERT INTO ledger_entries VALUES ('l', 'k', 'mission', 'm', 5, 7, 0, 'now')");
+    expect(await userVersion()).toBe(4);
+
+    await runMigrations(db);
+
+    expect(await userVersion()).toBe(LATEST_SCHEMA_VERSION);
+    expect(LATEST_SCHEMA_VERSION).toBeGreaterThanOrEqual(5);
+    expect(await tableNames()).toContain('redemptions');
+    expect(await db.getFirstAsync('SELECT SUM(emeralds) AS e FROM ledger_entries')).toEqual({ e: 7 });
+    expect(await db.getFirstAsync('SELECT COUNT(*) AS n FROM redemptions')).toEqual({ n: 0 });
+  });
+
+  it('only accepts a real reward, a positive cost and a new request key, and is never edited or deleted', async () => {
+    await runMigrations(db);
+    await db.runAsync("INSERT INTO reward_items (id, title, cost_emeralds) VALUES ('r', 'R', 5)");
+    await expect(
+      db.runAsync("INSERT INTO redemptions VALUES ('a', 'ka', 'missing', 't', 5, 'now')"),
+    ).rejects.toThrow(/FOREIGN KEY/);
+    await db.runAsync("INSERT INTO redemptions VALUES ('a', 'ka', 'r', 't', 5, 'now')");
+    await expect(db.runAsync("INSERT INTO redemptions VALUES ('b', 'ka', 'r', 't', 5, 'now')")).rejects.toThrow(/UNIQUE/);
+    await expect(db.runAsync('UPDATE redemptions SET cost_emeralds = 1')).rejects.toThrow(/permanent log/);
+    await expect(db.runAsync('DELETE FROM redemptions')).rejects.toThrow(/permanent log/);
   });
 });
 
