@@ -17,6 +17,7 @@ Google Play.
 | `docs/PRODUCT_REQUIREMENTS.md` | Snapshot of the product requirements (the original document stays authoritative) |
 | `docs/DECISIONS.md` | Open questions and proposed defaults. Nothing here is approved until recorded |
 | `docs/IMPLEMENTATION_PLAN.md` | Milestones M0–M15 for the first release (F1–F11), plus the backlog |
+| `docs/PRIVATE_CONTENT.md` | How a household's own quests and rewards load privately (a gitignored file, local builds only) |
 | `docs/DEVICE_TESTING.md` | What must be tested on a real iPhone and Android phone, and how to get a development build |
 | `docs/STATUS.md` | What is done, which checks actually passed, blockers, and the next task |
 | `CLAUDE.md`, `AGENTS.md` | Working rules for the AI coding assistant |
@@ -39,8 +40,9 @@ The app stores data on the device only. There is no backend, no account and no a
 is not set up, so the web build shows a notice instead of the app. Expo Go is enough for now; features
 such as notifications and secure storage will need a development build.
 
-In development builds the app seeds a few fictional demo quests on first launch. Release builds start
-empty. To start over, delete the app from the simulator and run it again.
+In development builds the app seeds a few fictional demo quests on first launch. Other builds start with neutral
+starter chores and rewards. A household's real content never goes in this repo; it loads from an ignored private file
+(`docs/PRIVATE_CONTENT.md`). To start over, delete the app from the simulator and run it again.
 
 ## Checks
 
@@ -66,6 +68,7 @@ src/constants/   Theme: palette, sizing, spacing
 assets/sounds/   The quest chime (original; regenerate with `node scripts/generate-chime.js`)
 src/domain/      Pure rules and types: schedules, dates, rewards, demo content (no React, no native code)
 src/db/          SQLite: versioned migrations, queries, seeding, schedule instances, payouts
+src/content/     Optional private content file loader (the file itself is gitignored)
 src/services/    Device services: speech, secure storage, PIN key derivation and the caregiver PIN service
 src/features/    Screen logic that connects the database to the UI
 ```

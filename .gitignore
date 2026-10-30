@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# a household's private content; never commit (see docs/PRIVATE_CONTENT.md)
+/content/private/

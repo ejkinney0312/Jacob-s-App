@@ -309,10 +309,42 @@ Answers Erin has given, with the date. The proposals above stay as written excep
 | 2026-10-28 | Emerald purchases (original table row; M13) | Confirmed: the M13 proposal, as written. | Purchases lower only the spendable "Available" number; "Earned in total" never goes down; no punitive deduction. **`REDEMPTION_ENABLED` is still `false`**: M13 rules 4 and 5 leave two things open (how a mistaken redemption is undone, and whether redeeming is one step or caregiver-approved), the ledger is permanent so a wrong redemption could not be removed, and the only rewards are demo ones. Turning it on is a one-line change once those are settled. |
 | 2026-10-28 | PIN evaluation (M7) | Confirmed: 6-digit PIN, 5 tries then 30 s doubling to 15 min, 5-minute idle relock, recovery code shown once, PBKDF2-HMAC-SHA256 at 10,000 iterations, no biometrics. | The design is approved. **Timing on real phones, Android Keystore and the iOS Keychain-after-reinstall behavior are still unmeasured**, so the PIN is not release-acceptable until `docs/DEVICE_TESTING.md` is done on hardware. The iteration count may need to change once measured. |
 | 2026-10-28 | Proposals M2, M4, M5, M6, M8, M9, M10, M11, M12, M14 | Confirmed as written (including the 9 PM to 7 AM quiet-hours default). | Schedule, audio/help, payouts, pause, approvals, celebration, levels and badges, village, Rook (tap to hear preset lines, no microphone) and reminders are approved as built. **Badge, village and Rook content is still placeholder** until real content is supplied. |
-| 2026-10-28 | Still open (not settled by accepting defaults) | | Bathroom fixture (95 XP, 38 emeralds, 1 block); prototype/content export; phone models and minimum OS; final app name, account holder and real bundle ids (Distribution); whether caregivers must be able to add chores in P0 (F12). |
+| 2026-10-28 | Still open (not settled by accepting defaults) | | Whether and where the real content goes (see "Real content received"); Android model and minimum OS; account holder, name availability and real bundle ids; whether caregivers must be able to add chores in P0 (F12). |
+| 2026-10-29 | Undoing a mistaken redemption (M13 rule 4) | "Refund later is good." | A mistaken redemption will be corrected by a later "refund" entry; entries are never edited or deleted. **Not built yet.** |
+| 2026-10-29 | Who hands out rewards (M13 rule 5) | "Approval for emeralds used." | Redeeming becomes a request that a caregiver approves (and marks given); emeralds are used when it is approved. **Not built yet**, and `REDEMPTION_ENABLED` stays `false` until it is built and the real rewards are in. |
+| 2026-10-29 | Target phone | "iOS 17 pro max - 26.7.2 OS"; testing on iPhone first, Android soon. | Recorded as an iPhone Pro Max on OS 26.7.2 (the model name, probably iPhone 17 Pro Max, is **to confirm**). Android model and minimum OS are still unknown. |
+| 2026-10-29 | Distribution and name | The app will be public, named **"Mend"**. | Public release confirmed. **Not yet checked:** that "Mend" is free on the App Store and Google Play, who holds the developer accounts, and the real bundle ids. Display name, notification title and ids still say Quest Blocks. |
+| 2026-10-29 | Where real content lives | Option 1: private on-device content. | Erin's real quests, rewards and wording stay **out of git** and load only onto her own phone. The public app (Mend) ships with neutral starter content. **Built 2026-10-29** (`docs/PRIVATE_CONTENT.md`): a gitignored `content/private/household.json`, bundled only by local builds (EAS cloud builds skip it), plus neutral starter content (generic chores and rewards, no brand names and no care routine) for every other build. |
+| 2026-10-29 | Bathroom fixture | Real content supplied (web prototype at the Netlify address Erin gave). | The Bathroom quest in that data adds up to **95 XP, 38 emeralds, 1 block** (missions 70 + 28, bonus 25 + 10 + 1 block). `src/db/__tests__/bathroom-fixture.test.ts` runs it through the real completion and approval code and passes, so the Bathroom total is now **verified against a supplied fixture**. Only titles and values are in the repo. |
 
 ## Development identifiers (2026-10-28)
 
 Placeholder application ids were added to `app.json` only so development builds can be made: `com.anonymous.quest-blocks` (iOS) and
 `com.anonymous.questblocks` (Android). They are **not** approved identifiers. The Distribution decision above is still open; changing an id
 later makes a different app, so confirm account ownership and the final name before any store configuration or release build.
+
+## Real content received (2026-10-29)
+
+Erin supplied the web prototype (plain `index.html`, `data.js`, `app.js`). Read as text only; nothing from it was run. **Its specifics are deliberately not
+written here** (this repo is public); they live only in the ignored private file (`docs/PRIVATE_CONTENT.md`). What it contains, compared with what the app has:
+
+| Item | In the prototype | In the app today |
+| --- | --- | --- |
+| Quests | 4 chores with 26 missions in all: two daily, one every few days from an anchor date, one weekly. One of the four is a caregiver-authored care routine. Each has a completion bonus and 1 block. | Loadable from the private file (built 2026-10-29) |
+| Key missions | 7 of the 26 wait for the caregiver (`verification: caregiver`). | Same mechanism |
+| Bathroom total | Missions 70 XP + 28 emeralds, bonus 25 XP + 10 emeralds + 1 block = **95 / 38 / 1** (verified, see "Answers recorded"). | Tested |
+| Levels | Level n starts at (n-1) x 100 XP, so the **start is level 1 and every level is 100 XP**. | Same. This settles "starting level". |
+| Village | 4 structures, each tied to one quest and grown only by blocks from that quest: 3 blocks per level, max level 5, 6 story texts each. | Placeholder structures grown from total blocks. **Different model; needs a change** to link structures to quests. |
+| Badges | 7: by total quests finished (three levels), by one quest repeated (three), and one for the first Weekly Chest. | Placeholder badges. The Weekly Chest one cannot be earned in P0 (P1, F14). |
+| Reward store | 11 rewards, 15 to 500 emeralds, in four tiers. The tiers and bigger rewards overlap with F14 (P1). | Loadable from the private file; no tiers yet |
+| Rook | An intro line per quest, a tip per mission, one caregiver-written encouraging message. **No lines for level-up, badge or finishing a quest.** | Tips load now; the intro and the milestone lines are not used yet |
+| Weekly Chest | At 80 percent of the week's missions, a bonus of emeralds. | Not built (P1, F14) |
+| PIN | A default PIN in the data. | **Not imported.** The app sets its own. |
+
+Handled (decided 2026-10-29: private on-device content):
+- **The GitHub repo is public**, so the household-specific content (including brand names in rewards, and the care routine's wording) stays out of it.
+- **A public app named Mend does not ship one household's rewards or care routine as defaults.** It ships neutral starter content instead. Third-party
+  game names in rewards would be a trademark concern for a public listing; the names "emeralds", "brewing" and "Quest Blocks" also echo another game and are worth a review.
+- **Care routine:** treat it as a caregiver-authored reminder only, never medical guidance and never in notifications.
+- **Name check:** "Mend" availability was not verified.
+- The product requirements document (committed at the start) already names some of these items; that history is public and was not rewritten.

@@ -262,7 +262,7 @@ phone, so none is accepted.** "Code-level" means checked by tests or by reading 
 | Emeralds, XP, blocks, badges never decrease, including after an app update | **Code-level pass** | Ledger is earn-only with CHECK and triggers blocking update/delete; migration tests keep data across upgrades; store spends only from a separate redemptions log. Not tested across a real app update. |
 | All flows work in airplane mode | **Code-level pass; device untested** | `src/` has no network calls and no analytics or tracking packages (grep, 2026-10-28). Reinstall recovery is P1 and not offered. |
 | VoiceOver, TalkBack, 200% text, Reduce Motion with no clipped content | **Untested** | Roles and labels exist on controls; no `allowFontScaling` overrides, so text should scale; Reduce Motion has a static celebration variant. None of it was heard or seen with a screen reader or at 200%. |
-| Reward math: full Bathroom quest = 95 XP, 38 emeralds, 1 block | **Blocked, not claimed** | No supplied or approved fixture exists. Do not call this verified. |
+| Reward math: full Bathroom quest = 95 XP, 38 emeralds, 1 block | **Code-level pass** | Erin supplied the real Bathroom data 2026-10-29; it totals 95/38/1 and `bathroom-fixture.test.ts` runs it through the real completion and approval code (the 8 ordinary missions pay 40/16 first, the 3 key missions and the bonus follow on approval; repeat approvals pay nothing). Not run on a phone. |
 | Store checklists: privacy policy, labels, review notes with demo PIN | **Not started** | Out of scope until Distribution is decided (placeholder bundle ids only). |
 
 ### M15 audit findings (code-level)
@@ -277,6 +277,20 @@ phone, so none is accepted.** "Code-level" means checked by tests or by reading 
 | Permissions (generated native projects) | No microphone, Face ID or background modes. **Release hardening done in config** (`app.config.ts`, on when `QUEST_BLOCKS_RELEASE=1`, set by the new `production` profile in `eas.json`): Android blocks INTERNET and SYSTEM_ALERT_WINDOW; iOS drops the dev launcher's local-network and Bonjour entries. Checked by generating release and dev projects from a copy and reading the manifests (dev keeps all of them). Tested by `app-config.test.ts`. **Not verified:** an actual release build (no Android SDK; no EAS run), so the merged release manifest and a release install are unconfirmed. iOS still has the template's `NSAllowsLocalNetworking` ATS exemption (harmless; not removed). |
 | Leftover starter packages | `expo-web-browser`, `expo-device`, `expo-glass-effect`, `expo-image`, `@expo/ui` and `expo-linking` are installed; some may be unused. Not removed (cleanup only; needs a check that nothing imports them). |
 | Checks after the changes | `tsc` clean, lint clean, **35 suites / 661 tests pass**. `expo-doctor` still 19/20 (patch drift only). No test covers `SwitchRow` (no screen-test library is installed). |
+
+## Private content loader (2026-10-29)
+
+Built what Erin chose ("private on-device content", with the proposed defaults). Details in `docs/PRIVATE_CONTENT.md`.
+
+| What | Result |
+| --- | --- |
+| Pack format and validator (`src/domain/content-pack.ts`) | 28 tests: valid pack, 20 kinds of bad input rejected, errors name fields and never repeat the household's wording. Reuses the stored-schedule validator. |
+| Importer (`src/db/content-import.ts`) | 13 tests against real SQLite: versioned (not re-applied, so caregiver edits survive), atomic, refuses removed missions and stolen ids, reorders safely, never touches the ledger, switches off demo and starter content only for a private pack. Broke it 6 ways; each break failed a test. |
+| Starter content (`src/domain/starter-content.ts`) | 3 chores (Bathroom, Kitchen, Laundry; 23 missions) and 5 generic rewards. Test confirms its Bathroom is the verified 95/38/1 and that it contains no brand names or care routine. Runs through the real completion and approval code. Used by every non-development build. |
+| Private file (`content/private/household.json`, gitignored) | Created from the web prototype: 4 quests, 26 missions, 11 rewards. Valid, and its Bathroom totals 95/38/1 (a test checks this wherever the file exists). |
+| Not leaking | iOS bundle made **without** the file: none of five distinctive phrases from it (reward names, a quest name, mission wording) appear. Made **with** it: all but the one generic chore title that the starter content also has. Metro treats the missing file as optional. |
+| Checks | `tsc` and lint clean; full suite passes (see below). |
+| **Not run** | The app was not launched with the loader on a simulator or phone (the dev-client prompt still needs a tap, and the dev build predates this change; a rebuild is needed). The real file was not imported into a real on-device database; only into the Node test database. |
 
 ## Known gaps and notes
 
@@ -307,16 +321,16 @@ phone, so none is accepted.** "Code-level" means checked by tests or by reading 
 
 ## Unresolved decisions (from `docs/DECISIONS.md`)
 
-On 2026-10-28 Erin confirmed every proposed default (M2 to M14, including emerald spending and the PIN evaluation). What is still open:
+Confirmed on 2026-10-28 and 2026-10-29: all proposed defaults, emerald spending (caregiver approval, refunds later), the PIN design, the Bathroom fixture, an iPhone for testing, a public app named "Mend". Still open:
 
 | Decision | Blocks |
 | --- | --- |
-| How a mistaken redemption is undone, and whether redeeming is one step or caregiver-approved (M13 rules 4 and 5) | Turning on `REDEMPTION_ENABLED` (still `false`; real rewards also needed) |
-| Prototype/content export (quests, Rook dialogue, rewards, badges, village stages) | Real content; demo and placeholder content stands in |
-| Bathroom fixture totaling 95 XP / 38 emeralds / 1 block | The "verified" claim in the PRD acceptance list |
-| Phone models and minimum OS | Hardware testing; PIN timing (10,000 iterations may need tuning) |
-| Distribution, account holder, final app name and real bundle ids | Release builds, store configuration |
+| Whether the real content (from the web prototype) goes into the repo, ships as app defaults, or loads privately; the repo is public | The content import. See "Real content received" in `docs/DECISIONS.md` |
+| Android model and minimum OS; confirm the iPhone model | Android testing |
+| "Mend": name availability, account holder, real bundle ids | Release builds, store setup, renaming from Quest Blocks |
 | Can P0 add chores, or only enable/disable supplied quests? | Scope of the caregiver tools; F12 stays P1 |
+
+Built later (decided, not built): redemption requests with caregiver approval, refund entries, a village linked to quests (3 blocks per level, 5 levels), real badges, Rook's quest intro lines, reward tiers. The real quests and rewards are now loadable (below).
 
 ## Next implementation task
 

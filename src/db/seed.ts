@@ -1,11 +1,50 @@
 import type { Db } from './types';
 
+import type { Quest } from '@/domain/types';
+
 import { DEMO_PLAYER, DEMO_QUESTS, DEMO_REWARD_ITEMS } from '@/domain/demo-content';
 
 /** Demo content is for development only; a release build starts empty. */
 export const SEED_DEMO_CONTENT = __DEV__;
 
 const SEEDED_KEY = 'demo_content_seeded';
+
+/** Inserts one quest and its missions. Existing rows are left alone, so it is safe to repeat. */
+export async function insertQuest(db: Db, quest: Quest): Promise<void> {
+  await db.runAsync(
+    `INSERT OR IGNORE INTO quests
+       (id, title, icon, schedule_json, active, is_demo, sort_order, bonus_xp, bonus_emeralds, bonus_blocks)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    quest.id,
+    quest.title,
+    quest.icon,
+    JSON.stringify(quest.schedule),
+    quest.active ? 1 : 0,
+    quest.isDemo ? 1 : 0,
+    quest.sortOrder,
+    quest.completionBonus.xp,
+    quest.completionBonus.emeralds,
+    quest.completionBonus.blocks,
+  );
+  for (const mission of quest.missions) {
+    await db.runAsync(
+      `INSERT OR IGNORE INTO missions
+         (id, quest_id, position, title, icon, instruction, tip, requires_approval, xp, emeralds, blocks)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      mission.id,
+      mission.questId,
+      mission.position,
+      mission.title,
+      mission.icon,
+      mission.instruction,
+      mission.tip,
+      mission.requiresApproval ? 1 : 0,
+      mission.reward.xp,
+      mission.reward.emeralds,
+      mission.reward.blocks,
+    );
+  }
+}
 
 /**
  * Inserts the fictional demo content once. Safe to call on every launch: it records a
@@ -27,39 +66,7 @@ export async function seedDemoContent(db: Db): Promise<void> {
     );
 
     for (const quest of DEMO_QUESTS) {
-      await db.runAsync(
-        `INSERT OR IGNORE INTO quests
-           (id, title, icon, schedule_json, active, is_demo, sort_order, bonus_xp, bonus_emeralds, bonus_blocks)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        quest.id,
-        quest.title,
-        quest.icon,
-        JSON.stringify(quest.schedule),
-        quest.active ? 1 : 0,
-        quest.isDemo ? 1 : 0,
-        quest.sortOrder,
-        quest.completionBonus.xp,
-        quest.completionBonus.emeralds,
-        quest.completionBonus.blocks,
-      );
-      for (const mission of quest.missions) {
-        await db.runAsync(
-          `INSERT OR IGNORE INTO missions
-             (id, quest_id, position, title, icon, instruction, tip, requires_approval, xp, emeralds, blocks)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          mission.id,
-          mission.questId,
-          mission.position,
-          mission.title,
-          mission.icon,
-          mission.instruction,
-          mission.tip,
-          mission.requiresApproval ? 1 : 0,
-          mission.reward.xp,
-          mission.reward.emeralds,
-          mission.reward.blocks,
-        );
-      }
+      await insertQuest(db, quest);
     }
 
     for (const item of DEMO_REWARD_ITEMS) {
