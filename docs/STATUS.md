@@ -46,9 +46,8 @@ Last updated: 2026-10-28 — pushed through M14 + dev-build config (`053d5e7`). 
   and "Earned in total ... never goes down" as two separate numbers**, and buttons that say "Redeeming is turned off". The
   caregiver's Reward store panel (behind the PIN) says "Redeeming: Off" and why, lets them change each cost (1 to 1000 emeralds,
   applies from now on) and show or hide each reward, and shows the **redemption log**. **Migration v5** adds a permanent
-  `redemptions` log (never edited or deleted; title and cost copied in; unique request key). `redeemReward` does everything in one
-  transaction (policy, reward exists and is shown, enough emeralds available, record it), is idempotent per request key, queued, and
-  **writes nothing and reads nothing unless the policy is on; the app always uses the default, which is off.** The **ledger stays
+  `redemptions` log (never edited or deleted; title and cost copied in; unique request key). The M13 one-step `redeemReward` was replaced on 2026-10-30 by ask, approve and refund (see "Redemption approval"), still
+  **writing and reading nothing unless the policy is on; the app always uses the default, which is off.** The **ledger stays
   earn-only**: redeeming lowers only "Available" (earned minus redeemed), never "Earned". **This does not decide the open emerald-spending
   question**; see `docs/DECISIONS.md` ("Proposed reward store (M13)"). Redeeming itself is exercised only by tests.
 
@@ -291,6 +290,20 @@ Built what Erin chose ("private on-device content", with the proposed defaults).
 | Not leaking | iOS bundle made **without** the file: none of five distinctive phrases from it (reward names, a quest name, mission wording) appear. Made **with** it: all but the one generic chore title that the starter content also has. Metro treats the missing file as optional. |
 | Checks | `tsc` and lint clean; full suite passes (see below). |
 | **Not run** | The app was not launched with the loader on a simulator or phone (the dev-client prompt still needs a tap, and the dev build predates this change; a rebuild is needed). The real file was not imported into a real on-device database; only into the Node test database. |
+
+## Redemption approval (2026-10-30)
+
+Built the approval flow Erin chose ("Approval for emeralds used", "Refund later is good"). **`REDEMPTION_ENABLED` is still `false`**: in the app, asking and approving do nothing. Rules and my readings: `docs/DECISIONS.md`, "Redemption approval".
+
+| What | Result |
+| --- | --- |
+| Migration v7 | `reward_requests` (what was asked is frozen; a decision is written once and is final; never deleted; CHECKs tie "approved" to a redemption) and `redemption_refunds` (permanent, one per redemption). |
+| Flow (`src/db/reward-requests.ts`) | Ask (idempotent per key, queued, sets emeralds aside), approve (one transaction: redemption + request), then mark given (a second step, spends nothing, once), decline, take back, refund. The old one-step `redeemReward` was **removed**, so nothing can be redeemed without an approval. |
+| Screens | Progress tab: "Ask for this reward" / "Asking is turned off", waiting asks with "Take it back". Caregiver Reward store panel: "Waiting for you" with "Approve" and "Not this time", then "Mark as given", and "Refund" on log entries. All wording is calm; none of it shows while the policy is off except the off-state buttons and the empty lists. |
+| Tests | Domain wording tests; 36 new database tests (off by default, idempotency, double taps and concurrent taps, set-aside emeralds, cost frozen at ask, final decisions, atomic rollback, refunds once, earned never changes, table-level protections). Existing reward-store tests moved to the request flow. |
+| Mutation check | Broke the flow 16 ways (ignore final status, ignore set-aside emeralds, wrong cost, refund not restoring, double refund, policy ignored for ask and for approve, trigger removed, CHECK removed, balance check skipped, approval not queued, and five on the given step). Every break failed a test (one trigger loosening was first missed; a test was added and now catches it). |
+| Checks | `tsc` clean, lint clean, 40 suites / 745 tests passing. |
+| **Not run** | Not launched on a simulator or phone. With the policy off the new buttons are inert in the app, so the flow is exercised only by tests. |
 
 ## Known gaps and notes
 

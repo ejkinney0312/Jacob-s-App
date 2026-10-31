@@ -8,16 +8,21 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { setRewardActive, updateRewardCost } from '@/db/caregiver-edits';
+import { approveRequest, declineRequest, listOpenRequests, markGiven, refundRedemption } from '@/db/reward-requests';
 import { getBalances, listRedemptions, listRewardItems } from '@/db/reward-store';
 import { formatLocalDate, toLocalDate } from '@/domain/local-date';
 import {
   DEFAULT_REDEMPTION_POLICY,
   MAX_REWARD_COST,
   describeCost,
+  describeDecideOutcome,
   describeRedemptionStatus,
+  describeRefundOutcome,
+  describeRequestStatus,
   parseRewardCost,
   type Balances,
   type Redemption,
+  type RewardRequest,
 } from '@/domain/reward-store';
 import type { RewardItem } from '@/domain/types';
 
@@ -27,6 +32,7 @@ interface Data {
   rewards: RewardItem[];
   balances: Balances;
   log: Redemption[];
+  pending: RewardRequest[];
 }
 
 /** Caregiver view of the reward store: costs, what is shown, whether redeeming is on, and the log. */
@@ -34,11 +40,17 @@ export function RewardsPanel() {
   const db = useSQLiteContext();
   const [data, setData] = useState<Data | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const status = describeRedemptionStatus(DEFAULT_REDEMPTION_POLICY);
 
   const load = useCallback(async (): Promise<Data> => {
-    const [rewards, balances, log] = await Promise.all([listRewardItems(db), getBalances(db), listRedemptions(db)]);
-    return { rewards, balances, log };
+    const [rewards, balances, log, pending] = await Promise.all([
+      listRewardItems(db),
+      getBalances(db),
+      listRedemptions(db),
+      listOpenRequests(db),
+    ]);
+    return { rewards, balances, log, pending };
   }, [db]);
 
   useEffect(() => {
@@ -62,6 +74,20 @@ export function RewardsPanel() {
       setMessage("We couldn't refresh the reward store.");
     }
   }, [load]);
+
+  // One decision at a time, then a refresh. The database ignores a repeat, so a double tap can never spend twice.
+  const act = async (run: () => Promise<string>) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      setMessage(await run());
+    } catch {
+      setMessage("We couldn't save that. Nothing was changed.");
+    } finally {
+      await reload();
+      setBusy(false);
+    }
+  };
 
   return (
     <ThemedView type="backgroundElement" style={styles.panel}>
@@ -88,6 +114,66 @@ export function RewardsPanel() {
         </ThemedText>
       )}
 
+      <ThemedText type="smallBold" accessibilityRole="header">
+        Waiting for you
+      </ThemedText>
+      {data?.pending.length === 0 && (
+        <ThemedText type="small" themeColor="textSecondary">
+          No one is waiting for a reward.
+        </ThemedText>
+      )}
+      {data?.pending.map((request) =>
+        request.status === 'approved' ? (
+          <ThemedView key={request.id} type="background" style={styles.card}>
+            <ThemedText type="smallBold">{request.rewardTitle}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {describeRequestStatus(request)} · {describeCost(request.costEmeralds)} used
+            </ThemedText>
+            <Button
+              label="Mark as given"
+              disabled={busy}
+              hint={`Records that ${request.rewardTitle} was handed over. No more emeralds are used.`}
+              onPress={() =>
+                void act(async () =>
+                  describeDecideOutcome((await markGiven(db, request.id)).outcome, request.rewardTitle, request.costEmeralds),
+                )
+              }
+            />
+          </ThemedView>
+        ) : (
+        <ThemedView key={request.id} type="background" style={styles.card}>
+          <ThemedText type="smallBold">{request.rewardTitle}</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {describeCost(request.costEmeralds)} · asked {formatLocalDate(toLocalDate(new Date(request.requestedAt)))}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            Approving uses {describeCost(request.costEmeralds)}. You mark it given after you hand it over.
+          </ThemedText>
+          <Button
+            label="Approve"
+            disabled={busy || !DEFAULT_REDEMPTION_POLICY.enabled}
+            hint={`Approves ${request.rewardTitle} and uses ${describeCost(request.costEmeralds)}`}
+            onPress={() =>
+              void act(async () =>
+                describeDecideOutcome((await approveRequest(db, request.id)).outcome, request.rewardTitle, request.costEmeralds),
+              )
+            }
+          />
+          <Button
+            label="Not this time"
+            variant="secondary"
+            disabled={busy}
+            hint={`Declines ${request.rewardTitle}. No emeralds are used.`}
+            onPress={() =>
+              void act(async () =>
+                describeDecideOutcome((await declineRequest(db, request.id)).outcome, request.rewardTitle, request.costEmeralds),
+              )
+            }
+          />
+        </ThemedView>
+        ),
+      )}
+
       {data?.rewards.map((reward) => (
         <RewardRow
           key={reward.id}
@@ -111,7 +197,21 @@ export function RewardsPanel() {
           <ThemedText type="smallBold">{entry.rewardTitle}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             {describeCost(entry.costEmeralds)} · {formatLocalDate(toLocalDate(new Date(entry.redeemedAt)))}
+            {entry.refundedAt ? ` · Refunded ${formatLocalDate(toLocalDate(new Date(entry.refundedAt)))}` : ''}
           </ThemedText>
+          {!entry.refundedAt && (
+            <Button
+              label="Refund"
+              variant="secondary"
+              disabled={busy}
+              hint={`Gives ${describeCost(entry.costEmeralds)} back for ${entry.rewardTitle}. The entry stays in the log.`}
+              onPress={() =>
+                void act(async () =>
+                  describeRefundOutcome((await refundRedemption(db, entry.id)).outcome, entry.rewardTitle, entry.costEmeralds),
+                )
+              }
+            />
+          )}
         </ThemedView>
       ))}
     </ThemedView>

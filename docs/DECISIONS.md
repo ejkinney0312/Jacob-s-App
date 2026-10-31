@@ -296,6 +296,27 @@ version (see `docs/DEVICE_TESTING.md`).
 
 Answer (date and confirmed behavior): see "Answers recorded" below.
 
+## Redemption approval (built 2026-10-30, still OFF)
+
+Status: **built from Erin's answers** ("Approval for emeralds used", "Refund later is good"), and rules 2, 3 and 5 **confirmed 2026-10-30**.
+Other details are my reading where she did not say. None of it can run in the app yet, because `REDEMPTION_ENABLED` is `false`. Tests switch it on to check the mechanism.
+
+| # | Rule | Why / note |
+| --- | --- | --- |
+| 1 | **The player asks; nothing is spent.** A request copies the reward's title and cost when asked. | Erin: emeralds are used when it is approved. |
+| 2 | **Waiting requests set emeralds aside.** A new ask must fit in the emeralds available **after** the requests already waiting. Declining or taking back frees them. | **Erin, 2026-10-30: "change nothing"** (kept as built). Stops the same emeralds being promised twice. |
+| 3 | **Two steps, approved then given.** "Approve" uses the emeralds (one transaction with the request). After handing the reward over, the caregiver taps "Mark as given", which spends nothing and is written once. A refunded reward can not be marked given. | **Erin, 2026-10-30: "approved then given."** |
+| 4 | **Or says "Not this time".** Nothing is spent and the wording is not a failure. The player can also take their own ask back. | No punishment or shaming. |
+| 5 | **The cost asked for is the cost charged**, even if the reward is re-priced, renamed or hidden meanwhile. | **Erin, 2026-10-30: yes.** |
+| 6 | **A decision is final and written once.** A repeat, double tap or reopening cannot spend twice; a declined request cannot be approved later (ask again). Enforced in the database too. | Idempotency rule in CLAUDE.md. |
+| 7 | **There is no way to redeem without an approval.** The old one-step redeem path was removed. | An approval bypass would defeat the point. |
+| 8 | **A refund is a new entry**, never an edit or delete. The redemption stays in the log marked refunded; the emeralds go back to **available**; **earned** never changes; each redemption can be refunded once. Refunds are always allowed (they only give emeralds back). | Erin: "Refund later is good." |
+| 9 | **Who may approve or refund:** the Reward store panel is behind the caregiver PIN. | Same as other caregiver actions. |
+| 10 | **Policy:** asking and approving do nothing while `REDEMPTION_ENABLED` is `false`. Declining, taking back and refunding spend nothing, so they always work. | CLAUDE.md: real redemption stays off until the real rewards are in. |
+
+**Still open:** turning `REDEMPTION_ENABLED` on (Erin: when the real rewards are in); whether the player gets a notification when a request is decided or given (none is built, and any would
+need lock-screen-safe wording).
+
 ## Answers recorded
 
 Answers Erin has given, with the date. The proposals above stay as written except where a row says "Confirmed".
@@ -310,8 +331,8 @@ Answers Erin has given, with the date. The proposals above stay as written excep
 | 2026-10-28 | PIN evaluation (M7) | Confirmed: 6-digit PIN, 5 tries then 30 s doubling to 15 min, 5-minute idle relock, recovery code shown once, PBKDF2-HMAC-SHA256 at 10,000 iterations, no biometrics. | The design is approved. **Timing on real phones, Android Keystore and the iOS Keychain-after-reinstall behavior are still unmeasured**, so the PIN is not release-acceptable until `docs/DEVICE_TESTING.md` is done on hardware. The iteration count may need to change once measured. |
 | 2026-10-28 | Proposals M2, M4, M5, M6, M8, M9, M10, M11, M12, M14 | Confirmed as written (including the 9 PM to 7 AM quiet-hours default). | Schedule, audio/help, payouts, pause, approvals, celebration, levels and badges, village, Rook (tap to hear preset lines, no microphone) and reminders are approved as built. **Badge, village and Rook content is still placeholder** until real content is supplied. |
 | 2026-10-28 | Still open (not settled by accepting defaults) | | Whether and where the real content goes (see "Real content received"); Android model and minimum OS; account holder, name availability and real bundle ids; whether caregivers must be able to add chores in P0 (F12). |
-| 2026-10-29 | Undoing a mistaken redemption (M13 rule 4) | "Refund later is good." | A mistaken redemption will be corrected by a later "refund" entry; entries are never edited or deleted. **Not built yet.** |
-| 2026-10-29 | Who hands out rewards (M13 rule 5) | "Approval for emeralds used." | Redeeming becomes a request that a caregiver approves (and marks given); emeralds are used when it is approved. **Not built yet**, and `REDEMPTION_ENABLED` stays `false` until it is built and the real rewards are in. |
+| 2026-10-29 | Undoing a mistaken redemption (M13 rule 4) | "Refund later is good." | A mistaken redemption will be corrected by a later "refund" entry; entries are never edited or deleted. **Built 2026-10-30** (see "Redemption approval" below). |
+| 2026-10-29 | Who hands out rewards (M13 rule 5) | "Approval for emeralds used." | Redeeming becomes a request that a caregiver approves (and marks given); emeralds are used when it is approved. **Built 2026-10-30** (see "Redemption approval" below); `REDEMPTION_ENABLED` **stays `false`** until the real rewards are in. |
 | 2026-10-29 | Target phone | "iOS 17 pro max - 26.7.2 OS"; testing on iPhone first, Android soon. | Recorded as an iPhone Pro Max on OS 26.7.2 (the model name, probably iPhone 17 Pro Max, is **to confirm**). Android model and minimum OS are still unknown. |
 | 2026-10-29 | Distribution and name | The app will be public, named **"Mend"**. | Public release confirmed. **Not yet checked:** that "Mend" is free on the App Store and Google Play, who holds the developer accounts, and the real bundle ids. Display name, notification title and ids still say Quest Blocks. |
 | 2026-10-29 | Where real content lives | Option 1: private on-device content. | Erin's real quests, rewards and wording stay **out of git** and load only onto her own phone. The public app (Mend) ships with neutral starter content. **Built 2026-10-29** (`docs/PRIVATE_CONTENT.md`): a gitignored `content/private/household.json`, bundled only by local builds (EAS cloud builds skip it), plus neutral starter content (generic chores and rewards, no brand names and no care routine) for every other build. |

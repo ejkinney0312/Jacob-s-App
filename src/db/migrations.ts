@@ -181,6 +181,60 @@ export const MIGRATIONS: readonly Migration[] = [
       );
     `,
   },
+  {
+    version: 7,
+    description: 'Reward requests (caregiver approval) and redemption refunds',
+    sql: `
+      -- A player ASKS for a reward; nothing is spent until a caregiver approves. What was asked for is copied in
+      -- and never changes. Only the decision can be written, once: a decided request is final. Approving writes
+      -- the permanent redemptions row (that is when the emeralds are used); declining or withdrawing spends nothing.
+      -- After approval, one more fact can be written, once: when the reward was handed over (given_at).
+      CREATE TABLE reward_requests (
+        id TEXT PRIMARY KEY NOT NULL,
+        request_key TEXT NOT NULL UNIQUE,
+        reward_id TEXT NOT NULL REFERENCES reward_items(id),
+        reward_title TEXT NOT NULL,
+        cost_emeralds INTEGER NOT NULL CHECK (cost_emeralds >= 1),
+        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'declined', 'withdrawn')),
+        requested_at TEXT NOT NULL,
+        decided_at TEXT,
+        redemption_id TEXT REFERENCES redemptions(id),
+        given_at TEXT,
+        CHECK ((status = 'approved') = (redemption_id IS NOT NULL)),
+        CHECK (given_at IS NULL OR status = 'approved'),
+        CHECK ((status = 'pending') = (decided_at IS NULL))
+      );
+
+      CREATE TRIGGER reward_requests_keep_what_was_asked
+      BEFORE UPDATE OF id, request_key, reward_id, reward_title, cost_emeralds, requested_at ON reward_requests
+      BEGIN SELECT RAISE(ABORT, 'what was asked for is never changed'); END;
+
+      CREATE TRIGGER reward_requests_decided_is_final
+      BEFORE UPDATE ON reward_requests
+      WHEN OLD.status <> 'pending'
+       AND NOT (OLD.status = 'approved' AND OLD.given_at IS NULL AND NEW.given_at IS NOT NULL
+                AND NEW.status = OLD.status AND NEW.decided_at IS OLD.decided_at AND NEW.redemption_id IS OLD.redemption_id)
+      BEGIN SELECT RAISE(ABORT, 'a decided request is final'); END;
+
+      CREATE TRIGGER reward_requests_no_delete BEFORE DELETE ON reward_requests
+      BEGIN SELECT RAISE(ABORT, 'requests are a permanent log'); END;
+
+      -- A mistaken redemption is corrected by a later refund entry. The redemption itself is never edited or
+      -- deleted, and a redemption can be refunded only once. A refund gives the emeralds back to AVAILABLE; the
+      -- emeralds EARNED never change.
+      CREATE TABLE redemption_refunds (
+        id TEXT PRIMARY KEY NOT NULL,
+        redemption_id TEXT NOT NULL UNIQUE REFERENCES redemptions(id),
+        refunded_at TEXT NOT NULL
+      );
+
+      CREATE TRIGGER redemption_refunds_no_update BEFORE UPDATE ON redemption_refunds
+      BEGIN SELECT RAISE(ABORT, 'refunds are a permanent log'); END;
+
+      CREATE TRIGGER redemption_refunds_no_delete BEFORE DELETE ON redemption_refunds
+      BEGIN SELECT RAISE(ABORT, 'refunds are a permanent log'); END;
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

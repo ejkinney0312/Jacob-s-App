@@ -5,6 +5,11 @@ import {
   describeAffordability,
   describeCost,
   describeRedemptionStatus,
+  describeAskOutcome,
+  describeDecideOutcome,
+  describeRefundOutcome,
+  describeRequestStatus,
+  type RequestStatus,
   emeraldsToGo,
   isValidRewardCost,
   parseRewardCost,
@@ -79,19 +84,57 @@ describe('wording', () => {
     const off = describeRedemptionStatus({ enabled: false });
     expect(off.player).toMatch(/turned off/i);
     expect(off.caregiver).toMatch(/off/i);
-    expect(off.caregiver).toMatch(/household confirms how emeralds are spent/i);
+    expect(off.caregiver).toMatch(/real rewards are set up/i);
     expect(off.caregiver).toMatch(/no emeralds are used/i);
   });
 
   it('describes the ON state: the emeralds available go down and the emeralds earned stay', () => {
     const on = describeRedemptionStatus({ enabled: true });
-    expect(on.player).toMatch(/can redeem/i);
+    expect(on.player).toMatch(/can ask for a reward/i);
+    expect(on.caregiver).toMatch(/mark it given/i);
+    expect(on.caregiver).toMatch(/nothing is used until you approve/i);
     expect(on.caregiver).toMatch(/lowers the emeralds available/i);
     expect(on.caregiver).toMatch(/emeralds earned stay as they are/i);
+    expect(on.caregiver).toMatch(/refund/i);
+  });
+
+  it('describes where a request stands without blame', () => {
+    const states: { status: RequestStatus; givenAt: string | null }[] = [
+      { status: 'pending', givenAt: null },
+      { status: 'approved', givenAt: null },
+      { status: 'approved', givenAt: 'later' },
+      { status: 'declined', givenAt: null },
+      { status: 'withdrawn', givenAt: null },
+    ];
+    expect(states.map(describeRequestStatus)).toEqual([
+      'Waiting for a caregiver',
+      'Approved, ready to be handed over',
+      'Given',
+      'Not this time',
+      'Taken back',
+    ]);
+  });
+
+  it('words every outcome in calm, plain language', () => {
+    const asks = (['asked', 'alreadyAsked', 'disabled', 'unknownReward', 'inactive', 'notEnough'] as const).map((o) => describeAskOutcome(o, 'Movie night'));
+    const decisions = (['approved', 'declined', 'withdrawn', 'given', 'alreadyGiven', 'notApproved', 'refunded', 'alreadyDecided', 'unknownRequest', 'disabled', 'notEnough'] as const).map((o) =>
+      describeDecideOutcome(o, 'Movie night', 20),
+    );
+    const refunds = (['refunded', 'alreadyRefunded', 'unknownRedemption'] as const).map((o) => describeRefundOutcome(o, 'Movie night', 20));
+    const all = [...asks, ...decisions, ...refunds];
+
+    expect(all.every((text) => text.length > 0 && text.length < 140)).toBe(true);
+    expect(describeDecideOutcome('approved', 'Movie night', 20)).toBe('Approved. 20 emeralds were used for Movie night. Mark it given when you hand it over.');
+    expect(describeDecideOutcome('approved', 'Treat', 1)).toBe('Approved. 1 emerald was used for Treat. Mark it given when you hand it over.');
+    expect(describeDecideOutcome('declined', 'Movie night', 20)).toMatch(/no emeralds were used/i);
+    expect(describeRefundOutcome('refunded', 'Movie night', 20)).toBe('Refunded. 20 emeralds went back to the emeralds available for Movie night.');
+    expect(all.join(' ')).not.toMatch(/\b(only|just|still behind|hurry|must|fail|failed|lose|lost|penalt(y|ies)|deduct(ed)?|punish|sorry|wrong)\b/i);
+    expect(all.join(' ')).not.toMatch(/!/);
   });
 
   it('never pressures, shames or punishes', () => {
     const all = [
+      ...(['pending', 'approved', 'declined', 'withdrawn'] as const).map((status) => describeRequestStatus({ status, givenAt: null })),
       describeAffordability(20, 12),
       describeAffordability(20, 20),
       ...Object.values(describeRedemptionStatus({ enabled: false })),
