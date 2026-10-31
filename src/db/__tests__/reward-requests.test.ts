@@ -3,6 +3,7 @@ import { DEFAULT_REDEMPTION_POLICY } from '@/domain/reward-store';
 import { setRewardActive, updateRewardCost } from '../caregiver-edits';
 import { getEarnedTotals, listLedgerEntries } from '../ledger';
 import { runMigrations } from '../migrations';
+import { getPendingMilestones } from '../progress';
 import {
   approveRequest,
   markGiven,
@@ -10,6 +11,8 @@ import {
   askForReward,
   declineRequest,
   getReservedEmeralds,
+  getRewardNotices,
+  markRewardNoticesSeen,
   listPendingRequests,
   listRequests,
   refundRedemption,
@@ -579,5 +582,80 @@ describe('the request log is permanent history', () => {
     await expect(
       db.runAsync("INSERT INTO reward_requests (id, request_key, reward_id, reward_title, cost_emeralds, status, requested_at) VALUES ('other', 'a', ?, 't', 10, 'pending', 'now')", SNACK),
     ).rejects.toThrow(/UNIQUE/);
+  });
+});
+
+describe('news for the player', () => {
+  const T1 = new Date('2026-10-30T10:00:00Z');
+  const T2 = new Date('2026-10-30T11:00:00Z');
+  const T3 = new Date('2026-10-30T12:00:00Z');
+
+  beforeEach(async () => {
+    await earn('a', 100);
+  });
+
+  it('is empty until something is decided', async () => {
+    await ask(SNACK, 'k');
+    expect(await getRewardNotices(db)).toEqual([]);
+  });
+
+  it('reports an approval, a handover and a "not this time", each with its reward and time', async () => {
+    const a = await ask(SNACK, 'a');
+    const b = await ask(GAME, 'b');
+    await approveRequest(db, a.id, ON, T1);
+    await declineRequest(db, b.id, T2);
+    expect(await getRewardNotices(db)).toEqual([
+      { requestId: a.id, rewardTitle: 'Demo: Pick a snack', kind: 'approved', at: T1.toISOString() },
+      { requestId: b.id, rewardTitle: 'Demo: Extra game time', kind: 'declined', at: T2.toISOString() },
+    ]);
+
+    await markGiven(db, a.id, T3);
+    expect((await getRewardNotices(db)).map((n) => [n.requestId, n.kind])).toEqual([
+      [b.id, 'declined'],
+      [a.id, 'given'],
+    ]); // the approval and the handover are one piece of news: the latest
+  });
+
+  it('does not report the player taking their own ask back', async () => {
+    const request = await ask(SNACK, 'k');
+    await withdrawRequest(db, request.id, T1);
+    expect(await getRewardNotices(db)).toEqual([]);
+  });
+
+  it('is cleared once seen, and only newer news comes after', async () => {
+    const a = await ask(SNACK, 'a');
+    await approveRequest(db, a.id, ON, T1);
+    await markRewardNoticesSeen(db);
+    await markRewardNoticesSeen(db);
+    expect(await getRewardNotices(db)).toEqual([]);
+
+    await markGiven(db, a.id, T2); // later news about the same ask
+    expect((await getRewardNotices(db)).map((n) => n.kind)).toEqual(['given']);
+    const b = await ask(GAME, 'b');
+    await declineRequest(db, b.id, T3);
+    expect((await getRewardNotices(db)).map((n) => n.kind)).toEqual(['given', 'declined']);
+  });
+
+  it('is part of what Today loads, until it is seen', async () => {
+    expect((await getPendingMilestones(db)).rewardNews).toBe(0);
+    const a = await ask(SNACK, 'a');
+    await declineRequest(db, a.id, T1);
+    expect((await getPendingMilestones(db)).rewardNews).toBe(1);
+    await markRewardNoticesSeen(db);
+    expect((await getPendingMilestones(db)).rewardNews).toBe(0);
+  });
+
+  it('changes no request, balance or ledger entry when it is marked seen', async () => {
+    const a = await ask(SNACK, 'a');
+    await approveRequest(db, a.id, ON, T1);
+    const requests = await listRequests(db);
+    const balances = await getBalances(db);
+    const ledger = await listLedgerEntries(db);
+
+    await markRewardNoticesSeen(db);
+
+    expect(await listRequests(db)).toEqual(requests);
+    expect(await getBalances(db)).toEqual(balances);
+    expect(await listLedgerEntries(db)).toEqual(ledger);
   });
 });

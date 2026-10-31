@@ -36,6 +36,8 @@ export interface RookMilestones {
   newBadges: number;
   /** Village stages built and not yet seen. */
   newVillageStages: number;
+  /** News about a reward the player asked for, not yet seen. */
+  rewardNews: number;
 }
 
 function joinList(parts: readonly string[]): string {
@@ -49,15 +51,16 @@ function joinList(parts: readonly string[]): string {
  * It says where to look, so a milestone is never hidden behind a second tap.
  */
 export function milestoneLine(milestones: RookMilestones): RookLine | null {
-  const { levelReached, newBadges, newVillageStages } = milestones;
+  const { levelReached, newBadges, newVillageStages, rewardNews } = milestones;
   const parts: string[] = [];
   if (levelReached !== null) parts.push(`you reached Level ${levelReached}`);
   if (newBadges > 0) parts.push(newBadges === 1 ? 'earned a new badge' : `earned ${newBadges} new badges`);
   if (newVillageStages > 0) parts.push('the village grew');
+  if (rewardNews > 0) parts.push('there is news about a reward');
   if (parts.length === 0) return null;
 
   const tabs = [
-    levelReached !== null || newBadges > 0 ? 'Progress' : null,
+    levelReached !== null || newBadges > 0 || rewardNews > 0 ? 'Progress' : null,
     newVillageStages > 0 ? 'Village' : null,
   ].filter((t): t is string => t !== null);
   const sentence = joinList(parts);

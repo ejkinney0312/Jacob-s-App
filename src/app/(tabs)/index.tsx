@@ -57,6 +57,7 @@ export default function TodayScreen() {
     levelReached: pending.levelReached?.to ?? null,
     newBadges: pending.unseenBadges,
     newVillageStages: pending.newVillageStages,
+    rewardNews: pending.rewardNews,
   });
   const rookLine = lineAt(rookLines, rookIndex);
   const hasDemo = items.some((item) => item.quest.isDemo);

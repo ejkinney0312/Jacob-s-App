@@ -2,6 +2,7 @@ import { BADGES, newlyEarnedBadges, type BadgeDefinition, type ProgressStats } f
 import { STARTING_LEVEL, levelForXp, levelProgress, type LevelProgress } from '@/domain/progression';
 
 import { runExclusive } from './exclusive';
+import { getRewardNotices } from './reward-requests';
 import { getNewVillageStages } from './village';
 import type { Db } from './types';
 
@@ -147,6 +148,8 @@ export interface PendingMilestones {
   levelReached: LevelReached | null;
   /** Village stages built since the Village tab was last viewed. */
   newVillageStages: number;
+  /** Decisions and handovers on the player's reward asks that they have not seen. */
+  rewardNews: number;
 }
 
 /** What is new since Progress was last viewed, for a short note on Today. Reads only. */
@@ -158,5 +161,6 @@ export async function getPendingMilestones(db: Db): Promise<PendingMilestones> {
     unseenBadges: unseen.filter((r) => known.has(r.badge_id)).length,
     levelReached: levelReachedFor(await getLastSeenLevel(db), stats.xp),
     newVillageStages: await getNewVillageStages(db),
+    rewardNews: (await getRewardNotices(db)).length,
   };
 }

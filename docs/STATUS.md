@@ -321,6 +321,19 @@ Rebuilt the village to match the web prototype's model, which Erin chose: each s
 | Checks | `tsc` and lint clean; full suite passes (see below for the count). |
 | **Not run** | Not launched on a simulator or phone. The dev build predates the loader and the village, so it needs `npx expo run:ios`. |
 
+## Reward news (2026-10-31)
+
+Built "decision notifications" as **in-app news**, not a phone notification (reasoning and the open question: `docs/DECISIONS.md`, "Reward news"). Until now a declined ask simply vanished.
+
+| What | Result |
+| --- | --- |
+| Logic | `getRewardNotices` / `markRewardNoticesSeen` (`src/db/reward-requests.ts`): approved, given or "not this time" on an ask, latest event per ask, one "seen up to" time in settings. Taking back your own ask is not news. |
+| Screens | Today: Rook's line gains "there is news about a reward" (points to the Progress tab). Reward store: a "News about your rewards" card, kept for the visit and cleared for the next. |
+| Tests | Domain wording and Rook tests; database tests for each kind of news, withdrawn not counting, the seen mark moving only forward, nothing changed when seen, and Today picking it up. |
+| Mutation check | Broke it 6 ways; one was missed (Today ignoring the news), a test was added, and it now fails that break. |
+| Checks | `tsc` and lint clean; 40 suites / 798 tests passing. |
+| **Not run** | Not on a simulator or phone, and with the policy off no ask can exist, so there is nothing to show in the app yet. |
+
 ## Known gaps and notes
 
 - Selected-tab color on iOS is the system blue, not the theme's `primary`; set it when icons are redone.

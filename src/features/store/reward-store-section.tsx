@@ -7,7 +7,7 @@ import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
-import { askForReward, listOpenRequests, withdrawRequest } from '@/db/reward-requests';
+import { askForReward, getRewardNotices, listOpenRequests, markRewardNoticesSeen, withdrawRequest } from '@/db/reward-requests';
 import { getBalances, listRewardItems } from '@/db/reward-store';
 import {
   DEFAULT_REDEMPTION_POLICY,
@@ -16,8 +16,10 @@ import {
   describeCost,
   describeDecideOutcome,
   describeRedemptionStatus,
+  describeRewardNotice,
   describeRequestStatus,
   type Balances,
+  type RewardNotice,
   type RewardRequest,
 } from '@/domain/reward-store';
 import type { RewardItem } from '@/domain/types';
@@ -35,6 +37,7 @@ export function RewardStoreSection() {
   const [rewards, setRewards] = useState<RewardItem[] | null>(null);
   const [balances, setBalances] = useState<Balances | null>(null);
   const [pending, setPending] = useState<RewardRequest[]>([]);
+  const [news, setNews] = useState<RewardNotice[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -49,12 +52,14 @@ export function RewardStoreSection() {
     useCallback(() => {
       let active = true;
       load()
-        .then(([items, loaded, waiting]) => {
+        .then(async ([items, loaded, waiting]) => {
           if (!active) return;
           setFailed(false);
           setRewards(items.filter((r) => r.active));
           setBalances(loaded);
           setPending(waiting);
+          setNews(await getRewardNotices(db)); // kept on screen for this visit
+          await markRewardNoticesSeen(db); // and cleared for the next
         })
         .catch(() => {
           if (active) setFailed(true);
@@ -62,7 +67,7 @@ export function RewardStoreSection() {
       return () => {
         active = false;
       };
-    }, [load]),
+    }, [db, load]),
   );
 
   const act = async (run: () => Promise<string>) => {
@@ -106,6 +111,17 @@ export function RewardStoreSection() {
       </ThemedView>
 
       {failed && <ThemedText>We couldn&apos;t load the rewards. Nothing was lost.</ThemedText>}
+
+      {news.length > 0 && (
+        <ThemedView type="backgroundElement" style={styles.card} accessibilityLiveRegion="polite">
+          <ThemedText type="smallBold">News about your rewards</ThemedText>
+          {news.map((notice) => (
+            <ThemedText key={`${notice.requestId}:${notice.kind}`} type="small">
+              {describeRewardNotice(notice)}
+            </ThemedText>
+          ))}
+        </ThemedView>
+      )}
 
       {message && (
         <ThemedText type="small" accessibilityLiveRegion="polite">

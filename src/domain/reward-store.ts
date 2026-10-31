@@ -196,3 +196,24 @@ export function describeRefundOutcome(outcome: RefundOutcome, rewardTitle: strin
       return 'That entry could not be found. Nothing changed.';
   }
 }
+
+/** News the player has not seen yet about something they asked for. Taking back their own ask is not news. */
+export interface RewardNotice {
+  requestId: string;
+  rewardTitle: string;
+  kind: 'approved' | 'given' | 'declined';
+  /** When it happened (ISO time). */
+  at: string;
+}
+
+/** Calm wording for news about an ask. A "no" is plain information: the emeralds are untouched. */
+export function describeRewardNotice(notice: Pick<RewardNotice, 'rewardTitle' | 'kind'>): string {
+  switch (notice.kind) {
+    case 'approved':
+      return `${notice.rewardTitle} was approved. A caregiver will hand it over.`;
+    case 'given':
+      return `${notice.rewardTitle} was handed over to you.`;
+    case 'declined':
+      return `${notice.rewardTitle} was not approved this time. Your emeralds are all there.`;
+  }
+}

@@ -332,8 +332,21 @@ Other details are my reading where she did not say. None of it can run in the ap
 | 9 | **Who may approve or refund:** the Reward store panel is behind the caregiver PIN. | Same as other caregiver actions. |
 | 10 | **Policy:** asking and approving do nothing while `REDEMPTION_ENABLED` is `false`. Declining, taking back and refunding spend nothing, so they always work. | CLAUDE.md: real redemption stays off until the real rewards are in. |
 
-**Still open:** turning `REDEMPTION_ENABLED` on (Erin: when the real rewards are in); whether the player gets a notification when a request is decided or given (none is built, and any would
-need lock-screen-safe wording).
+**Still open:** turning `REDEMPTION_ENABLED` on (Erin: when the real rewards are in); whether the player also gets a phone notification when a request is decided or given (the in-app version is built, see "Reward news").
+
+## Reward news (built 2026-10-31)
+
+Status: **built; my reading of "decision notifications"** for a phone the whole household shares. **In-app news, not a phone notification.** On one shared phone, whoever taps Approve is already holding it, so a notification would only interrupt them; the real gap was that a "not this time" made the ask quietly disappear. A push to a second device belongs with P1 sync.
+
+| # | Rule | Why / note |
+| --- | --- | --- |
+| 1 | **News is a decision or a handover** on an ask: approved, given, or "not this time". Taking back your own ask is not news. An approval later followed by a handover is one piece of news, the latest. | |
+| 2 | **Where it shows.** Rook's line on Today ("There is news about a reward. You can see what changed on the Progress tab.") and a "News about your rewards" card at the top of the reward store, listing each item in plain words until the store is viewed. | Same pattern as badges, levels and the village. |
+| 3 | **Wording is calm.** "{reward} was approved. A caregiver will hand it over." / "{reward} was handed over to you." / "{reward} was not approved this time. Your emeralds are all there." | No shaming; a no changes nothing about what was earned. |
+| 4 | **Remembered as seen** with one "seen up to" time, which only moves forward. Marking it seen changes no request, balance or ledger entry. | |
+| 5 | **No phone notification is sent**, so nothing about a reward can show on a locked screen. | CLAUDE.md: treat notification payloads as visible on a locked phone. |
+
+**Still open (needs Erin):** whether she wants an actual phone notification anyway (for example, if the player and the caregiver use different phones before P1 sync exists). If yes, it would use generic wording with no reward name, like the quest reminders, and the same permission rules.
 
 ## Answers recorded
 

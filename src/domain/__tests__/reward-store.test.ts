@@ -8,6 +8,7 @@ import {
   describeAskOutcome,
   describeDecideOutcome,
   describeRefundOutcome,
+  describeRewardNotice,
   describeRequestStatus,
   type RequestStatus,
   emeraldsToGo,
@@ -130,6 +131,17 @@ describe('wording', () => {
     expect(describeRefundOutcome('refunded', 'Movie night', 20)).toBe('Refunded. 20 emeralds went back to the emeralds available for Movie night.');
     expect(all.join(' ')).not.toMatch(/\b(only|just|still behind|hurry|must|fail|failed|lose|lost|penalt(y|ies)|deduct(ed)?|punish|sorry|wrong)\b/i);
     expect(all.join(' ')).not.toMatch(/!/);
+  });
+
+  it('words news about an ask calmly, naming the reward', () => {
+    const lines = (['approved', 'given', 'declined'] as const).map((kind) => describeRewardNotice({ rewardTitle: 'Movie night', kind }));
+    expect(lines).toEqual([
+      'Movie night was approved. A caregiver will hand it over.',
+      'Movie night was handed over to you.',
+      'Movie night was not approved this time. Your emeralds are all there.',
+    ]);
+    expect(lines.join(' ')).not.toMatch(/\b(only|just|behind|hurry|must|fail|failed|lose|lost|penalt(y|ies)|deduct(ed)?|punish|sorry|wrong|denied|rejected)\b/i);
+    expect(lines.join(' ')).not.toMatch(/!/);
   });
 
   it('never pressures, shames or punishes', () => {

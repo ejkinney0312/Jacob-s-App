@@ -13,7 +13,7 @@ import {
 /** Words Rook must never use: failure, shaming, pressure, baby talk, boasting, comparison. */
 const FORBIDDEN =
   /\b(fail(ed|ure|ing)?|wrong|mistake|bad|lazy|late|behind|slow|hurry|rush(ed)?\s+up|must|have to|need to|should|try harder|give up|disappoint(ed|ing)?|lose|lost|miss(ed)?|streak|only|just|yay|hooray|oopsie|uh[- ]oh|good (boy|girl)|champ|champion|winner|amazing|awesome|perfect|best)\b/i;
-const NO_MILESTONES: RookMilestones = { levelReached: null, newBadges: 0, newVillageStages: 0 };
+const NO_MILESTONES: RookMilestones = { levelReached: null, newBadges: 0, newVillageStages: 0, rewardNews: 0 };
 
 function expectKind(line: RookLine | null) {
   expect(line).not.toBeNull();
@@ -68,14 +68,23 @@ describe('milestoneLine', () => {
     );
   });
 
+  it('reacts to news about a reward and points to the Progress tab, where the store is', () => {
+    expect(milestoneLine({ ...NO_MILESTONES, rewardNews: 1 })?.text).toBe(
+      'There is news about a reward. You can see what changed on the Progress tab.',
+    );
+    expect(milestoneLine({ levelReached: 2, newBadges: 0, newVillageStages: 1, rewardNews: 2 })?.text).toBe(
+      'You reached Level 2, the village grew, and there is news about a reward. You can see what changed on the Progress and Village tabs.',
+    );
+  });
+
   it('reacts to village growth and points to the Village tab', () => {
-    expect(milestoneLine({ ...NO_MILESTONES, newVillageStages: 2 })?.text).toBe(
+    expect(milestoneLine({ ...NO_MILESTONES, newVillageStages: 2, rewardNews: 0 })?.text).toBe(
       'The village grew. You can see what changed on the Village tab.',
     );
   });
 
   it('puts everything new in one line, so nothing is hidden behind another tap', () => {
-    const line = milestoneLine({ levelReached: 2, newBadges: 2, newVillageStages: 1 });
+    const line = milestoneLine({ levelReached: 2, newBadges: 2, newVillageStages: 1, rewardNews: 0 });
     expect(line?.text).toBe(
       'You reached Level 2, earned 2 new badges, and the village grew. You can see what changed on the Progress and Village tabs.',
     );
@@ -85,9 +94,9 @@ describe('milestoneLine', () => {
 
   it('is always a calm, positive reaction', () => {
     const cases: RookMilestones[] = [
-      { levelReached: 5, newBadges: 0, newVillageStages: 0 },
-      { levelReached: null, newBadges: 1, newVillageStages: 1 },
-      { levelReached: 3, newBadges: 4, newVillageStages: 3 },
+      { levelReached: 5, newBadges: 0, newVillageStages: 0, rewardNews: 0 },
+      { levelReached: null, newBadges: 1, newVillageStages: 1, rewardNews: 0 },
+      { levelReached: 3, newBadges: 4, newVillageStages: 3, rewardNews: 0 },
     ];
     cases.forEach((c) => expectKind(milestoneLine(c)));
   });

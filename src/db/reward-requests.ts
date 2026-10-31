@@ -6,6 +6,7 @@ import {
   type RedemptionPolicy,
   type RefundOutcome,
   type RequestStatus,
+  type RewardNotice,
   type RewardRequest,
 } from '@/domain/reward-store';
 
@@ -334,5 +335,58 @@ export function refundRedemption(db: Db, redemptionId: string, now: Date = new D
     });
 
     return result;
+  });
+}
+
+// ---- news for the player ----------------------------------------------------------------------------------------
+// There is one shared phone, so the news is shown in the app (Today and the reward store) and is remembered as seen.
+// It is not a phone notification: a caregiver who taps Approve is holding the phone already, and a push to another
+// device is a later feature. A single "seen up to" time is kept; ISO times compare correctly as text.
+
+const NEWS_SEEN_KEY = 'reward_news_seen';
+
+interface NewsEvent {
+  notice: RewardNotice;
+}
+
+async function allNewsEvents(db: Db): Promise<NewsEvent[]> {
+  const rows = await db.getAllAsync<RequestRow>(
+    "SELECT * FROM reward_requests WHERE status IN ('approved', 'declined') AND decided_at IS NOT NULL",
+  );
+  return rows.map((row) => {
+    const kind = row.status === 'declined' ? 'declined' : row.given_at !== null ? 'given' : 'approved';
+    const at = kind === 'given' ? (row.given_at as string) : (row.decided_at as string);
+    return { notice: { requestId: row.id, rewardTitle: row.reward_title, kind, at } };
+  });
+}
+
+async function getNewsSeen(db: Db): Promise<string> {
+  const row = await db.getFirstAsync<{ value: string }>('SELECT value FROM settings WHERE key = ?', NEWS_SEEN_KEY);
+  return row?.value ?? '';
+}
+
+/** Decisions and handovers the player has not seen yet, oldest first. Reads only. */
+export async function getRewardNotices(db: Db): Promise<RewardNotice[]> {
+  const seen = await getNewsSeen(db);
+  return (await allNewsEvents(db))
+    .map((e) => e.notice)
+    .filter((n) => n.at > seen)
+    .sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : a.requestId < b.requestId ? -1 : 1));
+}
+
+/** Records that the player has seen the news up to now. The mark only moves forward; no request is changed. */
+export function markRewardNoticesSeen(db: Db): Promise<void> {
+  return runExclusive(db, async () => {
+    await db.withTransactionAsync(async () => {
+      const latest = (await allNewsEvents(db)).reduce((max, e) => (e.notice.at > max ? e.notice.at : max), '');
+      if (latest > (await getNewsSeen(db))) {
+        await db.runAsync(
+          `INSERT INTO settings (key, value) VALUES (?, ?)
+           ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+          NEWS_SEEN_KEY,
+          latest,
+        );
+      }
+    });
   });
 }
