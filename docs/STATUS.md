@@ -388,3 +388,12 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - Ran: `npx tsc --noEmit` clean, `npm run lint` clean, `npm test -- --runInBand` 40 suites / 798 tests pass.
 - Not done: the dev client on the phone still has the old id; a new build is needed (`npx expo run:ios`), and it installs as a separate app. No store records created. Whether "Mend" is free is Erin's statement, not verified.
 - Next: sign in to EAS (`! npx eas-cli@latest login`), then a first test build when Erin asks.
+
+## In-app chore editor (2026-10-31)
+
+- Built after Erin found on the iPhone that chores could not be edited. Caregiver > Quests > **Edit chores** per quest: quest name, each mission's name / what to do / tip, a "needs approval" switch, Move earlier/later, Remove from new days (with a confirm step), Add a mission. Rules are in docs/DECISIONS.md ("Editing chores in the app").
+- Schema **v9** adds `missions.active` (retire instead of delete). Code: `src/db/chore-edits.ts`, `src/domain/chore-text.ts`, `src/features/caregiver/chore-editor.tsx`; `ensureInstancesForDate` skips retired missions.
+- Ran: `npx tsc --noEmit` clean, `npm run lint` clean, `npm test -- --runInBand` 42 suites / 839 tests pass (41 new). Seven deliberate breaks of the new code were each caught by the tests.
+- **Not tested:** the screen itself. This repo has no component-test setup, so the editor's layout, keyboard behavior, VoiceOver, 200% text and the multi-line boxes have not been run on any device or simulator. Needs a new build on the iPhone.
+- Open: how a later content pack interacts with edits made in the app (DECISIONS.md).
+- Also reported by Erin on the preview build: **VoiceOver does not work** (details to come) and **no sound** (silent switch not yet ruled out). Neither is fixed or diagnosed yet.

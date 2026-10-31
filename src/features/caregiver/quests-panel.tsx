@@ -12,8 +12,8 @@ import { listQuests } from '@/db/quests';
 import { describeSchedule } from '@/domain/schedule';
 import type { Quest } from '@/domain/types';
 
-/** Switch the supplied quests on or off, and open the reward editor. */
-export function QuestsPanel({ onEdit }: { onEdit: (questId: string) => void }) {
+/** Switch the supplied quests on or off, and open the chore editor and the reward editor. */
+export function QuestsPanel({ onEdit, onEditChores }: { onEdit: (questId: string) => void; onEditChores: (questId: string) => void }) {
   const db = useSQLiteContext();
   const [quests, setQuests] = useState<Quest[] | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -74,6 +74,12 @@ export function QuestsPanel({ onEdit }: { onEdit: (questId: string) => void }) {
             onChange={(value) => void toggle(quest, value)}>
             <SwitchRowText title={quest.title} caption={`${describeSchedule(quest.schedule)} · ${quest.active ? 'On' : 'Off'}`} />
           </SwitchRow>
+          <Button
+            label="Edit chores"
+            variant="secondary"
+            hint={`Change the words, order and missions for ${quest.title}`}
+            onPress={() => onEditChores(quest.id)}
+          />
           <Button
             label="Edit rewards"
             variant="secondary"

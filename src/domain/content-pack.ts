@@ -23,8 +23,8 @@ export type ParseResult = { ok: true; pack: ContentPack } | { ok: false; errors:
 
 const MAX_ERRORS = 20;
 const ID = /^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/;
-const MAX_TITLE = 120;
-const MAX_TEXT = 400;
+export const MAX_TITLE = 120;
+export const MAX_TEXT = 400;
 const MAX_REWARD_COST = 1000;
 const MAX_POINTS = 100000;
 const MAX_BLOCKS_PER_LEVEL = 50;

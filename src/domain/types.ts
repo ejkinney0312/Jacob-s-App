@@ -47,6 +47,8 @@ export interface Mission {
   /** Key missions wait for caregiver approval and pay nothing until approved. */
   requiresApproval: boolean;
   reward: RewardValue;
+  /** True once a caregiver removed it: it stays on days it already belongs to and is left out of new days. */
+  retired?: boolean;
 }
 
 export interface Quest {

@@ -62,7 +62,8 @@ export async function ensureInstancesForDate(
       );
       if (inserted.changes === 0) continue;
 
-      for (const mission of quest.missions) {
+      // A mission a caregiver removed stays on the days it already belongs to, but is left out of new days.
+      for (const mission of quest.missions.filter((m) => !m.retired)) {
         await db.runAsync(
           'INSERT OR IGNORE INTO mission_instances (id, quest_instance_id, mission_id) VALUES (?, ?, ?)',
           missionInstanceId(instanceId, mission.id),

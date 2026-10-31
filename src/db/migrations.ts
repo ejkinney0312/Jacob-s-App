@@ -264,6 +264,15 @@ export const MIGRATIONS: readonly Migration[] = [
       );
     `,
   },
+  {
+    version: 9,
+    description: 'Missions can be retired (removed from future days, kept for history)',
+    sql: `
+      -- A mission that was ever shown on a day is referenced by that day's progress and payouts, so it is never deleted.
+      -- Retiring it (active = 0) keeps it for the days it already belongs to and leaves it out of new days.
+      ALTER TABLE missions ADD COLUMN active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1));
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

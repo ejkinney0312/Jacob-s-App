@@ -25,6 +25,7 @@ interface MissionRow {
   instruction: string;
   tip: string;
   requires_approval: number;
+  active: number;
   xp: number;
   emeralds: number;
   blocks: number;
@@ -41,6 +42,7 @@ function toMission(row: MissionRow): Mission {
     tip: row.tip,
     requiresApproval: row.requires_approval === 1,
     reward: { xp: row.xp, emeralds: row.emeralds, blocks: row.blocks },
+    ...(row.active === 0 ? { retired: true } : {}),
   };
 }
 

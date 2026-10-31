@@ -378,6 +378,26 @@ They are permanent after the first store upload, so they stay provisional until 
 "Mend" and URL scheme `mend`. Kept on purpose: the `quest-blocks` slug (the EAS project is linked to it), the `QUEST_BLOCKS_RELEASE` build
 flag, and the on-device database file name (renaming it would orphan saved progress). Account ids and logins are not stored in the repo.
 
+## Editing chores in the app (2026-10-31)
+
+Erin found on a real iPhone that chores could not be edited. The first caregiver editor covers: a quest's name, each mission's name,
+"what to do" (read aloud) and tip, whether a mission needs approval, mission order, adding a mission and removing a mission.
+Not covered: creating a whole new quest, schedules, icons, and village structures (still a content pack or the P1 builder).
+
+Rules, chosen to keep progress and payouts safe:
+- **Wording, order and the approval switch apply straight away**, even to a day already started: finished missions stay finished and the player
+  carries on with the first one that is not. Nothing already paid changes.
+- **Adding or removing a mission starts from the next day.** A day that has begun keeps the missions it started with.
+- **Removing retires the mission, never deletes it** (`missions.active`, schema v9), because earlier days and payouts refer to it.
+- **A quest keeps at least one mission.**
+- **A new mission pays nothing** (0 XP, 0 emeralds, 0 blocks) until a caregiver sets its reward under Edit rewards. No reward value is invented.
+- Limits match a content pack (name 120, text 400 characters), text is trimmed, control characters are refused.
+
+**Open: content packs and in-app edits.** A pack with a higher `contentVersion` overwrites the wording and order of the quests it lists, so a later
+pack update would replace edits made in the app to those quests. And because the importer refuses a quest that no longer lists a mission the app
+has, a quest that gained a mission in the app (or lost one) makes a later pack update for it be refused (nothing is written). The simplest rule is
+"once chores are edited in the app, the app is the source of truth." Erin to confirm before real content is loaded a second time.
+
 ## Real content received (2026-10-29)
 
 Erin supplied the web prototype (plain `index.html`, `data.js`, `app.js`). Read as text only; nothing from it was run. **Its specifics are deliberately not

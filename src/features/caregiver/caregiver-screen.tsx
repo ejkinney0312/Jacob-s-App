@@ -12,6 +12,7 @@ import type { CaregiverPinService, PinStatus } from '@/services/caregiver-pin';
 
 import { ApprovalsPanel } from './approvals-panel';
 import { describeGuessFailure } from './messages';
+import { ChoreEditor } from './chore-editor';
 import { QuestsPanel } from './quests-panel';
 import { RemindersPanel } from './reminders-panel';
 import { RewardEditor } from './reward-editor';
@@ -29,6 +30,7 @@ export function CaregiverScreen() {
   const [mode, setMode] = useState<'default' | 'forgot' | 'newCode'>('default');
   const [recoveryCode, setRecoveryCode] = useState<string | null>(null);
   const [editingQuestId, setEditingQuestId] = useState<string | null>(null);
+  const [editingChoresId, setEditingChoresId] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -82,6 +84,11 @@ export function CaregiverScreen() {
     content =
       mode === 'newCode' ? (
         <NewCodeForm service={service} onDone={(code) => { setRecoveryCode(code); setMode('default'); }} onBack={() => setMode('default')} />
+      ) : editingChoresId !== null ? (
+        <ChoreEditor
+          questId={editingChoresId}
+          onDone={() => setEditingChoresId(null)}
+        />
       ) : editingQuestId !== null ? (
         <RewardEditor
           questId={editingQuestId}
@@ -98,6 +105,10 @@ export function CaregiverScreen() {
           onEditQuest={(id) => {
             setSavedMessage(null);
             setEditingQuestId(id);
+          }}
+          onEditChores={(id) => {
+            setSavedMessage(null);
+            setEditingChoresId(id);
           }}
           savedMessage={savedMessage}
         />
@@ -356,11 +367,13 @@ function Home({
   onLock,
   onNewCode,
   onEditQuest,
+  onEditChores,
   savedMessage,
 }: {
   onLock: () => void;
   onNewCode: () => void;
   onEditQuest: (questId: string) => void;
+  onEditChores: (questId: string) => void;
   savedMessage: string | null;
 }) {
   return (
@@ -371,7 +384,7 @@ function Home({
       />
       {savedMessage && <Message text={savedMessage} />}
       <ApprovalsPanel />
-      <QuestsPanel onEdit={onEditQuest} />
+      <QuestsPanel onEdit={onEditQuest} onEditChores={onEditChores} />
       <RemindersPanel />
       <RewardsPanel />
       <Button label="Lock now" onPress={onLock} />
