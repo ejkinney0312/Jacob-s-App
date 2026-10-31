@@ -185,3 +185,144 @@ describe('applyPrivateContent', () => {
     expect(await activeQuestIds()).toEqual(['home-kitchen']);
   });
 });
+
+// ---- village structures ----
+
+/** The private pack, with one structure for its one quest. */
+function villagePack(version: number, over: { questId?: string; blocksPerLevel?: number; maxLevel?: number; name?: string } = {}): ContentPack {
+  const base = privatePack(version);
+  const maxLevel = over.maxLevel ?? 2;
+  const parsed = parseContentPack({
+    contentVersion: version,
+    quests: JSON.parse(JSON.stringify(base.quests)),
+    rewards: base.rewards,
+    village: [
+      {
+        id: 'home-village-kitchen',
+        questId: over.questId ?? 'home-kitchen',
+        name: over.name ?? 'Bakehouse',
+        summary: 'Grows with the kitchen quest.',
+        blocksPerLevel: over.blocksPerLevel ?? 3,
+        maxLevel,
+        stories: Array.from({ length: maxLevel + 1 }, (_, i) => `Level ${i} story.`),
+      },
+    ],
+  });
+  if (!parsed.ok) throw new Error(parsed.errors.join('; '));
+  return parsed.pack;
+}
+
+const structureRows = () =>
+  db.getAllAsync<{ id: string; quest_id: string; active: number; blocks_per_level: number; max_level: number; seen_level: number }>(
+    'SELECT id, quest_id, active, blocks_per_level, max_level, seen_level FROM village_structures ORDER BY id',
+  );
+const addKitchenBlocks = (blocks: number) =>
+  db.runAsync(
+    "INSERT INTO ledger_entries VALUES ('l-kb', 'kb', 'questBonus', ?, 0, 0, ?, 'now')",
+    'home-kitchen:2026-10-29',
+    blocks,
+  );
+const addKitchenInstance = async () => {
+  await db.runAsync(
+    "INSERT INTO quest_instances (id, quest_id, local_date) VALUES ('home-kitchen:2026-10-29', 'home-kitchen', '2026-10-29')",
+  );
+};
+
+describe('importing a village', () => {
+  it('loads the starter structures, one per starter quest, and repeats without duplicates', async () => {
+    await seedStarterContent(db);
+    await seedStarterContent(db);
+    const rows = await structureRows();
+    expect(rows.map((r) => r.id)).toEqual([
+      `${STARTER_ID_PREFIX}village-bakehouse`,
+      `${STARTER_ID_PREFIX}village-fountain`,
+      `${STARTER_ID_PREFIX}village-windmill`,
+    ]);
+    expect(rows.map((r) => r.quest_id).sort()).toEqual([`${STARTER_ID_PREFIX}bathroom`, `${STARTER_ID_PREFIX}kitchen`, `${STARTER_ID_PREFIX}laundry`]);
+    expect(rows.every((r) => r.active === 1 && r.blocks_per_level === 3 && r.max_level === 5)).toBe(true);
+    expect((await db.getAllAsync('SELECT * FROM village_stories')).length).toBe(18);
+  });
+
+  it('switches off the sample structures when a private pack replaces the sample quests', async () => {
+    await seedDemoContent(db);
+    await seedStarterContent(db);
+    await applyPrivateContent(db, JSON.parse(JSON.stringify(villagePack(1))));
+
+    const rows = await structureRows();
+    expect(rows.filter((r) => r.active === 1).map((r) => r.id)).toEqual(['home-village-kitchen']);
+    expect(rows).toHaveLength(7); // 3 demo + 3 starter + 1 private, none deleted
+  });
+
+  it('keeps a structure’s seen mark and on/off choice when its text is updated', async () => {
+    await importContentPack(db, villagePack(1), 'private');
+    await db.runAsync("UPDATE village_structures SET seen_level = 2, active = 0 WHERE id = 'home-village-kitchen'");
+
+    expect((await importContentPack(db, villagePack(2, { name: 'Bakery' }), 'private')).status).toBe('applied');
+
+    expect(await db.getFirstAsync("SELECT name, seen_level, active FROM village_structures WHERE id = 'home-village-kitchen'")).toEqual({
+      name: 'Bakery',
+      seen_level: 2,
+      active: 0,
+    });
+  });
+
+  it('refuses, and writes nothing, if a structure would move to a different quest', async () => {
+    await importContentPack(db, villagePack(1), 'private');
+    const other = await seedStarterContent(db); // gives the db another quest to point at
+    expect(other.status).toBe('applied');
+
+    const moved = villagePack(2, { questId: 'home-kitchen' });
+    const raw = JSON.parse(JSON.stringify(moved));
+    raw.quests.push({ ...JSON.parse(JSON.stringify(raw.quests[0])), id: 'home-other', missions: [{ ...raw.quests[0].missions[0], id: 'ho-1' }] });
+    raw.village[0].questId = 'home-other';
+    const parsed = parseContentPack(raw);
+    if (!parsed.ok) throw new Error(parsed.errors.join('; '));
+
+    const result = await importContentPack(db, parsed.pack, 'private');
+
+    expect(result).toEqual({ status: 'rejected', reason: 'A village structure in the file is already tied to a different quest.' });
+    expect((await structureRows()).find((r) => r.id === 'home-village-kitchen')?.quest_id).toBe('home-kitchen');
+    expect(await db.getFirstAsync("SELECT value FROM settings WHERE key = 'content_pack_version:private'")).toEqual({ value: '1' });
+  });
+
+  it('refuses a size change that would take a level away, and allows one that does not', async () => {
+    await importContentPack(db, villagePack(1), 'private'); // 3 blocks a level, 2 levels
+    await addKitchenInstance();
+    await addKitchenBlocks(6); // level 2 (finished)
+
+    // 4 blocks a level: 6 blocks would be only level 1.
+    const smaller = await importContentPack(db, villagePack(2, { blocksPerLevel: 4 }), 'private');
+    expect(smaller).toEqual({ status: 'rejected', reason: 'A village structure in the file would drop below a level it has already reached.' });
+    expect((await structureRows())[0]).toMatchObject({ blocks_per_level: 3, max_level: 2 });
+
+    // Fewer levels would also lower it from 2 to 1 only if the cap were below the level; a cap of 1 does.
+    expect((await importContentPack(db, villagePack(2, { maxLevel: 1 }), 'private')).status).toBe('rejected');
+
+    // More levels is fine: level 2 stays level 2.
+    expect((await importContentPack(db, villagePack(2, { maxLevel: 5 }), 'private')).status).toBe('applied');
+    expect((await structureRows())[0]).toMatchObject({ blocks_per_level: 3, max_level: 5 });
+  });
+
+  it('is all-or-nothing if saving a structure fails', async () => {
+    const failing = {
+      ...db,
+      runAsync: async (source: string, ...params: Parameters<typeof db.runAsync>[1][]) => {
+        if (source.includes('INTO village_stories')) throw new Error('disk full');
+        return db.runAsync(source, ...params);
+      },
+    };
+    await expect(importContentPack(failing, villagePack(1), 'private')).rejects.toThrow('disk full');
+    expect(await structureRows()).toEqual([]);
+    expect((await listQuests(db)).length).toBe(0);
+    expect(await db.getFirstAsync("SELECT value FROM settings WHERE key = 'content_pack_version:private'")).toBeNull();
+  });
+
+  it('never touches the ledger', async () => {
+    await importContentPack(db, villagePack(1), 'private');
+    await addKitchenInstance();
+    await addKitchenBlocks(4);
+    const before = await getEarnedTotals(db);
+    await importContentPack(db, villagePack(2, { name: 'Renamed' }), 'private');
+    expect(await getEarnedTotals(db)).toEqual(before);
+  });
+});

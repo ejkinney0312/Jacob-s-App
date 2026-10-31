@@ -19,7 +19,7 @@ function rawPack(): RawPack {
   return JSON.parse(
     JSON.stringify({
       contentVersion: 1,
-      village: { ignored: true },
+      extra: { ignored: true },
       quests: [
         {
           id: 'q1',
@@ -149,5 +149,88 @@ describe('starter content', () => {
     for (const word of ['pok', 'minecraft', 'brew', 'boil', 'medic', 'pin ', 'timer']) {
       expect(text).not.toContain(word);
     }
+  });
+});
+
+// A village section as a file would hold it, tied to the small pack's one quest.
+interface RawStructure {
+  id: unknown; questId: unknown; name: unknown; summary: unknown; blocksPerLevel: unknown; maxLevel: unknown; stories: unknown;
+}
+const rawStructure = (): RawStructure => ({
+  id: 'v1', questId: 'q1', name: 'Fountain', summary: 'Grows with the quest.', blocksPerLevel: 3, maxLevel: 2,
+  stories: ['Nothing yet.', 'A start.', 'Finished.'],
+});
+const withVillage = (structures: unknown): RawPack => Object.assign(rawPack(), { village: structures });
+const villageErrors = (change: (s: RawStructure) => void): readonly string[] => {
+  const structure = rawStructure();
+  change(structure);
+  const result = parseContentPack(withVillage([structure]));
+  if (result.ok) throw new Error('expected the pack to be rejected');
+  return result.errors;
+};
+
+describe('parseContentPack: village', () => {
+  it('is optional: a pack without one has no structures', () => {
+    const result = parseContentPack(rawPack());
+    expect(result.ok && result.pack.village).toEqual([]);
+  });
+
+  it('accepts a structure tied to a quest in the file, and marks it as not demo', () => {
+    const result = parseContentPack(withVillage([rawStructure()]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.pack.village).toEqual([{ ...rawStructure(), isDemo: false }]);
+  });
+
+  it.each([
+    ['not a list', (p: RawPack) => Object.assign(p, { village: {} }), 'village'],
+    ['an entry that is not an object', (p: RawPack) => Object.assign(p, { village: [5] }), 'village[0]'],
+  ])('rejects %s', (_name, change, field) => {
+    const raw = rawPack();
+    change(raw);
+    const result = parseContentPack(raw);
+    expect(result.ok ? [] : result.errors.join(' ')).toContain(field);
+  });
+
+  it.each([
+    ['a bad id', (s: RawStructure) => (s.id = 'has space'), 'village[0].id'],
+    ['a quest that is not in the file', (s: RawStructure) => (s.questId = 'nope'), 'village[0].questId'],
+    ['no quest', (s: RawStructure) => (s.questId = undefined), 'village[0].questId'],
+    ['an empty name', (s: RawStructure) => (s.name = ' '), 'village[0].name'],
+    ['an over-long summary', (s: RawStructure) => (s.summary = 'x'.repeat(401)), 'village[0].summary'],
+    ['zero blocks per level', (s: RawStructure) => (s.blocksPerLevel = 0), 'village[0].blocksPerLevel'],
+    ['too many blocks per level', (s: RawStructure) => (s.blocksPerLevel = 51), 'village[0].blocksPerLevel'],
+    ['a fractional level count', (s: RawStructure) => (s.maxLevel = 2.5), 'village[0].maxLevel'],
+    ['no levels', (s: RawStructure) => (s.maxLevel = 0), 'village[0].maxLevel'],
+    ['too many levels', (s: RawStructure) => (s.maxLevel = 21), 'village[0].maxLevel'],
+    ['stories that are not a list', (s: RawStructure) => (s.stories = 'text'), 'village[0].stories'],
+    ['too few stories', (s: RawStructure) => (s.stories = ['a', 'b']), 'village[0].stories'],
+    ['too many stories', (s: RawStructure) => (s.stories = ['a', 'b', 'c', 'd']), 'village[0].stories'],
+    ['an empty story line', (s: RawStructure) => (s.stories = ['a', ' ', 'c']), 'village[0].stories[1]'],
+    ['an over-long story line', (s: RawStructure) => (s.stories = ['a', 'x'.repeat(401), 'c']), 'village[0].stories[1]'],
+    ['a story line that is not text', (s: RawStructure) => (s.stories = ['a', 3, 'c']), 'village[0].stories[1]'],
+  ])('rejects %s', (_name, change, field) => {
+    expect(villageErrors(change).join(' ')).toContain(field);
+  });
+
+  it('rejects a repeated id and two structures for one quest', () => {
+    const second = { ...rawStructure(), id: 'v2' };
+    const sameId = parseContentPack(withVillage([rawStructure(), { ...rawStructure(), questId: 'q1' }]));
+    expect(sameId.ok ? [] : sameId.errors.join(' ')).toContain('village[1].id');
+    const sameQuest = parseContentPack(withVillage([rawStructure(), second]));
+    expect(sameQuest.ok ? [] : sameQuest.errors.join(' ')).toContain('village[1].questId');
+  });
+
+  it('never repeats a household’s wording in an error', () => {
+    const errors = villageErrors((s) => {
+      s.name = 'PRIVATE-NAME';
+      s.stories = ['PRIVATE-STORY-ONE', 'PRIVATE-STORY-TWO'];
+    });
+    expect(errors.join(' ')).not.toMatch(/PRIVATE/);
+  });
+
+  it('accepts the starter pack’s own village', () => {
+    const result = parseContentPack(JSON.parse(JSON.stringify(STARTER_PACK)));
+    expect(result.ok).toBe(true);
   });
 });

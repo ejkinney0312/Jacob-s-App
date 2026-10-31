@@ -1,7 +1,7 @@
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
@@ -9,15 +9,16 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { loadVillage, markVillageSeen, type VillageSnapshot } from '@/db/village';
 import {
+  describeLevel,
   describeNextGoal,
-  describeStageStatus,
+  describeProgress,
   describeStructureStatus,
   type StructureState,
 } from '@/domain/village';
 
 import { BlockRow } from './block-row';
 
-/** The village: four structures that grow as blocks are earned. Opening it records that growth has been seen. */
+/** The village: each structure grows from the blocks its own quest earns. Opening it records that growth has been seen. */
 export function VillageScreen() {
   const db = useSQLiteContext();
   const [snapshot, setSnapshot] = useState<VillageSnapshot | null>(null);
@@ -42,7 +43,8 @@ export function VillageScreen() {
     }, [db]),
   );
 
-  const newIds = new Set(snapshot?.newlyBuilt.map((b) => `${b.structureName}:${b.stage.id}`));
+  const newStructureIds = new Set<string>(snapshot?.newlyGrown.map((g) => g.structureId));
+  const anyDemo = snapshot?.state.structures.some((s) => s.structure.isDemo) ?? false;
 
   return (
     <Screen>
@@ -64,32 +66,40 @@ export function VillageScreen() {
               {describeNextGoal(snapshot.state)}
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              Finishing quests earns blocks. Earned blocks are never lost.
+              Finishing a quest earns a block for its structure. Earned blocks are never lost.
             </ThemedText>
           </ThemedView>
 
-          {snapshot.newlyBuilt.length > 0 && (
+          {snapshot.newlyGrown.length > 0 && (
             <ThemedView type="backgroundElement" style={styles.card} accessibilityLiveRegion="polite">
               <ThemedText type="smallBold">The village grew</ThemedText>
-              {snapshot.newlyBuilt.map((built) => (
-                <ThemedText key={`${built.structureName}:${built.stage.id}`} type="small">
-                  {built.structureName} · {built.stage.title}. {built.stage.story}
+              {snapshot.newlyGrown.map((grown) => (
+                <ThemedText key={`${grown.structureId}:${grown.level}`} type="small">
+                  {grown.structureName} · Level {grown.level}. {grown.story}
                 </ThemedText>
               ))}
             </ThemedView>
           )}
 
-          <ThemedView type="notice" style={styles.card}>
-            <ThemedText type="smallBold" themeColor="onNotice">
-              Demo village
+          {anyDemo && (
+            <ThemedView type="notice" style={styles.card}>
+              <ThemedText type="smallBold" themeColor="onNotice">
+                Demo village
+              </ThemedText>
+              <ThemedText type="small" themeColor="onNotice">
+                These structures and stories are samples.
+              </ThemedText>
+            </ThemedView>
+          )}
+
+          {snapshot.state.structures.length === 0 && (
+            <ThemedText type="small" themeColor="textSecondary">
+              There is nothing to build yet.
             </ThemedText>
-            <ThemedText type="small" themeColor="onNotice">
-              These structures and stories are placeholders. The real ones will be confirmed with the household.
-            </ThemedText>
-          </ThemedView>
+          )}
 
           {snapshot.state.structures.map((structure) => (
-            <StructureCard key={structure.structure.id} structure={structure} newIds={newIds} />
+            <StructureCard key={structure.structure.id} structure={structure} isNew={newStructureIds.has(structure.structure.id)} />
           ))}
         </>
       )}
@@ -97,7 +107,7 @@ export function VillageScreen() {
   );
 }
 
-function StructureCard({ structure, newIds }: { structure: StructureState; newIds: ReadonlySet<string> }) {
+function StructureCard({ structure, isNew }: { structure: StructureState; isNew: boolean }) {
   const { structure: def } = structure;
   const status = describeStructureStatus(structure.status);
 
@@ -106,43 +116,23 @@ function StructureCard({ structure, newIds }: { structure: StructureState; newId
       type="backgroundElement"
       style={styles.card}
       accessible
-      accessibilityLabel={`${def.name}. Demo structure. ${status}. ${structure.blocksPlaced} of ${structure.blocksNeeded} blocks placed. ${structure.stages
-        .map((s) => `${s.stage.title}: ${describeStageStatus(s)}`)
-        .join('. ')}.`}>
+      accessibilityLabel={`${def.name}${def.isDemo ? '. Demo structure' : ''}. ${describeLevel(structure)}. ${status}. ${describeProgress(structure)}${isNew ? ' New.' : ''} ${structure.story}`}>
       <ThemedText type="subtitle">{def.name}</ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
-        {status} · Demo structure
+        {describeLevel(structure)} · {status}
+        {def.isDemo ? ' · Demo structure' : ''}
+        {isNew ? ' · New' : ''}
       </ThemedText>
       <ThemedText type="small">{def.summary}</ThemedText>
       <BlockRow placed={structure.blocksPlaced} needed={structure.blocksNeeded} />
-      <ThemedText type="small">
-        {structure.blocksPlaced} of {structure.blocksNeeded} blocks placed
+      <ThemedText type="small">{describeProgress(structure)}</ThemedText>
+      <ThemedText type="small" themeColor="textSecondary">
+        {structure.story}
       </ThemedText>
-
-      <View style={styles.stages}>
-        {structure.stages.map((stage) => {
-          const isNew = newIds.has(`${def.name}:${stage.stage.id}`);
-          return (
-            <View key={stage.stage.id} style={styles.stage}>
-              <ThemedText type="smallBold">
-                {stage.stage.title} · {describeStageStatus(stage)}
-                {isNew ? ' · New' : ''}
-              </ThemedText>
-              {stage.status === 'built' && (
-                <ThemedText type="small" themeColor="textSecondary">
-                  {stage.stage.story}
-                </ThemedText>
-              )}
-            </View>
-          );
-        })}
-      </View>
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
-  stages: { gap: Spacing.two, marginTop: Spacing.one },
-  stage: { gap: Spacing.half },
 });

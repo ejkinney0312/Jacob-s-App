@@ -305,6 +305,22 @@ Built the approval flow Erin chose ("Approval for emeralds used", "Refund later 
 | Checks | `tsc` clean, lint clean, 40 suites / 745 tests passing. |
 | **Not run** | Not launched on a simulator or phone. With the policy off the new buttons are inert in the app, so the flow is exercised only by tests. |
 
+## Village tied to quests (2026-10-30)
+
+Rebuilt the village to match the web prototype's model, which Erin chose: each structure is tied to one quest and grown only by that quest's blocks, 3 blocks a level, 5 levels. Rules: `docs/DECISIONS.md`, "Village tied to quests". It replaces the M11 single pool of 21 blocks.
+
+| What | Result |
+| --- | --- |
+| Migration v8 | `village_structures` (one per quest, size limits, a per-structure "seen level") and `village_stories` (one line per level). Nothing is stored about blocks: the village is computed from the ledger. |
+| Domain (`src/domain/village.ts`) | Rewritten: structures, level from a quest's blocks, saved blocks, next goal, levels grown since last seen. |
+| Content | Pack format has an optional `village` section (validated: quest must be in the file, one structure per quest, `maxLevel + 1` story lines, field-path errors only). Original starter structures (3) and demo structures (3). The importer saves them, refuses a structure moving to another quest or shrinking below a reached level, and switches off sample structures when a private pack replaces them. |
+| Screen | Each structure: level of 5, status in words, blocks toward the next level, filled/outlined squares, current story line, "New" tag. The old four fixed placeholder structures are gone. |
+| Private file | Converted the household's village into the new format (a structure per quest); `contentVersion` raised to 2 so a phone that already applied version 1 takes it. |
+| Tests | New domain tests (levels, caps, independence per quest, saved blocks, next goal, what grew, wording, content shape), database tests (tracing blocks to quests, seen marks, saving, table protections), pack and importer tests. |
+| Mutation check | Broke it 13 ways; 12 failed a test. The 13th (removing the cap on level) is an equivalent change, because blocks are already capped before the level is computed. |
+| Checks | `tsc` and lint clean; full suite passes (see below for the count). |
+| **Not run** | Not launched on a simulator or phone. The dev build predates the loader and the village, so it needs `npx expo run:ios`. |
+
 ## Known gaps and notes
 
 - Selected-tab color on iOS is the system blue, not the theme's `primary`; set it when icons are redone.
@@ -343,7 +359,7 @@ Confirmed on 2026-10-28 and 2026-10-29: all proposed defaults, emerald spending 
 | "Mend": name availability, account holder, real bundle ids | Release builds, store setup, renaming from Quest Blocks |
 | Can P0 add chores, or only enable/disable supplied quests? | Scope of the caregiver tools; F12 stays P1 |
 
-Built later (decided, not built): redemption requests with caregiver approval, refund entries, a village linked to quests (3 blocks per level, 5 levels), real badges, Rook's quest intro lines, reward tiers. The real quests and rewards are now loadable (below).
+Built later (decided, not built): real badges, Rook's quest intro lines, reward tiers. The real quests and rewards are now loadable (below).
 
 ## Next implementation task
 

@@ -2,7 +2,9 @@ import type { Db } from './types';
 
 import type { Quest } from '@/domain/types';
 
-import { DEMO_PLAYER, DEMO_QUESTS, DEMO_REWARD_ITEMS } from '@/domain/demo-content';
+import { DEMO_PLAYER, DEMO_QUESTS, DEMO_REWARD_ITEMS, DEMO_VILLAGE } from '@/domain/demo-content';
+
+import { saveVillageStructure } from './village';
 
 /** Demo content is for development only; a release build starts empty. */
 export const SEED_DEMO_CONTENT = __DEV__;
@@ -67,6 +69,10 @@ export async function seedDemoContent(db: Db): Promise<void> {
 
     for (const quest of DEMO_QUESTS) {
       await insertQuest(db, quest);
+    }
+
+    for (const [index, structure] of DEMO_VILLAGE.entries()) {
+      await saveVillageStructure(db, structure, index + 1);
     }
 
     for (const item of DEMO_REWARD_ITEMS) {

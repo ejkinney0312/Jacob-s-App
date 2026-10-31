@@ -1,19 +1,22 @@
 import { parseSchedule } from './schedule';
 import type { Quest, RewardItem, RewardValue, Schedule } from './types';
+import type { VillageStructureDef } from './village';
 
 /**
  * A bundle of quests and rewards that can be loaded into the app. The same format is used for the
  * neutral starter content that ships publicly and for a household's private file
  * (`content/private/household.json`, which git ignores). See docs/PRIVATE_CONTENT.md.
  *
- * Version 1 holds what the database can store today: quests, missions and rewards. Village
- * stories and badges are not part of it yet; extra fields in a file are ignored.
+ * It holds quests (with their missions), rewards, and village structures (each tied to one of the pack's quests).
+ * Badges are not part of it yet; extra fields in a file are ignored.
  */
 export interface ContentPack {
   /** Whole number. The importer only applies a pack whose version is higher than the last one applied. */
   contentVersion: number;
   quests: readonly Quest[];
   rewards: readonly RewardItem[];
+  /** Optional. Each structure grows from the blocks of one quest in this pack. */
+  village: readonly VillageStructureDef[];
 }
 
 export type ParseResult = { ok: true; pack: ContentPack } | { ok: false; errors: readonly string[] };
@@ -24,6 +27,8 @@ const MAX_TITLE = 120;
 const MAX_TEXT = 400;
 const MAX_REWARD_COST = 1000;
 const MAX_POINTS = 100000;
+const MAX_BLOCKS_PER_LEVEL = 50;
+const MAX_LEVELS = 20;
 
 type Json = Record<string, unknown>;
 const isRecord = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -47,6 +52,8 @@ export function parseContentPack(input: unknown): ParseResult {
 
   const questsIn = Array.isArray(input.quests) ? input.quests : (fail('quests', 'must be a list'), []);
   const rewardsIn = Array.isArray(input.rewards) ? input.rewards : (fail('rewards', 'must be a list'), []);
+  const villageIn =
+    input.village === undefined ? [] : Array.isArray(input.village) ? input.village : (fail('village', 'must be a list'), []);
 
   const questIds = new Set<string>();
   const missionIds = new Set<string>();
@@ -116,10 +123,38 @@ export function parseContentPack(input: unknown): ParseResult {
     }
   });
 
+  const structureIds = new Set<string>();
+  const structureQuests = new Set<string>();
+  const village: VillageStructureDef[] = [];
+  villageIn.forEach((v, vi) => {
+    const at = `village[${vi}]`;
+    if (!isRecord(v)) return fail(at, 'must be an object');
+    if (typeof v.id !== 'string' || !ID.test(v.id)) fail(`${at}.id`, 'must be letters, numbers, - or _ (up to 64)');
+    else if (structureIds.has(v.id)) fail(`${at}.id`, 'is used twice');
+    else structureIds.add(v.id);
+    if (typeof v.questId !== 'string' || !questIds.has(v.questId)) fail(`${at}.questId`, 'must be the id of a quest in this file');
+    else if (structureQuests.has(v.questId)) fail(`${at}.questId`, 'is already used by another structure');
+    else structureQuests.add(v.questId);
+    if (!isText(v.name, MAX_TITLE)) fail(`${at}.name`, `must be text up to ${MAX_TITLE} characters`);
+    if (!isText(v.summary, MAX_TEXT)) fail(`${at}.summary`, `must be text up to ${MAX_TEXT} characters`);
+    if (!isWhole(v.blocksPerLevel, 1, MAX_BLOCKS_PER_LEVEL)) fail(`${at}.blocksPerLevel`, `must be a whole number from 1 to ${MAX_BLOCKS_PER_LEVEL}`);
+    if (!isWhole(v.maxLevel, 1, MAX_LEVELS)) fail(`${at}.maxLevel`, `must be a whole number from 1 to ${MAX_LEVELS}`);
+    const stories = readStories(v.stories, v.maxLevel, `${at}.stories`, fail);
+    if (
+      typeof v.id === 'string' && typeof v.questId === 'string' && typeof v.name === 'string' && typeof v.summary === 'string' &&
+      typeof v.blocksPerLevel === 'number' && typeof v.maxLevel === 'number' && stories
+    ) {
+      village.push({
+        id: v.id, questId: v.questId, name: v.name, summary: v.summary,
+        blocksPerLevel: v.blocksPerLevel, maxLevel: v.maxLevel, stories, isDemo: false,
+      });
+    }
+  });
+
   if (errors.length > 0 || !isWhole(input.contentVersion, 1, 1_000_000)) {
     return { ok: false, errors: errors.length > 0 ? errors : ['contentVersion: must be a whole number of at least 1'] };
   }
-  return { ok: true, pack: { contentVersion: input.contentVersion, quests, rewards } };
+  return { ok: true, pack: { contentVersion: input.contentVersion, quests, rewards, village } };
 }
 
 type Fail = (path: string, rule: string) => void;
@@ -139,4 +174,22 @@ function readSchedule(v: unknown, path: string, fail: Fail): Schedule | null {
     fail(path, 'must be daily, every N days (2 or more, with a real anchor date) or weekly (days 0 to 6)');
     return null;
   }
+}
+
+/** One story line per level, from 0 (nothing built) to maxLevel: maxLevel + 1 lines in all. */
+function readStories(v: unknown, maxLevel: unknown, path: string, fail: Fail): string[] | null {
+  if (!Array.isArray(v)) return fail(path, 'must be a list with one line for each level, from 0 up to the last'), null;
+  if (isWhole(maxLevel, 1, MAX_LEVELS) && v.length !== maxLevel + 1) {
+    return fail(path, `must have ${maxLevel + 1} lines (level 0 up to level ${maxLevel})`), null;
+  }
+  const lines: string[] = [];
+  let ok = true;
+  v.forEach((line, i) => {
+    if (isText(line, MAX_TEXT)) lines.push(line);
+    else {
+      ok = false;
+      fail(`${path}[${i}]`, `must be text up to ${MAX_TEXT} characters`);
+    }
+  });
+  return ok ? lines : null;
 }

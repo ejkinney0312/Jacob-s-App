@@ -18,7 +18,7 @@ They live in one file that git ignores and that only a **local** build includes.
 
 ## The file
 
-`content/private/household.json`. Fields the app does not know yet (for example `village`, `badges`, `rookIntro`) are allowed and ignored.
+`content/private/household.json`. Fields the app does not know yet (for example `badges`, `rookIntro`) are allowed and ignored.
 
 ```json
 {
@@ -33,12 +33,18 @@ They live in one file that git ignores and that only a **local** build includes.
       "requiresApproval": false, "reward": { "xp": 5, "emeralds": 2, "blocks": 0 }
     }]
   }],
-  "rewards": [{ "id": "movie", "title": "Choose the movie", "costEmeralds": 25 }]
+  "rewards": [{ "id": "movie", "title": "Choose the movie", "costEmeralds": 25 }],
+  "village": [{
+    "id": "village-kitchen", "questId": "kitchen", "name": "Bakehouse", "summary": "Grows as the kitchen quest is finished.",
+    "blocksPerLevel": 3, "maxLevel": 5,
+    "stories": ["Level 0 line.", "Level 1 line.", "Level 2 line.", "Level 3 line.", "Level 4 line.", "Level 5 line."]
+  }]
 }
 ```
 
 - `schedule` is `{ "kind": "daily" }`, `{ "kind": "everyNDays", "intervalDays": 3, "anchorDate": "2026-08-04" }` or `{ "kind": "weekly", "weekdays": [5] }` (0 = Sunday).
 - Ids: letters, numbers, `-` or `_`. Mission order is the order in the list. Reward costs are 1 to 1000 emeralds.
+- `village` is optional. Each structure is tied to **one quest in the same file** (`questId`) and grows only from that quest's blocks: a level every `blocksPerLevel` blocks, up to `maxLevel`. `stories` needs one line for each level from 0 to `maxLevel` (so `maxLevel + 1` lines). A quest can have only one structure.
 - Icon names the app does not draw yet fall back to a check mark; the names are kept for the original art to come.
 
 ## Changing it
@@ -48,12 +54,12 @@ caregiver's later edits (a reward cost, a quest switched off) on every launch. T
 
 On a higher version, wording, schedules, order and reward values are updated by id; whether a quest or reward is switched on is kept;
 progress and earned totals are never touched. The importer **refuses** (and changes nothing) if a quest no longer lists a mission the app
-already has, or a mission id already belongs to a different quest. Give new missions new ids.
+already has, or a mission id already belongs to a different quest. Give new missions new ids. It also refuses a village structure that would move to a different quest or whose new size would take away a level already reached. Give new structures new ids.
 
 ## Not covered yet
 
-The village, badges and Rook's quest intro lines in the household's data are kept in the file but the app does not use them yet
-(the village needs a model linking structures to quests; the Weekly Chest badge needs a P1 feature). Reward tiers and the Weekly Chest are P1 (F14).
+Badges and Rook's quest intro lines in the household's data are kept in the file but the app does not use them yet
+(the Weekly Chest badge needs a P1 feature). The village is used (see above). Reward tiers and the Weekly Chest are P1 (F14).
 
 ## Care routines
 

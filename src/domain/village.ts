@@ -1,207 +1,151 @@
 /**
- * The block village. EVERY structure, stage and story line here is a clearly labelled DEMO PLACEHOLDER: the
- * real four structures and their story stages are not defined (docs/DECISIONS.md, "Proposed village (M11)").
+ * The block village. Each structure is tied to ONE quest and grows only from the building blocks that quest has
+ * earned: a level every `blocksPerLevel` blocks, up to `maxLevel` (docs/DECISIONS.md, "Village tied to quests").
  *
- * The village is a pure function of one number: the building blocks earned so far, a cumulative total that
- * only ever grows. Blocks are placed in order, filling each stage of each structure. Because nothing else
- * feeds it, a stage can never go backwards, and the same blocks always give the same village.
+ * The village is a pure function of the blocks each quest has earned, which are cumulative ledger totals that only
+ * ever grow. A level can never go backwards, nothing decays, and the same blocks always give the same village.
+ * Structures, levels and story lines come from content (a content pack); the ones in this repo are original
+ * starter or demo text.
  */
-
-export interface VillageStageDef {
-  id: string;
-  title: string;
-  /** One calm line shown once the stage is built. */
-  story: string;
-  /** Blocks this stage takes. */
-  blocks: number;
-}
 
 export interface VillageStructureDef {
   id: string;
+  /** The one quest whose blocks build this structure. */
+  questId: string;
   name: string;
   summary: string;
-  stages: readonly VillageStageDef[];
+  blocksPerLevel: number;
+  maxLevel: number;
+  /** One calm line per level: index 0 is shown before anything is built, index `maxLevel` when it is finished. */
+  stories: readonly string[];
   /** True for placeholder content. Must be labelled "demo" wherever it is shown. */
   isDemo: boolean;
-}
-
-export const VILLAGE: readonly VillageStructureDef[] = [
-  {
-    id: 'demo-workshop',
-    name: 'Workshop',
-    summary: 'A place to sort tools and plan the day.',
-    isDemo: true,
-    stages: [
-      { id: 'foundation', title: 'Foundation', story: 'A flat stone floor is laid for the workshop.', blocks: 1 },
-      { id: 'walls', title: 'Walls', story: 'Walls go up around the workbench.', blocks: 1 },
-      { id: 'roof', title: 'Roof', story: 'A roof keeps the workshop dry.', blocks: 1 },
-    ],
-  },
-  {
-    id: 'demo-garden',
-    name: 'Garden',
-    summary: 'A small plot that grows with care.',
-    isDemo: true,
-    stages: [
-      { id: 'soil', title: 'Soil', story: 'The ground is turned and ready.', blocks: 1 },
-      { id: 'seeds', title: 'Seeds', story: 'The first seeds are planted in rows.', blocks: 1 },
-      { id: 'bloom', title: 'Bloom', story: 'The first flowers open.', blocks: 2 },
-    ],
-  },
-  {
-    id: 'demo-lookout',
-    name: 'Lookout',
-    summary: 'A tall spot with a view over the village.',
-    isDemo: true,
-    stages: [
-      { id: 'base', title: 'Base', story: 'A wide base steadies the tower.', blocks: 2 },
-      { id: 'tower', title: 'Tower', story: 'The tower rises above the trees.', blocks: 2 },
-      { id: 'lantern', title: 'Lantern', story: 'A lantern is hung at the top.', blocks: 2 },
-    ],
-  },
-  {
-    id: 'demo-bridge',
-    name: 'Bridge',
-    summary: 'A way across the stream.',
-    isDemo: true,
-    stages: [
-      { id: 'posts', title: 'Posts', story: 'Strong posts are set on both banks.', blocks: 2 },
-      { id: 'planks', title: 'Planks', story: 'Planks span the water.', blocks: 3 },
-      { id: 'rails', title: 'Rails', story: 'Rails make the crossing steady.', blocks: 3 },
-    ],
-  },
-];
-
-export type StageStatus = 'built' | 'current' | 'later';
-
-export interface StageState {
-  structureId: string;
-  stage: VillageStageDef;
-  status: StageStatus;
-  /** Blocks placed on this stage, 0 up to its cost. */
-  blocksPlaced: number;
 }
 
 export type StructureStatus = 'notStarted' | 'building' | 'complete';
 
 export interface StructureState {
   structure: VillageStructureDef;
-  stages: StageState[];
-  status: StructureStatus;
+  /** Blocks this structure's quest has earned in total. */
+  blocksEarned: number;
+  /** Blocks placed: earned, up to what the structure can use. */
   blocksPlaced: number;
   blocksNeeded: number;
-  builtStages: number;
+  /** Earned beyond what the structure can use yet; kept, never lost. */
+  blocksSaved: number;
+  level: number;
+  /** Blocks placed toward the next level (0 when complete). */
+  blocksIntoLevel: number;
+  /** Blocks still needed for the next level (0 when complete). */
+  blocksToNext: number;
+  status: StructureStatus;
+  /** The story line for the current level. */
+  story: string;
 }
 
 export interface NextGoal {
   structureName: string;
-  stageTitle: string;
+  /** The level that the next blocks lead to. */
+  toLevel: number;
   blocksToGo: number;
 }
 
 export interface VillageState {
   structures: StructureState[];
-  blocksEarned: number;
   blocksPlaced: number;
   blocksNeeded: number;
-  /** Blocks earned beyond what the village can use yet; they are kept, never lost. */
+  /** Blocks earned that no structure can use: kept, never lost. Includes blocks from quests with no structure. */
   blocksSaved: number;
-  builtStages: number;
+  /** Levels reached across all structures. */
+  levelsReached: number;
   complete: boolean;
   next: NextGoal | null;
 }
 
-function wholeBlocks(blocks: number): number {
-  return Number.isFinite(blocks) && blocks > 0 ? Math.floor(blocks) : 0;
+function wholeBlocks(blocks: number | undefined): number {
+  return blocks !== undefined && Number.isFinite(blocks) && blocks > 0 ? Math.floor(blocks) : 0;
 }
 
-/** The village for a number of blocks earned. */
-export function buildVillage(blocksEarned: number, definitions: readonly VillageStructureDef[] = VILLAGE): VillageState {
+/**
+ * One structure for a number of blocks its quest has earned.
+ * Structures with a short or missing story list fall back to an empty line rather than failing.
+ */
+export function buildStructure(structure: VillageStructureDef, blocksEarned: number): StructureState {
   const earned = wholeBlocks(blocksEarned);
-  let remaining = earned;
+  const needed = structure.blocksPerLevel * structure.maxLevel;
+  const placed = Math.min(earned, needed);
+  const level = Math.min(structure.maxLevel, Math.floor(placed / structure.blocksPerLevel));
+  const complete = level === structure.maxLevel;
+  const into = complete ? 0 : placed - level * structure.blocksPerLevel;
+
+  return {
+    structure,
+    blocksEarned: earned,
+    blocksPlaced: placed,
+    blocksNeeded: needed,
+    blocksSaved: earned - placed,
+    level,
+    blocksIntoLevel: into,
+    blocksToNext: complete ? 0 : structure.blocksPerLevel - into,
+    status: placed === 0 ? 'notStarted' : complete ? 'complete' : 'building',
+    story: structure.stories[level] ?? '',
+  };
+}
+
+/**
+ * The village. `blocksByQuest` is the blocks each quest has earned; `blocksEarnedTotal` is every block ever earned,
+ * so blocks that no structure can use (a quest with no structure, or a finished structure) show as saved.
+ */
+export function buildVillage(
+  definitions: readonly VillageStructureDef[],
+  blocksByQuest: Readonly<Record<string, number>>,
+  blocksEarnedTotal: number = Object.values(blocksByQuest).reduce((sum, n) => sum + wholeBlocks(n), 0),
+): VillageState {
+  const structures = definitions.map((def) => buildStructure(def, blocksByQuest[def.questId] ?? 0));
+  const placed = structures.reduce((sum, s) => sum + s.blocksPlaced, 0);
+
+  // The next goal is the structure closest to its next level; ties go to the earlier structure.
   let next: NextGoal | null = null;
-  let builtTotal = 0;
-  let neededTotal = 0;
-
-  const structures: StructureState[] = definitions.map((structure) => {
-    let structurePlaced = 0;
-    let built = 0;
-    const stages: StageState[] = structure.stages.map((stage) => {
-      const placed = Math.min(remaining, stage.blocks);
-      remaining -= placed;
-      structurePlaced += placed;
-      const isBuilt = placed === stage.blocks;
-      if (isBuilt) built++;
-      let status: StageStatus = 'later';
-      if (isBuilt) status = 'built';
-      else if (next === null) {
-        status = 'current';
-        next = { structureName: structure.name, stageTitle: stage.title, blocksToGo: stage.blocks - placed };
-      }
-      return { structureId: structure.id, stage, status, blocksPlaced: placed };
-    });
-
-    const needed = structure.stages.reduce((sum, s) => sum + s.blocks, 0);
-    builtTotal += built;
-    neededTotal += needed;
-    return {
-      structure,
-      stages,
-      status: structurePlaced === 0 ? 'notStarted' : structurePlaced === needed ? 'complete' : 'building',
-      blocksPlaced: structurePlaced,
-      blocksNeeded: needed,
-      builtStages: built,
-    };
-  });
+  let best = Infinity;
+  for (const s of structures) {
+    if (s.status !== 'complete' && s.blocksToNext < best) {
+      best = s.blocksToNext;
+      next = { structureName: s.structure.name, toLevel: s.level + 1, blocksToGo: s.blocksToNext };
+    }
+  }
 
   return {
     structures,
-    blocksEarned: earned,
-    blocksPlaced: earned - remaining,
-    blocksNeeded: neededTotal,
-    blocksSaved: remaining,
-    builtStages: builtTotal,
-    complete: next === null,
+    blocksPlaced: placed,
+    blocksNeeded: structures.reduce((sum, s) => sum + s.blocksNeeded, 0),
+    blocksSaved: Math.max(0, wholeBlocks(blocksEarnedTotal) - placed),
+    levelsReached: structures.reduce((sum, s) => sum + s.level, 0),
+    complete: structures.length > 0 && next === null,
     next,
   };
 }
 
-export interface BuiltStage {
+export interface GrownLevel {
+  structureId: string;
   structureName: string;
-  stage: VillageStageDef;
+  level: number;
+  story: string;
 }
 
-/** The stages built when going from `seenBlocks` to `currentBlocks`, in building order. Empty if nothing new. */
-export function stagesBuiltBetween(
-  seenBlocks: number,
-  currentBlocks: number,
-  definitions: readonly VillageStructureDef[] = VILLAGE,
-): BuiltStage[] {
-  const before = buildVillage(seenBlocks, definitions);
-  const after = buildVillage(currentBlocks, definitions);
-  const built: BuiltStage[] = [];
-  after.structures.forEach((structure, si) => {
-    structure.stages.forEach((stage, gi) => {
-      if (stage.status === 'built' && before.structures[si].stages[gi].status !== 'built') {
-        built.push({ structureName: structure.structure.name, stage: stage.stage });
-      }
-    });
-  });
-  return built;
-}
-
-/** Plain words for a stage, so its state is never shown by color alone. */
-export function describeStageStatus(stage: StageState): string {
-  switch (stage.status) {
-    case 'built':
-      return 'Built';
-    case 'current':
-      return stage.blocksPlaced > 0
-        ? `Next · ${stage.stage.blocks - stage.blocksPlaced} more ${stage.stage.blocks - stage.blocksPlaced === 1 ? 'block' : 'blocks'}`
-        : `Next · ${stage.stage.blocks} ${stage.stage.blocks === 1 ? 'block' : 'blocks'}`;
-    case 'later':
-      return 'Later';
+/**
+ * The levels reached since each structure was last viewed, in structure order then level order.
+ * `seenLevels` is the highest level seen per structure id; a missing entry means 0.
+ */
+export function levelsGrownSince(seenLevels: Readonly<Record<string, number>>, village: VillageState): GrownLevel[] {
+  const grown: GrownLevel[] = [];
+  for (const s of village.structures) {
+    const raw = seenLevels[s.structure.id] ?? 0;
+    const seen = Number.isFinite(raw) ? Math.max(0, Math.floor(raw)) : 0;
+    for (let level = seen + 1; level <= s.level; level++) {
+      grown.push({ structureId: s.structure.id, structureName: s.structure.name, level, story: s.structure.stories[level] ?? '' });
+    }
   }
+  return grown;
 }
 
 export function describeStructureStatus(status: StructureStatus): string {
@@ -215,13 +159,26 @@ export function describeStructureStatus(status: StructureStatus): string {
   }
 }
 
-/** Plain words for what comes next, or a calm note if the village is finished for now. */
+/** Plain words for a structure's level, so it is never shown by color alone. */
+export function describeLevel(structure: StructureState): string {
+  return `Level ${structure.level} of ${structure.structure.maxLevel}`;
+}
+
+/** Plain words for the blocks toward the next level, or a calm note when the structure is finished. */
+export function describeProgress(structure: StructureState): string {
+  if (structure.status === 'complete') return 'Finished for now.';
+  const to = structure.blocksToNext;
+  return `${structure.blocksIntoLevel} of ${structure.structure.blocksPerLevel} blocks toward Level ${structure.level + 1}. ${to} more ${to === 1 ? 'block' : 'blocks'} to go.`;
+}
+
+/** Plain words for what comes next, or a calm note if every structure is finished for now. */
 export function describeNextGoal(state: VillageState): string {
+  if (state.structures.length === 0) return 'There is nothing to build yet.';
   if (!state.next) {
     return state.blocksSaved > 0
       ? `The village is complete for now. ${state.blocksSaved} ${state.blocksSaved === 1 ? 'block is' : 'blocks are'} saved for what comes next.`
       : 'The village is complete for now.';
   }
-  const { structureName, stageTitle, blocksToGo } = state.next;
-  return `Next: ${structureName} · ${stageTitle}, ${blocksToGo} more ${blocksToGo === 1 ? 'block' : 'blocks'}.`;
+  const { structureName, toLevel, blocksToGo } = state.next;
+  return `Next: ${structureName} · Level ${toLevel}, ${blocksToGo} more ${blocksToGo === 1 ? 'block' : 'blocks'}.`;
 }

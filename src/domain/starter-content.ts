@@ -1,5 +1,6 @@
 import type { ContentPack } from './content-pack';
 import type { Mission, Quest, RewardItem } from './types';
+import type { VillageStructureDef } from './village';
 
 /**
  * Neutral starter content for the public app, so a new install has something to use.
@@ -112,4 +113,59 @@ const REWARDS: readonly RewardItem[] = [
   isDemo: false,
 }));
 
-export const STARTER_PACK: ContentPack = { contentVersion: 1, quests: QUESTS, rewards: REWARDS };
+// One structure per starter quest, grown only by that quest's blocks: 3 blocks a level, 5 levels. Original text.
+const VILLAGE: readonly VillageStructureDef[] = [
+  {
+    id: `${STARTER_ID_PREFIX}village-fountain`,
+    questId: BATHROOM,
+    name: 'Fountain',
+    summary: 'A fountain in the village square that grows as the bathroom quest is finished.',
+    blocksPerLevel: 3,
+    maxLevel: 5,
+    isDemo: false,
+    stories: [
+      'A dry stone basin waits in the square.',
+      'The basin is cleaned and set level.',
+      'A pipe is laid beneath it.',
+      'Clear water begins to trickle.',
+      'A stone rim is built around the pool.',
+      'The fountain runs bright and steady.',
+    ],
+  },
+  {
+    id: `${STARTER_ID_PREFIX}village-bakehouse`,
+    questId: KITCHEN,
+    name: 'Bakehouse',
+    summary: 'A bakehouse that grows as the kitchen quest is finished.',
+    blocksPerLevel: 3,
+    maxLevel: 5,
+    isDemo: false,
+    stories: [
+      'A bare corner waits for a bakehouse.',
+      'A brick oven base is laid.',
+      'The oven walls are built.',
+      'A chimney rises above the roof.',
+      'The first loaf is set to rise.',
+      'The smell of warm bread fills the square.',
+    ],
+  },
+  {
+    id: `${STARTER_ID_PREFIX}village-windmill`,
+    questId: LAUNDRY,
+    name: 'Windmill',
+    summary: 'A windmill that grows as the laundry quest is finished.',
+    blocksPerLevel: 3,
+    maxLevel: 5,
+    isDemo: false,
+    stories: [
+      'A windy rise is marked out for a windmill.',
+      'A round stone base is laid.',
+      'The tower walls go up.',
+      'The cap is lifted into place.',
+      'The sails are raised.',
+      'The windmill turns in the breeze.',
+    ],
+  },
+];
+
+export const STARTER_PACK: ContentPack = { contentVersion: 1, quests: QUESTS, rewards: REWARDS, village: VILLAGE };

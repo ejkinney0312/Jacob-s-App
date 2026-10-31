@@ -38,6 +38,8 @@ describe('seedDemoContent', () => {
   it('does not restore demo rows a caregiver removed or turned off', async () => {
     await seedDemoContent(db);
     await db.runAsync("UPDATE quests SET active = 0 WHERE id = 'demo-garden'");
+    await db.runAsync("DELETE FROM village_stories WHERE structure_id = 'demo-village-lookout'");
+    await db.runAsync("DELETE FROM village_structures WHERE quest_id = 'demo-trail'");
     await db.runAsync("DELETE FROM missions WHERE quest_id = 'demo-trail'");
     await db.runAsync("DELETE FROM quests WHERE id = 'demo-trail'");
 

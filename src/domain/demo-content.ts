@@ -6,6 +6,7 @@
  * (docs/DECISIONS.md "Bathroom math").
  */
 import type { Quest, RewardItem } from './types';
+import type { VillageStructureDef } from './village';
 
 export const DEMO_PLAYER = { id: 'demo-player', displayName: 'Demo Player' } as const;
 
@@ -79,4 +80,59 @@ export const DEMO_QUESTS: readonly Quest[] = [
 export const DEMO_REWARD_ITEMS: readonly RewardItem[] = [
   { id: 'demo-reward-game', title: 'Demo: Extra game time', costEmeralds: 20, active: true, isDemo: true },
   { id: 'demo-reward-treat', title: 'Demo: Pick a snack', costEmeralds: 10, active: true, isDemo: true },
+];
+
+/** Demo structures, one per demo quest, each grown only by that quest's blocks. Placeholder text. */
+export const DEMO_VILLAGE: readonly VillageStructureDef[] = [
+  {
+    id: 'demo-village-workshop',
+    questId: 'demo-workshop',
+    name: 'Workshop',
+    summary: 'A place to sort tools and plan the day.',
+    blocksPerLevel: 3,
+    maxLevel: 5,
+    isDemo: true,
+    stories: [
+      'An empty patch of ground waits for a workshop.',
+      'A flat stone floor is laid.',
+      'Walls go up around the workbench.',
+      'A roof keeps the workshop dry.',
+      'Shelves and hooks hold the tools.',
+      'The workshop is finished and ready for work.',
+    ],
+  },
+  {
+    id: 'demo-village-garden',
+    questId: 'demo-garden',
+    name: 'Garden',
+    summary: 'A small plot that grows with care.',
+    blocksPerLevel: 3,
+    maxLevel: 5,
+    isDemo: true,
+    stories: [
+      'A bare plot waits to become a garden.',
+      'The ground is turned and ready.',
+      'The first seeds are planted in rows.',
+      'Green shoots come up.',
+      'The first flowers open.',
+      'The garden is full of color.',
+    ],
+  },
+  {
+    id: 'demo-village-lookout',
+    questId: 'demo-trail',
+    name: 'Lookout',
+    summary: 'A tall spot with a view over the village.',
+    blocksPerLevel: 3,
+    maxLevel: 5,
+    isDemo: true,
+    stories: [
+      'A hill with a good view is marked out.',
+      'A wide base steadies the tower.',
+      'The tower rises above the trees.',
+      'A ladder makes the climb easy.',
+      'A lantern is hung at the top.',
+      'The lookout is finished.',
+    ],
+  },
 ];

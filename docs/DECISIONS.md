@@ -204,7 +204,7 @@ the not-yet-earned badges visible?
 
 Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
 
-## Proposed village (M11): confirmed by Erin 2026-10-28 (proposal accepted as written)
+## Proposed village (M11): confirmed by Erin 2026-10-28; rules 1, 2, 3 and 5 replaced 2026-10-30 (see "Village tied to quests")
 
 Status: **proposed, not approved.** The PRD asks for "four structures and story stages" (F9) but never defines
 them, so **every structure, stage and story line is a clearly labelled demo placeholder.** The village pays
@@ -226,6 +226,24 @@ structures, their stages and story lines? Should the structures grow one after a
 weeks to finish the placeholder village a good pace?
 
 Answer (date and confirmed behavior): **Confirmed by Erin, 2026-10-28: the proposal above is accepted as written.** See "Answers recorded".
+
+## Village tied to quests (built 2026-10-30)
+
+Status: **built from what Erin's web prototype does** (see "Real content received"): each structure is tied to one quest and grown only by that quest's blocks, 3 blocks a level, 5 levels, and a story line for each level. This **replaces** the M11 rule that one pool of blocks fills four structures in order (M11 rules 1, 2, 3 and 5). The M11 rules about never going backwards, showing growth once, reading without color and plain squares still hold. The structures and story lines in this repo are **original starter or demo text**; the household's own come from its private file (`docs/PRIVATE_CONTENT.md`).
+
+| # | Rule | Why / note |
+| --- | --- | --- |
+| 1 | **One structure per quest.** A structure grows only from the blocks its own quest has earned: a finished quest's block and any blocks a mission pays, traced through the ledger to the quest. Blocks from a quest with no structure count as "saved", never lost. | The prototype. Resolves the PRD conflict (blocks vs finished quests) in favor of blocks per quest. |
+| 2 | **A level every 3 blocks, up to level 5 (15 blocks).** Each structure has a story line for each level, 0 to 5. | The prototype. The numbers are per structure in the content, not fixed in the app. |
+| 3 | **Never goes backwards.** Computed from the ledger. A content update that would move a structure to another quest, or shrink it below a level already reached, is refused. | CLAUDE.md: cumulative, no punishment. |
+| 4 | **When a structure reaches level 5 it is finished for now**; extra blocks from its quest are saved. The village is "complete for now" when every structure is finished. | Same idea as M11. |
+| 5 | **The next goal is the structure closest to its next level.** | *My choice;* with structures growing separately there is no single "next". |
+| 6 | **Growth is shown once.** Today shows a note, and the Village tab lists each new level with its story line, until the tab is viewed (remembered per structure). | M11 rule 6. |
+| 7 | **Starter and demo villages.** The starter content has three original structures (one per starter quest). Demo has three (one per demo quest). A private pack switches off the sample structures it does not contain. | Public repo: no household wording. |
+
+**Pace:** with 1 block per finished quest, a daily quest reaches level 5 in about two weeks; a weekly one takes about 15 weeks. *Say if that feels wrong.* Raising a quest's block bonus speeds it up.
+
+**Still open:** the pace above; original art for structures (today they are rows of squares and text).
 
 ## Proposed Rook (M12): confirmed by Erin 2026-10-28 (proposal accepted as written)
 
@@ -356,7 +374,7 @@ written here** (this repo is public); they live only in the ignored private file
 | Key missions | 7 of the 26 wait for the caregiver (`verification: caregiver`). | Same mechanism |
 | Bathroom total | Missions 70 XP + 28 emeralds, bonus 25 XP + 10 emeralds + 1 block = **95 / 38 / 1** (verified, see "Answers recorded"). | Tested |
 | Levels | Level n starts at (n-1) x 100 XP, so the **start is level 1 and every level is 100 XP**. | Same. This settles "starting level". |
-| Village | 4 structures, each tied to one quest and grown only by blocks from that quest: 3 blocks per level, max level 5, 6 story texts each. | Placeholder structures grown from total blocks. **Different model; needs a change** to link structures to quests. |
+| Village | 4 structures, each tied to one quest and grown only by blocks from that quest: 3 blocks per level, max level 5, 6 story texts each. | **Built 2026-10-30** ("Village tied to quests"); the household's own structures load from the private file. |
 | Badges | 7: by total quests finished (three levels), by one quest repeated (three), and one for the first Weekly Chest. | Placeholder badges. The Weekly Chest one cannot be earned in P0 (P1, F14). |
 | Reward store | 11 rewards, 15 to 500 emeralds, in four tiers. The tiers and bigger rewards overlap with F14 (P1). | Loadable from the private file; no tiers yet |
 | Rook | An intro line per quest, a tip per mission, one caregiver-written encouraging message. **No lines for level-up, badge or finishing a quest.** | Tips load now; the intro and the milestone lines are not used yet |

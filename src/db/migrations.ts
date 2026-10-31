@@ -235,6 +235,35 @@ export const MIGRATIONS: readonly Migration[] = [
       BEGIN SELECT RAISE(ABORT, 'refunds are a permanent log'); END;
     `,
   },
+  {
+    version: 8,
+    description: 'Village structures tied to quests',
+    sql: `
+      -- Each structure grows only from the blocks earned by ITS quest (ledger entries are traced to the quest through
+      -- their mission or quest instance), a level every blocks_per_level blocks, up to max_level. The village is
+      -- computed from the ledger, so it can never go backwards. seen_level only remembers what has been viewed.
+      CREATE TABLE village_structures (
+        id TEXT PRIMARY KEY NOT NULL,
+        quest_id TEXT NOT NULL UNIQUE REFERENCES quests(id),
+        name TEXT NOT NULL,
+        summary TEXT NOT NULL,
+        blocks_per_level INTEGER NOT NULL CHECK (blocks_per_level BETWEEN 1 AND 50),
+        max_level INTEGER NOT NULL CHECK (max_level BETWEEN 1 AND 20),
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        is_demo INTEGER NOT NULL DEFAULT 0 CHECK (is_demo IN (0, 1)),
+        active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
+        seen_level INTEGER NOT NULL DEFAULT 0 CHECK (seen_level >= 0)
+      );
+
+      -- One story line per level, 0 (nothing built yet) up to max_level.
+      CREATE TABLE village_stories (
+        structure_id TEXT NOT NULL REFERENCES village_structures(id) ON DELETE CASCADE,
+        level INTEGER NOT NULL CHECK (level >= 0),
+        text TEXT NOT NULL,
+        PRIMARY KEY (structure_id, level)
+      );
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

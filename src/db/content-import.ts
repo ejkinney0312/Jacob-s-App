@@ -1,8 +1,10 @@
 import { insertQuest } from './seed';
+import { getBlocksByQuest, saveVillageStructure } from './village';
 import type { Db } from './types';
 
 import { parseContentPack, type ContentPack } from '@/domain/content-pack';
 import { STARTER_ID_PREFIX, STARTER_PACK } from '@/domain/starter-content';
+import { buildStructure } from '@/domain/village';
 
 export type ContentSource = 'starter' | 'private';
 
@@ -21,8 +23,9 @@ const versionKey = (source: ContentSource) => `content_pack_version:${source}`;
  *   overwritten on every launch. Raise the version to apply changes again.
  * - **Definitions only.** Titles, wording, schedules and reward values are updated by id. Whether a quest
  *   or reward is switched on is kept. Progress, completions and the earned-points ledger are never touched.
- * - **Refuses unsafe changes** and writes nothing: a mission removed from a quest, or an id that already
- *   belongs to a different quest. Use new ids for new missions.
+ * - **Refuses unsafe changes** and writes nothing: a mission removed from a quest, an id that already
+ *   belongs to a different quest, or a village structure that would move to another quest or drop below
+ *   a level it has already reached. Use new ids for new missions and structures.
  * - **A private pack replaces the sample content.** It switches off demo and starter quests and rewards that
  *   it does not itself contain (switched off, not deleted, so nothing already earned loses its source).
  */
@@ -49,6 +52,26 @@ export async function importContentPack(db: Db, pack: ContentPack, source: Conte
       }
     }
 
+    const blocksByQuest = await getBlocksByQuest(db);
+    for (const structure of pack.village) {
+      const stored = await db.getFirstAsync<{ quest_id: string; blocks_per_level: number; max_level: number }>(
+        'SELECT quest_id, blocks_per_level, max_level FROM village_structures WHERE id = ?',
+        structure.id,
+      );
+      if (!stored) continue;
+      if (stored.quest_id !== structure.questId) {
+        result = { status: 'rejected', reason: 'A village structure in the file is already tied to a different quest.' };
+        return;
+      }
+      // Changing the size of a structure must never lower a level it has already reached.
+      const earned = blocksByQuest[structure.questId] ?? 0;
+      const before = buildStructure({ ...structure, blocksPerLevel: stored.blocks_per_level, maxLevel: stored.max_level }, earned).level;
+      if (buildStructure(structure, earned).level < before) {
+        result = { status: 'rejected', reason: 'A village structure in the file would drop below a level it has already reached.' };
+        return;
+      }
+    }
+
     let missionCount = 0;
     for (const quest of pack.quests) {
       // Existing rows keep their `active` choice; new rows start on.
@@ -72,6 +95,10 @@ export async function importContentPack(db: Db, pack: ContentPack, source: Conte
       }
     }
 
+    for (const [index, structure] of pack.village.entries()) {
+      await saveVillageStructure(db, structure, index + 1);
+    }
+
     for (const reward of pack.rewards) {
       await db.runAsync(
         'INSERT OR IGNORE INTO reward_items (id, title, cost_emeralds, active, is_demo) VALUES (?, ?, ?, 1, 0)',
@@ -86,6 +113,10 @@ export async function importContentPack(db: Db, pack: ContentPack, source: Conte
       const sample = (id: string, isDemo: number) => isDemo === 1 || id.startsWith(STARTER_ID_PREFIX);
       for (const row of await db.getAllAsync<{ id: string; is_demo: number }>('SELECT id, is_demo FROM quests')) {
         if (sample(row.id, row.is_demo) && !keepQuests.has(row.id)) await db.runAsync('UPDATE quests SET active = 0 WHERE id = ?', row.id);
+      }
+      const keepStructures = new Set(pack.village.map((v) => v.id));
+      for (const row of await db.getAllAsync<{ id: string; is_demo: number }>('SELECT id, is_demo FROM village_structures')) {
+        if (sample(row.id, row.is_demo) && !keepStructures.has(row.id)) await db.runAsync('UPDATE village_structures SET active = 0 WHERE id = ?', row.id);
       }
       for (const row of await db.getAllAsync<{ id: string; is_demo: number }>('SELECT id, is_demo FROM reward_items')) {
         if (sample(row.id, row.is_demo) && !keepRewards.has(row.id)) await db.runAsync('UPDATE reward_items SET active = 0 WHERE id = ?', row.id);

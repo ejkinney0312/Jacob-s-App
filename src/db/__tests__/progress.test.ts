@@ -306,7 +306,7 @@ describe('what is new since Progress was last seen', () => {
   it('is part of what Today loads', async () => {
     await finishGarden();
     const view = await loadToday(db, new Date('2026-10-25T20:00:00Z'), 'America/Chicago');
-    expect(view.pending).toEqual({ unseenBadges: 3, levelReached: null, newVillageStages: 1 }); // the quest's block builds a stage
+    expect(view.pending).toEqual({ unseenBadges: 3, levelReached: null, newVillageStages: 0 }); // one block is not yet a level for the structure
 
     await markProgressSeen(db, LATER);
     expect((await loadToday(db, new Date('2026-10-25T20:00:00Z'), 'America/Chicago')).pending.unseenBadges).toBe(0);

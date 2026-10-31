@@ -39,4 +39,11 @@ describe('private household content', () => {
     );
     expect(total).toEqual(BATHROOM_EXPECTED_TOTAL);
   });
+
+  (hasPrivateFile ? it : it.skip)('gives every quest its own village structure', () => {
+    const result = parseContentPack(loadPrivatePack());
+    if (!result.ok) throw new Error('the private file is not valid');
+    expect(result.pack.village.map((v) => v.questId).sort()).toEqual(result.pack.quests.map((q) => q.id).sort());
+    expect(result.pack.village.every((v) => v.stories.length === v.maxLevel + 1)).toBe(true);
+  });
 });
