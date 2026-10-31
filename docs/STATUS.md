@@ -15,7 +15,7 @@ Last updated: 2026-10-28 — pushed through M14 + dev-build config (`053d5e7`). 
 - Installed with `npx expo install`: `expo-sqlite`, `expo-secure-store`, `expo-notifications`,
   `expo-speech`, `expo-haptics`. Only `expo-sqlite` is used in code so far. The others are
   installed and ready; their features come in later milestones.
-- `app.json`: display name "Mend" (bundle id `com.mendapp.mend`, scheme `mend`); plugins `expo-sqlite`, `expo-secure-store`,
+- `app.json`: display name "Mend" (bundle id `com.ejkinney0312.mend`, scheme `mend`); plugins `expo-sqlite`, `expo-secure-store`,
   and `expo-notifications` with `enableRemoteNotifications: false` (P0 is local reminders only;
   push is P1). No bundle IDs or store settings: distribution is undecided.
 - TypeScript fixes preserved: `expo-env.d.ts` (local, gitignored; Expo regenerates it on
@@ -384,7 +384,7 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 
 ## Rename to Mend (2026-10-31)
 
-- Display name, notification title and message, web fallback, URL scheme `mend`, README and ids `com.mendapp.mend` (iOS and Android) changed. Slug, `QUEST_BLOCKS_RELEASE` and the database file name were left alone on purpose (see docs/DECISIONS.md, "Name and identifiers").
+- Display name, notification title and message, web fallback, URL scheme `mend`, README and ids `com.ejkinney0312.mend` (iOS and Android) changed. Slug, `QUEST_BLOCKS_RELEASE` and the database file name were left alone on purpose (see docs/DECISIONS.md, "Name and identifiers").
 - Ran: `npx tsc --noEmit` clean, `npm run lint` clean, `npm test -- --runInBand` 40 suites / 798 tests pass.
 - Not done: the dev client on the phone still has the old id; a new build is needed (`npx expo run:ios`), and it installs as a separate app. No store records created. Whether "Mend" is free is Erin's statement, not verified.
 - Next: sign in to EAS (`! npx eas-cli@latest login`), then a first test build when Erin asks.

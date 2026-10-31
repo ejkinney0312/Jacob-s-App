@@ -373,7 +373,7 @@ Answers Erin has given, with the date. The proposals above stay as written excep
 ## Name and identifiers (2026-10-31)
 
 Public name: **Mend** (Erin's statement that the name is free; not independently verified against store or trademark searches).
-Erin has both a developer account for Apple and one for Google. Identifiers chosen by Erin: `com.mendapp.mend` for iOS and Android.
+Erin has both a developer account for Apple and one for Google. Identifiers chosen by Erin: `com.ejkinney0312.mend` for iOS and Android. (`com.mendapp.mend` was tried first and Apple reported it already registered by someone else, so it was dropped on 2026-10-31.)
 They are permanent after the first store upload, so they stay provisional until each store accepts them. `app.json` uses display name
 "Mend" and URL scheme `mend`. Kept on purpose: the `quest-blocks` slug (the EAS project is linked to it), the `QUEST_BLOCKS_RELEASE` build
 flag, and the on-device database file name (renaming it would orphan saved progress). Account ids and logins are not stored in the repo.
