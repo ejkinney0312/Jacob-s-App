@@ -118,7 +118,7 @@ export function resolveReminderTime(time: ClockTime, quiet: QuietHours): Reminde
  * Notification text can be read on a locked phone, so it never includes a quest's name or anything about it.
  * The default is general and gentle: no countdown, no alarm language, no pressure.
  */
-export const REMINDER_TITLE = 'Quest Blocks';
+export const REMINDER_TITLE = 'Mend';
 export const DEFAULT_REMINDER_BODY = 'A quest is ready when you are.';
 export const MAX_REMINDER_MESSAGE_LENGTH = 80;
 
@@ -314,4 +314,4 @@ export function deliveryNote(timeZone: string): string {
 
 /** Shown when the phone is not allowing notifications. */
 export const NOTIFICATIONS_OFF_NOTE =
-  "Notifications are turned off for Quest Blocks, so reminders can't be shown. You can turn them on in your phone's settings.";
+  "Notifications are turned off for Mend, so reminders can't be shown. You can turn them on in your phone's settings.";

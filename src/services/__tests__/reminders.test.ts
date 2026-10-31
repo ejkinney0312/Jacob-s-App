@@ -49,7 +49,7 @@ describe('with permission', () => {
     expect(result.next?.localDate).toBe('2026-10-24');
     for (const value of port.scheduled.values()) {
       const reminder = value as PlannedReminder;
-      expect(reminder.title).toBe('Quest Blocks');
+      expect(reminder.title).toBe('Mend');
       expect(JSON.stringify([reminder.title, reminder.body])).not.toContain('Demo');
     }
   });

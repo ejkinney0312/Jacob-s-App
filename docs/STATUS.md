@@ -1,4 +1,4 @@
-# Quest Blocks status
+# Mend status (working name Quest Blocks)
 
 Last updated: 2026-10-28 — pushed through M14 + dev-build config (`053d5e7`). Erin confirmed all proposed defaults in `docs/DECISIONS.md` (see "Answers recorded"). M15 started: code-level accessibility and privacy audit done, P0 acceptance matrix below; **hardware acceptance not done**.
 
@@ -15,7 +15,7 @@ Last updated: 2026-10-28 — pushed through M14 + dev-build config (`053d5e7`). 
 - Installed with `npx expo install`: `expo-sqlite`, `expo-secure-store`, `expo-notifications`,
   `expo-speech`, `expo-haptics`. Only `expo-sqlite` is used in code so far. The others are
   installed and ready; their features come in later milestones.
-- `app.json`: display name "Quest Blocks"; plugins `expo-sqlite`, `expo-secure-store`,
+- `app.json`: display name "Mend" (bundle id `com.mendapp.mend`, scheme `mend`); plugins `expo-sqlite`, `expo-secure-store`,
   and `expo-notifications` with `enableRemoteNotifications: false` (P0 is local reminders only;
   push is P1). No bundle IDs or store settings: distribution is undecided.
 - TypeScript fixes preserved: `expo-env.d.ts` (local, gitignored; Expo regenerates it on
@@ -35,7 +35,7 @@ Last updated: 2026-10-28 — pushed through M14 + dev-build config (`053d5e7`). 
   daylight-saving changes. Each reminder has a stable id from the quest, day, exact moment and wording, so planning twice schedules nothing twice, a changed
   time or wording replaces the old one, and a time-zone change re-plans everything. `reconcileReminders` (`src/services/reminders.ts`) makes the phone match
   the plan (permission-aware, queued, retries failures, never touches other notifications); it runs when the app opens or returns to the foreground, after a
-  setting changes, and after a quest is finished (today's reminder is dropped). Notification text is only "Quest Blocks / A quest is ready when you are." (or
+  setting changes, and after a quest is finished (today's reminder is dropped). Notification text is only "Mend / A quest is ready when you are." (or
   the caregiver's own text, up to 80 characters): **never a quest name**. Gentle: normal notification sound, no countdown, no follow-up nagging; a quiet banner
   while the app is open. **Migration v6** adds `quest_reminders`. Proposed rules are in `docs/DECISIONS.md` ("Proposed reminders (M14)"). **Delivery is best
   effort and never promised** (Android 12+ can be late without the exact-alarm permission, which the app does not request). `expo-dev-client` is installed.
@@ -381,3 +381,10 @@ Built later (decided, not built): real badges, Rook's quest intro lines, reward 
 full-quest-unassisted check. In this environment I still have to tap **Open** on the simulator's dev-client prompt myself, so even the simulator run needs you.
 Things I can still do without a phone: remove unused starter packages (needs a check that nothing imports them). Contrast tests and release permission hardening are done.
 **Needs you:** phone models, the Bathroom fixture, real content, the redemption rules above, Expo login for EAS (`npx eas-cli@latest login`), and the Distribution decision.
+
+## Rename to Mend (2026-10-31)
+
+- Display name, notification title and message, web fallback, URL scheme `mend`, README and ids `com.mendapp.mend` (iOS and Android) changed. Slug, `QUEST_BLOCKS_RELEASE` and the database file name were left alone on purpose (see docs/DECISIONS.md, "Name and identifiers").
+- Ran: `npx tsc --noEmit` clean, `npm run lint` clean, `npm test -- --runInBand` 40 suites / 798 tests pass.
+- Not done: the dev client on the phone still has the old id; a new build is needed (`npx expo run:ios`), and it installs as a separate app. No store records created. Whether "Mend" is free is Erin's statement, not verified.
+- Next: sign in to EAS (`! npx eas-cli@latest login`), then a first test build when Erin asks.

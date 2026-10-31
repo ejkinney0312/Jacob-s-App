@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Quest Blocks",
+    "name": "Mend",
     "slug": "quest-blocks",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "questblocks",
+    "scheme": "mend",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.anonymous.quest-blocks"
+      "bundleIdentifier": "com.mendapp.mend"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +19,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.questblocks",
+      "package": "com.mendapp.mend",
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE"

@@ -370,11 +370,13 @@ Answers Erin has given, with the date. The proposals above stay as written excep
 | 2026-10-29 | Starter content for the public app | Confirmed: the neutral set is fine. | 3 generic chores (Bathroom, Kitchen, Laundry; 23 missions) and 5 generic rewards, as built in `src/domain/starter-content.ts`. Later changes go through a `contentVersion` bump. |
 | 2026-10-29 | Bathroom fixture | Real content supplied (web prototype at the Netlify address Erin gave). | The Bathroom quest in that data adds up to **95 XP, 38 emeralds, 1 block** (missions 70 + 28, bonus 25 + 10 + 1 block). `src/db/__tests__/bathroom-fixture.test.ts` runs it through the real completion and approval code and passes, so the Bathroom total is now **verified against a supplied fixture**. Only titles and values are in the repo. |
 
-## Development identifiers (2026-10-28)
+## Name and identifiers (2026-10-31)
 
-Placeholder application ids were added to `app.json` only so development builds can be made: `com.anonymous.quest-blocks` (iOS) and
-`com.anonymous.questblocks` (Android). They are **not** approved identifiers. The Distribution decision above is still open; changing an id
-later makes a different app, so confirm account ownership and the final name before any store configuration or release build.
+Public name: **Mend** (Erin's statement that the name is free; not independently verified against store or trademark searches).
+Erin has both a developer account for Apple and one for Google. Identifiers chosen by Erin: `com.mendapp.mend` for iOS and Android.
+They are permanent after the first store upload, so they stay provisional until each store accepts them. `app.json` uses display name
+"Mend" and URL scheme `mend`. Kept on purpose: the `quest-blocks` slug (the EAS project is linked to it), the `QUEST_BLOCKS_RELEASE` build
+flag, and the on-device database file name (renaming it would orphan saved progress). Account ids and logins are not stored in the repo.
 
 ## Real content received (2026-10-29)
 

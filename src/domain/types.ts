@@ -1,5 +1,5 @@
 /**
- * Domain types for Quest Blocks. Pure TypeScript: no React, no native modules.
+ * Domain types for Mend. Pure TypeScript: no React, no native modules.
  *
  * Reward spending is intentionally NOT modelled here. docs/DECISIONS.md ("Emerald purchases")
  * is unresolved, so there is no spendable balance, no debit and no redemption record yet.

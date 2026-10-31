@@ -1,4 +1,4 @@
-# Quest Blocks
+# Mend
 
 A native iOS and Android app (React Native, Expo, TypeScript) that helps an adult early reader finish
 chores independently. Each chore is a **Quest** made of **Missions**. Rook, an original encouraging

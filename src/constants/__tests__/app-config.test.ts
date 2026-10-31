@@ -22,7 +22,7 @@ function loadConfig(release: boolean, base: ConfigContext['config']): ExportedCo
 }
 
 const base = {
-  name: 'Quest Blocks',
+  name: 'Mend',
   slug: 'quest-blocks',
   android: { blockedPermissions: ['android.permission.READ_EXTERNAL_STORAGE'] },
 };

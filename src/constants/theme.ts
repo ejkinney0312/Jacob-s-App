@@ -1,5 +1,5 @@
 /**
- * Quest Blocks theme: palette (see `palette.ts`, contrast-tested), fonts and sizes.
+ * Mend theme: palette (see `palette.ts`, contrast-tested), fonts and sizes.
  */
 
 import '@/global.css';

@@ -1,5 +1,5 @@
 /**
- * Quest Blocks palette: plain data with no CSS or React Native imports, so tests can check it
+ * Mend palette: plain data with no CSS or React Native imports, so tests can check it
  * (see `__tests__/theme-contrast.test.ts`). Every text/background pair used by the app meets
  * 4.5:1 contrast; `border` and `primary` meet 3:1 against the backgrounds. Re-run that test if
  * you change a value. Color is never the only signal: pair it with an icon or words.
