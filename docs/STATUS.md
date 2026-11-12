@@ -397,3 +397,17 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - **Not tested:** the screen itself. This repo has no component-test setup, so the editor's layout, keyboard behavior, VoiceOver, 200% text and the multi-line boxes have not been run on any device or simulator. Needs a new build on the iPhone.
 - Open: how a later content pack interacts with edits made in the app (DECISIONS.md).
 - Also reported by Erin on the preview build: **VoiceOver does not work** (details to come) and **no sound** (silent switch not yet ruled out). Neither is fixed or diagnosed yet.
+
+## iPhone testing reported by Erin (2026-10-31)
+
+- Erin reports that everything except Android has been tested on the iPhone preview build, and that VoiceOver works. This is Erin's report: I did not see it, and individual results (PIN unlock timing, reminders with the app closed, sound and haptics, Reduce Motion, 200% text) were not written down item by item. Larger text was reported working earlier.
+- Earlier on the same build Erin reported no sound; Erin confirmed it was the iPhone's silent switch, which the app obeys on purpose (not a bug).
+- **Android is untested.** No Android device, build or TalkBack run has happened.
+- Next: record per-item results in `docs/DEVICE_TESTING.md` if Erin wants them kept as acceptance evidence.
+
+## Health tab and routine reminders, F19 (2026-11-11)
+
+- Added to the PRD as an addendum (F19) and docs/DECISIONS.md ("Care and routine reminders (F19)"). Built: schema v10 `routine_reminders`; rules in `src/domain/routines.ts`; storage in `src/db/routines.ts`; scheduling added to `src/services/reminders.ts` (daily repeating notifications, a new `scheduleDaily` on the notification port); a **Health** tab (`src/features/health/`); and Caregiver > **Routine reminders** (`src/features/caregiver/routines-panel.tsx`) to add from a starting point, edit, switch on or off and delete.
+- Quest reminders now keep up to 40 pending instead of 48, so routine reminders (up to 20 daily times) fit under iOS's 64.
+- **Not tested on any device or simulator:** the Health tab, the Routine reminders form (layout, keyboard, VoiceOver, 200% text), and above all whether the daily notifications arrive with the app closed, after a restart, and after a time-zone or daylight-saving change. The Expo docs do not state how a daily trigger behaves in those cases. Android untested.
+- Not built: weekday choices, a caregiver-only switch for hiding the Health tab, a Today shortcut to the next reminder, and any tap action on the notification.

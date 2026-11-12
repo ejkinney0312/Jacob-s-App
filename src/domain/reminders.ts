@@ -199,8 +199,8 @@ export interface PlannedReminder {
 export const REMINDER_ID_PREFIX = 'qb-reminder:';
 /** Today plus 13 more days. */
 export const DEFAULT_WINDOW_DAYS = 14;
-/** iOS keeps at most 64 pending local notifications, so stay well under it. */
-export const DEFAULT_MAX_PENDING = 48;
+/** iOS keeps at most 64 pending local notifications. Quests use up to this many, routine reminders up to 20 more (`ROUTINE_SLOT_LIMIT`), so stay well under it. */
+export const DEFAULT_MAX_PENDING = 40;
 /** A reminder this close to now, or earlier, is not scheduled. */
 export const MIN_LEAD_MS = 60_000;
 
@@ -209,7 +209,7 @@ export function isReminderId(id: string): boolean {
 }
 
 /** A short, stable fingerprint (FNV-1a) so a change of wording gives a new id. */
-function fingerprint(text: string): string {
+export function fingerprint(text: string): string {
   let hash = 0x811c9dc5;
   for (let i = 0; i < text.length; i++) {
     hash ^= text.charCodeAt(i);

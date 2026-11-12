@@ -398,6 +398,25 @@ pack update would replace edits made in the app to those quests. And because the
 has, a quest that gained a mission in the app (or lost one) makes a later pack update for it be refused (nothing is written). The simplest rule is
 "once chores are edited in the app, the app is the source of truth." Erin to confirm before real content is loaded a second time.
 
+## Care and routine reminders (F19), 2026-11-11
+
+Erin asked for a customizable **Health tab** and for reminders across the whole app (take medicine, drink water, a care task every few hours,
+"it's time to do the dishes", "it's time to take a shower"). Added to the PRD as an addendum (F19, P0). Built the same day. Defaults chosen,
+since none of them blocked the work; Erin can change any of them.
+
+| # | Decision | Why |
+|---|---|---|
+| 1 | **Caregiver-authored only.** Added, changed, switched and deleted in Caregiver mode (PIN). The Health tab only displays them. | CLAUDE.md: care routines are caregiver-authored reminders, never medical guidance. |
+| 2 | **Reminders only.** No advice, no dose or interval guidance, nothing recorded about whether something was done, no streaks, no points or rewards, no shaming. The presets (Take medicine, Drink water, Do the dishes, Take a shower, blank) carry only a name and a placeholder time to edit. | PRD non-goal "medical monitoring or health advice"; no punitive or tracking behavior. Recording "taken or missed" would make the app a medical record. |
+| 3 | **Lock-screen privacy.** A notification says "Mend / A reminder is ready." and nothing about the reminder, unless the caregiver switches on "show the words" for that one reminder (with a warning). | Notification payloads can be read on a locked phone. Erin's examples ("time to do the dishes") work if she turns that on per reminder. |
+| 4 | **Times, or "every N hours from a start to an end time".** Every day. N is 1 to 12; up to 24 times a day per reminder. Weekday choices and "every other day" are not built yet. | A care task every few hours becomes a list of fixed times inside a window the caregiver chooses. |
+| 5 | **Quiet hours are not applied.** The caregiver's chosen times, or the start and end of the window, are what is sent. | A reminder every few hours should not be silently moved to the morning. The window is the quiet. |
+| 6 | **Daily repeating notifications** (not one-off dates like quest reminders), so these keep coming even if the app is not opened for a while. The plan is re-checked every time the app opens. | One-off reminders planned two weeks ahead would quietly stop for someone who does not open the app, which matters more for care reminders. The Expo docs do not say how a daily trigger behaves after a reboot or a time-zone or daylight-saving change, so this **must be tried on a real phone**. |
+| 7 | **Room under iOS's 64-notification limit:** routine reminders may use up to 20 daily times in all (`ROUTINE_SLOT_LIMIT`); quest reminders were lowered from 48 to 40 pending (`DEFAULT_MAX_PENDING`). A reminder is scheduled whole or not at all, and one that did not fit is named on the Health tab and in Caregiver mode. | Never schedule half of a care reminder without telling anyone. |
+| 8 | **The Health tab is visible to anyone using the phone.** It shows each reminder's name and times (e.g. "Take medicine"). | A shared phone shows the tab to the player. If that is a problem the next step is a caregiver-only visibility switch; not built. |
+
+Stored in `routine_reminders` (schema v10). Not part of a content pack or the private file.
+
 ## Real content received (2026-10-29)
 
 Erin supplied the web prototype (plain `index.html`, `data.js`, `app.js`). Read as text only; nothing from it was run. **Its specifics are deliberately not

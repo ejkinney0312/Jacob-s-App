@@ -3,9 +3,11 @@ import { runMigrations } from '@/db/migrations';
 import { completeMission } from '@/db/quest-flow';
 import { listQuests } from '@/db/quests';
 import { saveReminderConfig, setQuietHours } from '@/db/reminders';
+import { addRoutine, setRoutineEnabled, updateRoutine } from '@/db/routines';
 import { seedDemoContent } from '@/db/seed';
 import { createTestDb, type TestDb } from '@/db/test-utils/node-sqlite-db';
 import { DEFAULT_MAX_PENDING, REMINDER_ID_PREFIX, isReminderId, type PlannedReminder } from '@/domain/reminders';
+import { isRoutineId, type RoutineInput } from '@/domain/routines';
 
 import { reconcileReminders } from '../reminders';
 import { createFakeNotifications, type FakeNotifications } from '../test-utils/fake-notifications';
@@ -271,5 +273,96 @@ describe('privacy', () => {
     await turnOn('demo-workshop');
     await run();
     expect(ours(port).every((id) => id.startsWith(REMINDER_ID_PREFIX))).toBe(true);
+  });
+});
+
+describe('routine reminders (care and everyday prompts)', () => {
+  const medicine: RoutineInput = {
+    title: 'Secret medicine name',
+    category: 'health',
+    schedule: { kind: 'times', times: [{ hour: 9, minute: 0 }, { hour: 21, minute: 0 }] },
+    enabled: true,
+    showOnLockScreen: false,
+  };
+  const routinesIn = (fake: FakeNotifications) => [...fake.scheduled.keys()].filter(isRoutineId);
+
+  it('schedules one daily notification per time, saying nothing about the routine', async () => {
+    await addRoutine(db, medicine);
+    const result = await run();
+
+    expect(result).toMatchObject({ routineTimes: 2, routinesLeftOut: [], failed: 0 });
+    expect(port.dailyCalls).toHaveLength(2);
+    expect(routinesIn(port)).toHaveLength(2);
+    expect(JSON.stringify([...port.scheduled.values()])).not.toContain('Secret');
+  });
+
+  it('is duplicate-safe: running again schedules nothing twice', async () => {
+    await addRoutine(db, medicine);
+    await run();
+    const again = await run();
+    expect(again).toMatchObject({ scheduled: 0, cancelled: 0 });
+    expect(port.dailyCalls).toHaveLength(2);
+  });
+
+  it('follows a change: a new time replaces the old one, switching off removes it', async () => {
+    const id = await addRoutine(db, medicine);
+    await run();
+    await updateRoutine(db, id, { ...medicine, schedule: { kind: 'times', times: [{ hour: 10, minute: 0 }] } });
+    const changed = await run();
+    expect(changed).toMatchObject({ scheduled: 1, cancelled: 2 });
+    expect(routinesIn(port)).toHaveLength(1);
+
+    await setRoutineEnabled(db, id, false);
+    await run();
+    expect(routinesIn(port)).toEqual([]);
+  });
+
+  it('puts the name in the notification only when the caregiver switched that on', async () => {
+    await addRoutine(db, { ...medicine, showOnLockScreen: true });
+    await run();
+    expect(JSON.stringify([...port.scheduled.values()])).toContain('Secret medicine name');
+  });
+
+  it('works alongside quest reminders without touching them or anyone else’s notifications', async () => {
+    await turnOn('demo-workshop');
+    await addRoutine(db, medicine);
+    port.addForeign('someone-elses');
+    await run();
+    expect(ours(port)).toHaveLength(14);
+    expect(routinesIn(port)).toHaveLength(2);
+    await setRoutineEnabled(db, 'routine-1', false);
+    await run();
+    expect(ours(port)).toHaveLength(14);
+    expect(port.scheduled.has('someone-elses')).toBe(true);
+  });
+
+  it('removes routine notifications when permission is turned off, and brings them back when it returns', async () => {
+    await addRoutine(db, medicine);
+    await run();
+    port.permission = 'denied';
+    await run();
+    expect(routinesIn(port)).toEqual([]);
+    port.permission = 'granted';
+    await run();
+    expect(routinesIn(port)).toHaveLength(2);
+  });
+
+  it('reports a routine that did not fit, and keeps the rest', async () => {
+    await addRoutine(db, { ...medicine, title: 'A', schedule: { kind: 'every', everyHours: 1, from: { hour: 0, minute: 0 }, until: { hour: 19, minute: 0 } } }); // 20 times
+    const second = await addRoutine(db, medicine);
+    const result = await run();
+    expect(result.routineTimes).toBe(20);
+    expect(result.routinesLeftOut).toEqual([second]);
+  });
+
+  it('retries a failed schedule on the next run', async () => {
+    await addRoutine(db, medicine);
+    const first = (await run(), [...port.scheduled.keys()].find(isRoutineId) as string);
+    port.scheduled.delete(first);
+    port.failScheduleFor.add(first);
+    expect((await run()).failed).toBe(1);
+    port.failScheduleFor.clear();
+    expect((await run()).scheduled).toBe(1);
+    expect(routinesIn(port)).toHaveLength(2);
   });
 });

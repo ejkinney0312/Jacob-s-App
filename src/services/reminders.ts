@@ -4,6 +4,8 @@ import { runExclusive } from '@/db/exclusive';
 import type { Db } from '@/db/types';
 import { toLocalDate } from '@/domain/local-date';
 import { diffReminders, planReminders, type PlannedReminder } from '@/domain/reminders';
+import { diffRoutineReminders, planRoutineReminders, type PlannedRoutineTime } from '@/domain/routines';
+import { listRoutines } from '@/db/routines';
 
 /**
  * Makes the phone's scheduled notifications match the reminder plan. It is safe to run at any time and as often as
@@ -25,6 +27,8 @@ export interface NotificationsPort {
   /** Identifiers of everything currently scheduled, ours or not. */
   getScheduledIds(): Promise<string[]>;
   schedule(reminder: PlannedReminder): Promise<void>;
+  /** A notification that repeats every day at the same time, so it keeps coming even if the app is not opened. */
+  scheduleDaily(routine: PlannedRoutineTime): Promise<void>;
   cancel(id: string): Promise<void>;
 }
 
@@ -46,6 +50,10 @@ export interface ReconcileResult {
   failed: number;
   /** The earliest planned reminder, or null. */
   next: PlannedReminder | null;
+  /** How many daily routine times the plan wants scheduled. */
+  routineTimes: number;
+  /** Routines that are on but did not fit under the limit. None of their times is scheduled. */
+  routinesLeftOut: string[];
 }
 
 /** Runs one at a time per notification system, so overlapping runs cannot schedule the same reminder twice. */
@@ -58,22 +66,27 @@ async function reconcileNow({ db, port, timeZone, now = new Date() }: ReconcileD
 
   // Without permission nothing can be shown, so the plan is empty and any reminders of ours are removed.
   let desired: PlannedReminder[] = [];
+  let routinePlan: { planned: PlannedRoutineTime[]; leftOut: string[] } = { planned: [], leftOut: [] };
   if (permission === 'granted') {
-    const [quests, configs, quiet, completedToday] = await Promise.all([
+    const [quests, configs, quiet, completedToday, routines] = await Promise.all([
       listQuests(db),
       getReminderConfigs(db),
       getQuietHours(db),
       getCompletedQuestIds(db, toLocalDate(now, timeZone)),
+      listRoutines(db),
     ]);
     desired = planReminders({ quests, configs, quiet, now, timeZone, completedToday });
+    routinePlan = planRoutineReminders(routines);
   }
 
-  const diff = diffReminders(desired, await port.getScheduledIds());
+  const existingIds = await port.getScheduledIds();
+  const diff = diffReminders(desired, existingIds);
+  const routineDiff = diffRoutineReminders(routinePlan.planned, existingIds);
   let cancelled = 0;
   let scheduled = 0;
   let failed = 0;
 
-  for (const id of diff.toCancel) {
+  for (const id of [...diff.toCancel, ...routineDiff.toCancel]) {
     try {
       await port.cancel(id);
       cancelled++;
@@ -89,6 +102,23 @@ async function reconcileNow({ db, port, timeZone, now = new Date() }: ReconcileD
       failed++;
     }
   }
+  for (const routine of routineDiff.toSchedule) {
+    try {
+      await port.scheduleDaily(routine);
+      scheduled++;
+    } catch {
+      failed++;
+    }
+  }
 
-  return { permission, planned: desired.length, scheduled, cancelled, failed, next: desired[0] ?? null };
+  return {
+    permission,
+    planned: desired.length,
+    scheduled,
+    cancelled,
+    failed,
+    next: desired[0] ?? null,
+    routineTimes: routinePlan.planned.length,
+    routinesLeftOut: routinePlan.leftOut,
+  };
 }

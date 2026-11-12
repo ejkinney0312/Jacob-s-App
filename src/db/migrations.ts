@@ -273,6 +273,23 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE missions ADD COLUMN active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1));
     `,
   },
+  {
+    version: 10,
+    description: 'Routine reminders (care and everyday prompts, not tied to a quest)',
+    sql: `
+      -- Caregiver-authored reminders only (docs/DECISIONS.md, "Care and routine reminders (F19)"). Nothing is recorded about
+      -- whether one was done: no log, no points. A routine repeats every day at its times; schedule_json holds the rule.
+      CREATE TABLE routine_reminders (
+        id TEXT PRIMARY KEY NOT NULL,
+        title TEXT NOT NULL CHECK (length(title) BETWEEN 1 AND 60),
+        category TEXT NOT NULL CHECK (category IN ('health', 'water', 'chore', 'custom')),
+        schedule_json TEXT NOT NULL,
+        enabled INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),
+        show_on_lock_screen INTEGER NOT NULL DEFAULT 0 CHECK (show_on_lock_screen IN (0, 1)),
+        sort_order INTEGER NOT NULL DEFAULT 0
+      );
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

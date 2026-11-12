@@ -8,13 +8,17 @@ import {
 import { Platform } from 'react-native';
 
 import type { PlannedReminder } from '@/domain/reminders';
+import type { PlannedRoutineTime } from '@/domain/routines';
 
 import type { NotificationPermission, NotificationsPort } from './reminders';
 
 /**
  * The phone's notification system, behind the small interface the reminder logic uses. Reminders are one-off
  * notifications at an exact date and time (a "date trigger"), planned by `planReminders`, so the platform's own
- * repeating triggers (whose time-zone and reboot behavior the Expo docs do not specify) are not relied on.
+ * repeating triggers (whose time-zone and reboot behavior the Expo docs do not specify) are not relied on for quests.
+ * Routine reminders (care and everyday prompts) DO use a daily repeating trigger, so they keep coming if the app is not
+ * opened for a while; they are re-checked every time the app opens, but how a daily trigger behaves after a reboot or a
+ * time-zone change is not stated in the Expo docs and has to be tried on a real phone.
  *
  * The notification text is only what the plan gives (a general title and body, and a data field that says what kind
  * of notification it is). Nothing about a quest, and nothing private, is ever put in it, because a locked phone can show it.
@@ -71,6 +75,16 @@ export const deviceNotifications: NotificationsPort = {
       identifier: reminder.id,
       content: { title: reminder.title, body: reminder.body, data: { type: 'quest-reminder' } },
       trigger: { type: SchedulableTriggerInputTypes.DATE, date: reminder.fireAt, channelId: CHANNEL_ID },
+    });
+  },
+
+  async scheduleDaily(routine: PlannedRoutineTime) {
+    await ensureChannel();
+    // Repeats every day at this clock time. The text is only the plan's general title and body.
+    await Notifications.scheduleNotificationAsync({
+      identifier: routine.id,
+      content: { title: routine.title, body: routine.body, data: { type: 'routine-reminder' } },
+      trigger: { type: SchedulableTriggerInputTypes.DAILY, hour: routine.time.hour, minute: routine.time.minute, channelId: CHANNEL_ID },
     });
   },
 

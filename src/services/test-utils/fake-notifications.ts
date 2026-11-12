@@ -1,12 +1,14 @@
 import type { PlannedReminder } from '@/domain/reminders';
+import type { PlannedRoutineTime } from '@/domain/routines';
 
 import type { NotificationPermission, NotificationsPort } from '../reminders';
 
 export interface FakeNotifications extends NotificationsPort {
   permission: NotificationPermission;
   /** Everything scheduled, by id. */
-  scheduled: Map<string, PlannedReminder | { foreign: true }>;
+  scheduled: Map<string, PlannedReminder | PlannedRoutineTime | { foreign: true }>;
   scheduleCalls: string[];
+  dailyCalls: string[];
   cancelCalls: string[];
   failScheduleFor: Set<string>;
   failCancelFor: Set<string>;
@@ -22,6 +24,7 @@ export function createFakeNotifications(permission: NotificationPermission = 'gr
     permission,
     scheduled: new Map(),
     scheduleCalls: [],
+    dailyCalls: [],
     cancelCalls: [],
     failScheduleFor: new Set(),
     failCancelFor: new Set(),
@@ -43,6 +46,12 @@ export function createFakeNotifications(permission: NotificationPermission = 'gr
       if (fake.failScheduleFor.has(reminder.id)) throw new Error('could not schedule');
       if (fake.scheduled.has(reminder.id)) throw new Error(`DUPLICATE: ${reminder.id} is already scheduled`);
       fake.scheduled.set(reminder.id, reminder);
+    },
+    async scheduleDaily(routine) {
+      fake.dailyCalls.push(routine.id);
+      if (fake.failScheduleFor.has(routine.id)) throw new Error('could not schedule');
+      if (fake.scheduled.has(routine.id)) throw new Error(`DUPLICATE: ${routine.id} is already scheduled`);
+      fake.scheduled.set(routine.id, routine);
     },
     async cancel(id) {
       fake.cancelCalls.push(id);

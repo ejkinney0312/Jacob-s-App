@@ -61,3 +61,17 @@ Use fictional demo data. For each, note the phone, OS version, and result.
 
 VoiceOver (iPhone) and TalkBack (Android) through Today, a mission, Pause, Help, the PIN screens, approvals, Progress, Village; text at 200 percent with nothing clipped;
 Reduce Motion (the celebration should be a still picture); touch targets at least 48 (iPhone 44); contrast 4.5 to 1.
+
+## Routine reminders and the Health tab (F19)
+
+Not yet tried on any device. The daily repeating notifications are the part the Expo docs do not describe for reboots or time-zone changes, so check each:
+
+1. **Add one.** Caregiver > Routine reminders > "Drink water" (or any): set it to "Every hour" from a time a few minutes ahead. It shows on the Health tab with "Next today".
+2. **App closed.** Close the app completely. The reminder arrives at the right time, and again the next hour.
+3. **Lock screen.** With "Show the words" off, a locked phone shows only "Mend / A reminder is ready." With it on, the name shows.
+4. **After a restart.** Set one 5 minutes ahead, restart the phone, do not open the app. It still arrives.
+5. **Next day.** The same times arrive the day after without opening the app.
+6. **Time zone and daylight saving.** Change the phone's time zone (or set the clock across a daylight-saving change), open the app once, and check the times still match the clock on the wall.
+7. **Switch off and delete.** Switching off stops it at once; deleting removes it; neither affects the quest reminders.
+8. **Too many.** Add enough times to pass 20 a day: the Health tab and Caregiver mode say one did not fit.
+9. **VoiceOver, 200% text and Android** on the Health tab and the form.

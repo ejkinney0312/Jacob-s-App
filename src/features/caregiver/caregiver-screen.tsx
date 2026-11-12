@@ -15,6 +15,7 @@ import { describeGuessFailure } from './messages';
 import { ChoreEditor } from './chore-editor';
 import { QuestsPanel } from './quests-panel';
 import { RemindersPanel } from './reminders-panel';
+import { RoutinesPanel } from './routines-panel';
 import { RewardEditor } from './reward-editor';
 import { RewardsPanel } from './rewards-panel';
 import { PinField } from './pin-field';
@@ -386,6 +387,7 @@ function Home({
       <ApprovalsPanel />
       <QuestsPanel onEdit={onEditQuest} onEditChores={onEditChores} />
       <RemindersPanel />
+      <RoutinesPanel />
       <RewardsPanel />
       <Button label="Lock now" onPress={onLock} />
       <Button label="New recovery code" variant="secondary" onPress={onNewCode} />
