@@ -469,3 +469,16 @@ Erin asked for more color across the whole app. Decision recorded as an assumpti
 | 6 | **Real-household chores get no clips in this repo** (it is public). A household's own audio would need a private path; EAS cloud builds skip gitignored files, so that is not built. | Privacy. |
 | 7 | **Open, for Erin:** the clips are from Erin's ElevenLabs account. Whether that plan's license allows use in a public app is not verified here; please check ElevenLabs' terms for the plan used before the app is published. | Licensing is Erin's to confirm. |
 
+## Visual aids for missions (2026-11-13)
+
+Erin wants visual aids on every mission, from both generic pictures and caregiver photos. What helps most: seeing the thing, then the steps in order. Phased plan agreed; only Phase 1 is built.
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | **Phase 1 (built): a drawn picture for each starter mission**, simple original line drawings made as plain shapes (`src/features/quest/art-shapes.ts`), each with a written description for screen readers (`src/domain/mission-art.ts`). | Before this, most starter missions showed the same check mark because their icon names had no match. |
+| 2 | The drawings are **placeholders for commissioned art** and are looked up by icon key, so real art can replace them without code changes to the missions. An icon with no drawing falls back to the old system symbol, then the check mark (so a mission added in the app still shows something). | Original art only (CLAUDE.md). |
+| 3 | A drawn picture is **described in words** ("A sponge"); a plain symbol is still treated as decoration. | The picture is never the only signal. The mission's own words carry the meaning. |
+| 4 | **Phase 2 (not built): a caregiver adds a photo to a mission**, stored only on the phone, never uploaded, never in the repo or a content pack, with a short caption read to VoiceOver. It needs camera and photo permissions and a database change, and it **changes the privacy answers and the permission text** (`docs/PRIVACY_DRAFT.md`, section 6). | The most useful aid for a specific person, and the most sensitive. |
+| 5 | **Phase 3 (not built): an ordered strip of 2–4 step pictures inside one mission.** No autoplay, no motion by default, large text must still fit. | "Steps in order". |
+| 6 | **Open, for Erin: who makes the final art** (Erin, a commissioned artist, or AI-generated images). AI-generated art has uncertain licensing for a public app, so it should be a deliberate choice. The "photos that grow over time" idea (F17) was left for later. | Not decided. |
+

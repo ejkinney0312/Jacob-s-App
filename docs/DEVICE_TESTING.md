@@ -109,3 +109,8 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 
 **Not yet shown:** a reminder on chosen days (the weekly trigger) actually arriving on a day that IS one of the chosen days, with the app closed. The pass above for a different day only shows it did not fire on the wrong day, and an "every day" reminder uses the daily trigger. Also not tested: after a phone restart, the next day, a time-zone change, VoiceOver and 200% text on the new screens, the Today card at other times, and Android.
 
+## Mission pictures (visual aids, Phase 1)
+21. Open each starter quest: every mission shows its own drawing (basket, tub, bottle, cabinet, towels, plates, door, fridge, stovetop, mirror, toilet paper, shirt, sink, soap, sponge, toilet, trash can, washing machine) and not the same check mark. Check light and dark mode and each quest's color. Tell me any that look wrong or are hard to recognize.
+22. With VoiceOver on, the picture is announced in words (for example "A sponge, image") before the mission title. Tell me if it is too wordy.
+23. At 200% text the picture and the buttons still fit. A mission you add in the app shows the plain check mark.
+

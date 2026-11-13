@@ -449,3 +449,11 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - Needs Erin: a hosted policy URL, contact details and developer name, the distribution choice, a decision on Android automatic backup (the app does not turn it off today), a check of the real permission list in a release build, and the ElevenLabs license check.
 - No code was changed.
 
+## Visual aids, Phase 1: a picture for each starter mission (2026-11-13)
+- Found that most starter missions showed the same check mark, because their icon names had no match in the old symbol list.
+- Drew 18 simple original pictures (laundry basket, bathtub, bottle, cabinet, folded clothes, plates, door, refrigerator, stovetop, mirror, toilet paper, shirt, sink, soap, sponge, toilet, trash can, washing machine) as plain shapes, each with a description for screen readers. I rendered them to look at them: they read clearly in light and dark.
+- Code: `src/features/quest/art-shapes.ts`, `src/domain/mission-art.ts`, `src/features/quest/mission-icon.tsx`. New package: `react-native-svg` 15.16.0, installed with `npx expo install`; it adds a native module, so a **new build is needed**.
+- Checks run: `tsc` clean, lint clean, 47 suites / 1265 tests pass (24 new: every starter icon has a drawing and a description, no description without a drawing, every path is well formed and stays inside the picture, no two drawings alike). Nine deliberate breaks were all caught.
+- **Not tested on a device:** how the pictures look in the app, VoiceOver reading the description, 200% text, and Android. The toilet and a few others are simple and may look rough; they are placeholders for commissioned art.
+- Phases 2 (caregiver photos) and 3 (step pictures) are not built; see `docs/DECISIONS.md`, "Visual aids for missions".
+
