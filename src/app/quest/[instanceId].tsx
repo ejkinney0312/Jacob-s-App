@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { questToneFor, Tones } from '@/constants/palette';
 import { Spacing } from '@/constants/theme';
 import { missionLine } from '@/domain/rook';
+import { clipIdFor } from '@/domain/voice-clips';
 import { helpTextFor } from '@/features/quest/help-text';
 import { Celebration } from '@/features/quest/celebration';
 import { MissionIcon } from '@/features/quest/mission-icon';
@@ -17,7 +18,7 @@ import { useScreenReader } from '@/features/quest/use-screen-reader';
 import { useAudioEnabled } from '@/features/settings/use-audio-enabled';
 import { useHapticsEnabled } from '@/features/settings/use-haptics-enabled';
 import { gentleTap } from '@/services/haptics';
-import { speak, stopSpeaking } from '@/services/speech';
+import { narrate, stopNarration } from '@/services/narration';
 
 function backToToday() {
   if (router.canGoBack()) router.back();
@@ -39,14 +40,16 @@ export default function QuestScreen() {
   const header = <Stack.Screen options={{ headerStyle: { backgroundColor: Tones[tone][scheme].background } }} />;
   const current = view?.current?.mission ?? null;
   const spokenText = current ? (helpOpen ? helpTextFor(current) : current.instruction) : null;
+  // A recorded clip exists only for the mission's own words (not the help text), and only while they are unchanged.
+  const clipId = current && !helpOpen ? clipIdFor(current) : null;
 
   // Read the step aloud when it appears, unless audio is off or a screen reader is already
   // speaking. Leaving the screen, or moving to another step, stops it.
   useEffect(() => {
     if (!spokenText || !audioEnabled || screenReader) return;
-    speak(spokenText);
-    return () => stopSpeaking();
-  }, [spokenText, audioEnabled, screenReader]);
+    narrate(spokenText, clipId);
+    return () => stopNarration();
+  }, [spokenText, clipId, audioEnabled, screenReader]);
 
   if (state.status === 'loading') {
     return (
@@ -130,7 +133,7 @@ export default function QuestScreen() {
             label={replayLabel}
             variant="secondary"
             disabled={!audioEnabled}
-            onPress={() => spokenText && speak(spokenText)}
+            onPress={() => spokenText && narrate(spokenText, clipId)}
           />
           <Button label="Back to mission" onPress={() => setHelpOpen(false)} />
         </View>
@@ -167,7 +170,7 @@ export default function QuestScreen() {
           label={replayLabel}
           variant="secondary"
           disabled={!audioEnabled}
-          onPress={() => speak(current.instruction)}
+          onPress={() => narrate(current.instruction, clipId)}
         />
         <Button label="I need help" variant="secondary" onPress={() => setHelpOpen(true)} />
         <Button

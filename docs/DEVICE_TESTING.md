@@ -85,3 +85,9 @@ Not yet tried on any device. The daily repeating notifications are the part the 
 15. The bar above a quest page matches its green, and the quest, celebration and approval screens read clearly.
 16. Each quest card on Today has its own color and edge (Bathroom teal, Kitchen orange, Laundry plum); opening a quest keeps that color, including the bar at the top and the finish screen. Check dark mode and 200% text.
 
+## Recorded voice (starter chores)
+17. **Plays and matches.** Open each starter quest and listen to every mission: the recorded voice says the words on the screen. Tell me any clip that says the wrong thing or sounds cut off (I could not listen to them).
+18. **Replay, silent switch, volume.** "Replay audio" plays it again. With the silent switch on, there is no sound; the volume buttons change the level.
+19. **Reworded chore.** In Caregiver > Edit chores, change a mission's wording. The phone's voice reads the new words, not the old clip. A mission added in the app is read by the phone's voice.
+20. **Off.** With "Read aloud and sounds" off, or VoiceOver on, nothing plays by itself.
+

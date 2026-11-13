@@ -435,3 +435,8 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - Checks run: `tsc` clean, lint clean, 45 suites / 1235 tests pass (all new colors pass the same contrast tests). Five deliberate breaks were all caught. One lint error I introduced (a comment inside JSX) was fixed.
 - **Not tested on a device:** how the colors look, dark mode, large text. Uncommitted.
 
+## Recorded voice for the starter chores (2026-11-12)
+- Erin's 23 clips (`starter-bathroom-1` to `starter-laundry-5`, MP3, mono, about 1.4 MB in all) are in `assets/voices/`. The mission screen plays the clip for a chore's instruction and the phone's voice for everything else. Code: `src/domain/voice-clips.ts` (which words each clip says, and when it applies), `src/services/voice-clips.ts` (the bundled files), `src/services/narration.ts` (play a clip, or fall back to the phone's voice), `src/services/audio-mode.ts` (the shared silent-switch setting, now also used by the chime).
+- Tests check that every recorded text matches its starter chore exactly, every file exists and is a real MP3 of a sensible size, the app lists the same clips, and a reworded or added chore gets no clip. Checks run: `tsc` clean, lint clean, 46 suites / 1241 tests pass. Eight deliberate breaks were checked; seven were caught and one turned out to be redundant code, which I removed.
+- **Not checked:** that each clip actually SAYS its line. I only checked the files and names, and did not listen to them or transcribe them. **Not tested on a device:** playback itself, the silent switch, volume, VoiceOver (clips must stay off while it runs), and Android. Erin also needs to check the ElevenLabs license (see DECISIONS).
+

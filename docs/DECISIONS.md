@@ -457,3 +457,15 @@ Erin asked for more color across the whole app. Decision recorded as an assumpti
 | 6 | Not changed: the tab bar stays neutral, and original art is still not drawn. | Smaller, safer first step. |
 | 7 | **Each quest has its own color** (added later the same day): teal, orange, plum, indigo or olive, none of them the Today green. The three starter quests are fixed (Bathroom teal, Kitchen orange, Laundry plum); any other quest gets one from a stable hash of its id, so it does not change if quests are reordered. The color shows as the quest card's tint and left edge, the whole quest page, the bar above it and the celebration. | Quests are told apart by color as well as by name. The same contrast tests cover these colors. |
 
+## Recorded voice for the starter chores (2026-11-12)
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | Erin made 23 voice clips with ElevenLabs for the **starter** chores only (their public text), bundled in `assets/voices/`, named by mission id. | Erin asked for a recorded voice instead of the phone's. |
+| 2 | A clip plays only while the mission's words are **exactly** the recorded words. If a caregiver rewords a chore in the app, or a chore is added in the app, the phone's voice reads the new words. | A clip must never say something different from what is on screen. |
+| 3 | If a clip cannot be played, the phone's voice reads the words instead. | The player is never left without audio by one broken file. |
+| 4 | Clips obey the same rules as the chime: silent switch silences them, the volume buttons set the level, nothing is read while a screen reader is on, and the "Read aloud and sounds" setting turns them off. One shared setting (`src/services/audio-mode.ts`) keeps the chime and the clips together. | Existing audio rules. |
+| 5 | The help text, Rook's lines and the tips are still read by the phone's voice. | Only the chore instructions were recorded. |
+| 6 | **Real-household chores get no clips in this repo** (it is public). A household's own audio would need a private path; EAS cloud builds skip gitignored files, so that is not built. | Privacy. |
+| 7 | **Open, for Erin:** the clips are from Erin's ElevenLabs account. Whether that plan's license allows use in a public app is not verified here; please check ElevenLabs' terms for the plan used before the app is published. | Licensing is Erin's to confirm. |
+
