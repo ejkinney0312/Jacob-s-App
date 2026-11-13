@@ -1,11 +1,12 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, View } from 'react-native';
 
 import { Colors, Tones } from '@/constants/palette';
 import { DatabaseProvider } from '@/db/database-provider';
 import { CaregiverSessionProvider } from '@/features/caregiver/session-context';
+import { OpeningScreen } from '@/features/opening/opening-screen';
 import { useNotificationTap } from '@/features/reminders/use-notification-tap';
 import { useReminderSync } from '@/features/reminders/use-reminder-sync';
 import { configureNotificationPresentation } from '@/services/device-notifications';
@@ -51,27 +52,30 @@ export default function RootLayout() {
   };
 
   return (
-    <ThemeProvider value={navigationTheme}>
-      <DatabaseProvider>
-        <HideSplashWhenReady />
-        <ReminderSync />
-        <CaregiverSessionProvider>
-          <NotificationTap />
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="quest/[instanceId]"
-              options={{
-                title: '',
-                headerBackTitle: 'Today',
-                headerShadowVisible: false,
-                // The quest pages are green, so the bar above them is too.
-                headerStyle: { backgroundColor: Tones.today[scheme].background },
-              }}
-            />
-          </Stack>
-        </CaregiverSessionProvider>
-      </DatabaseProvider>
-    </ThemeProvider>
+    <View style={{ flex: 1 }}>
+      <ThemeProvider value={navigationTheme}>
+        <DatabaseProvider>
+          <HideSplashWhenReady />
+          <ReminderSync />
+          <CaregiverSessionProvider>
+            <NotificationTap />
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="quest/[instanceId]"
+                options={{
+                  title: '',
+                  headerBackTitle: 'Today',
+                  headerShadowVisible: false,
+                  // The quest pages are green, so the bar above them is too.
+                  headerStyle: { backgroundColor: Tones.today[scheme].background },
+                }}
+              />
+            </Stack>
+          </CaregiverSessionProvider>
+        </DatabaseProvider>
+      </ThemeProvider>
+      <OpeningScreen />
+    </View>
   );
 }

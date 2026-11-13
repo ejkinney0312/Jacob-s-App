@@ -457,3 +457,9 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - **Not tested on a device:** how the pictures look in the app, VoiceOver reading the description, 200% text, and Android. The toilet and a few others are simple and may look rough; they are placeholders for commissioned art.
 - Phases 2 (caregiver photos) and 3 (step pictures) are not built; see `docs/DECISIONS.md`, "Visual aids for missions".
 
+## New app icon and opening animation (2026-11-13)
+- Used Erin's picture as the iOS icon, the Android adaptive icon, the splash picture and the favicon (made with a scratch image tool outside the project; the original is untouched in Downloads). Removed the old layered iOS icon and the Android themed icon (no silhouette yet).
+- Added a short opening: `src/features/opening/opening-screen.tsx` with its rules in `src/domain/opening.ts`. Once per launch, gentle settle then fade, tap to skip; still picture with Reduce Motion; skipped entirely with a screen reader. It takes over from the native splash at the same size and color.
+- Checks run: `tsc` clean, lint clean, `npx expo config` reads the new config, 49 suites / 1278 tests pass (new tests for the opening rules and for the icon files against `app.json`). Eleven deliberate breaks were all caught.
+- **Not tested on a device:** how the icon looks on the home screen (iPhone and Android), the splash-to-opening handoff (a visible jump or flash would show up there), the animation itself, Reduce Motion, VoiceOver skipping it, and Android's splash cropping (Android 12 and later crops the splash picture into a circle, which may cut the badge). A new build is needed to see any of it. Open privacy and licensing questions are in `docs/DECISIONS.md`.
+

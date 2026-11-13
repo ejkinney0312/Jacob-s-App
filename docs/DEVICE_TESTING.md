@@ -114,3 +114,9 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 22. With VoiceOver on, the picture is announced in words (for example "A sponge, image") before the mission title. Tell me if it is too wordy.
 23. At 200% text the picture and the buttons still fit. A mission you add in the app shows the plain check mark.
 
+## App icon and opening
+24. **Icon.** The home-screen icon is the new picture, with no white corners or thin border artifacts. Check on a light and a dark wallpaper. On Android, check the round and squircle shapes: the face and the word Mend are not cut off.
+25. **Opening.** Launch from a closed app: the badge appears at once, settles slightly, then fades to Today. There should be no jump or flash between the system splash and the badge. Tap during it: it ends at once. Bringing the app back from the background should NOT replay it.
+26. **Reduce Motion** (Settings > Accessibility > Motion): the badge shows still for under a second, nothing moves. **VoiceOver on:** no opening at all.
+27. **Android 12 and later:** the splash picture is shown inside a circle; check the badge is not cut off.
+

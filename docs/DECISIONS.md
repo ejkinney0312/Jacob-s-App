@@ -482,3 +482,17 @@ Erin wants visual aids on every mission, from both generic pictures and caregive
 | 5 | **Phase 3 (not built): an ordered strip of 2–4 step pictures inside one mission.** No autoplay, no motion by default, large text must still fit. | "Steps in order". |
 | 6 | **Open, for Erin: who makes the final art** (Erin, a commissioned artist, or AI-generated images). AI-generated art has uncertain licensing for a public app, so it should be a deliberate choice. The "photos that grow over time" idea (F17) was left for later. | Not decided. |
 
+## App icon and opening animation (2026-11-13)
+
+Erin supplied a picture ("Bordered Mend Thumbs-Up Icon", a cartoon portrait with the word Mend) to be the app icon, and asked for an animation from it as the opening.
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | The picture is now the **iOS icon**, the **Android adaptive icon**, the **splash picture** and the **web favicon**. For iOS the white corners were filled with the frame color so the phone's own rounding does not show white. For Android the badge sits at 62% inside the safe area on a matching dark-teal background, so a round or squircle mask does not cut off the face or the word. | Store icons need a square, opaque picture (iOS) and a safe area (Android). |
+| 2 | **Removed:** the old layered iOS icon (`assets/expo.icon`) and the Android "themed icon" image. | They were Expo's placeholder art. A themed (single-color) Android icon needs a silhouette of the new picture, which is not made yet. |
+| 3 | **Opening animation:** the badge settles gently (a slight grow), holds, and fades to the app, which is already loading underneath; about 1.65 s in all, once per launch, tap to skip. It starts at the splash's size, so nothing jumps. | Calm, short, no flashing, no sound. |
+| 4 | **Accessibility:** with Reduce Motion on it is the still picture for 0.8 s and nothing moves. With VoiceOver or TalkBack on there is **no opening at all**. | CLAUDE.md accessibility rules. |
+| 5 | The splash color, badge width and icon sizes are checked by tests against `app.json`. | They must agree or the splash jumps. |
+| 6 | **Open, for Erin:** the picture shows an identifiable cartoon portrait. This repo is public and the icon will be public in the stores. Confirm the person pictured agrees, and decide whether the repo should be public while it contains it. The picture's origin is also unknown to me: if it was made with an AI image tool, its license for a public app is the same open question as the other art (`Visual aids for missions`, row 6). | Privacy and licensing are Erin's to confirm. |
+| 7 | Only a still picture was animated. An animation that moves the hand or face needs the artwork in separate layers, which only the artist or tool that made it can provide. | One flat image cannot be animated in parts. |
+
