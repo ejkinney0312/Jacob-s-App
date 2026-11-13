@@ -91,3 +91,21 @@ Not yet tried on any device. The daily repeating notifications are the part the 
 19. **Reworded chore.** In Caregiver > Edit chores, change a mission's wording. The phone's voice reads the new words, not the old clip. A mission added in the app is read by the phone's voice.
 20. **Off.** With "Read aloud and sounds" off, or VoiceOver on, nothing plays by itself.
 
+## Results: iPhone 17 Pro, iOS 26.7.1, preview build (2026-11-12, reported by Erin)
+Android: not tested. Everything below is Erin's report; where nothing was reported it is listed as not tested.
+
+| Item | Result |
+|---|---|
+| Colors by area and per quest (14, 15, 16) | Pass. Erin said the colors look good. Dark mode and 200% text were not reported. |
+| Recorded voice (17) | Pass. All 23 clips say the line on the screen; none are cut off. |
+| Replay audio (18) | Replay works. The silent switch and volume were **not** reported for the clips (the phone's voice was confirmed to obey the silent switch earlier). |
+| Reworded chore (19) | Pass. The phone's voice reads the edited text, and the recording plays again once the original wording is restored. |
+| Added mission | Not yet tried (Erin: "tbd"). |
+| Routine reminder, app closed (Routine 1 and 2) | Pass. It arrived. |
+| Tap from the lock screen, app closed (13) | Pass. |
+| Weekly day that is not today (9, negative half) | Pass. The reminder did not arrive. |
+| Private name (10) | Pass. |
+| Caregiver recovery code | Worked: Erin reset the PIN with the recovery code after forgetting it, and kept all data. |
+
+**Not yet shown:** a reminder on chosen days (the weekly trigger) actually arriving on a day that IS one of the chosen days, with the app closed. The pass above for a different day only shows it did not fire on the wrong day, and an "every day" reminder uses the daily trigger. Also not tested: after a phone restart, the next day, a time-zone change, VoiceOver and 200% text on the new screens, the Today card at other times, and Android.
+
