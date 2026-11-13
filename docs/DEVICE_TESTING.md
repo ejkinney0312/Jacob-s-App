@@ -83,4 +83,5 @@ Not yet tried on any device. The daily repeating notifications are the part the 
 ## Colors by area
 14. Each tab has its own color: Today green, Progress gold, Village blue, Health rose, Caregiver violet. Check them in light and dark mode, and at 200% text. Text, buttons and the level bar should all be easy to read. Tell me which colors you like or want changed.
 15. The bar above a quest page matches its green, and the quest, celebration and approval screens read clearly.
+16. Each quest card on Today has its own color and edge (Bathroom teal, Kitchen orange, Laundry plum); opening a quest keeps that color, including the bar at the top and the finish screen. Check dark mode and 200% text.
 

@@ -42,7 +42,10 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
  * and the notice colors stay the same, so the same contrast rules hold. Every tone is checked in both modes by the contrast test.
  * Color is decoration here, never the only signal: each screen still names itself in words and keeps its icons and labels.
  */
-export type Tone = 'today' | 'progress' | 'village' | 'health' | 'caregiver';
+export type Tone = 'today' | 'progress' | 'village' | 'health' | 'caregiver' | QuestTone;
+
+/** The colors a single quest can have, so quests are told apart by color as well as by name. */
+export type QuestTone = 'teal' | 'orange' | 'plum' | 'indigo' | 'olive';
 
 type ToneColors = Record<'background' | 'backgroundElement' | 'backgroundSelected' | 'primary' | 'onPrimary' | 'link', string>;
 
@@ -67,6 +70,27 @@ export const Tones: Record<Tone, { light: ToneColors; dark: ToneColors }> = {
     light: { background: '#FCE9EA', backgroundElement: '#F7CFD3', backgroundSelected: '#F4C4C9', primary: '#A32D4B', onPrimary: '#FFFFFF', link: '#17497F' },
     dark: { background: '#1F1013', backgroundElement: '#33191E', backgroundSelected: '#472329', primary: '#F2A3B3', onPrimary: '#2A0A12', link: '#8EC2F5' },
   },
+  // The quest colors, kept apart from the green of Today and the section colors.
+  teal: {
+    light: { background: '#E0F3F2', backgroundElement: '#BFE6E3', backgroundSelected: '#A8DCD8', primary: '#0F6B6B', onPrimary: '#FFFFFF', link: '#17497F' },
+    dark: { background: '#0C1D1D', backgroundElement: '#162F2F', backgroundSelected: '#214343', primary: '#7FD6D0', onPrimary: '#08201F', link: '#8EC2F5' },
+  },
+  orange: {
+    light: { background: '#FDEBDD', backgroundElement: '#FAD3B3', backgroundSelected: '#F7C49B', primary: '#A34A00', onPrimary: '#FFFFFF', link: '#17497F' },
+    dark: { background: '#1F140B', backgroundElement: '#34210F', backgroundSelected: '#482F16', primary: '#F5A55F', onPrimary: '#2A1400', link: '#8EC2F5' },
+  },
+  plum: {
+    light: { background: '#F6E6F3', backgroundElement: '#EBCBE5', backgroundSelected: '#E8C6E1', primary: '#86307A', onPrimary: '#FFFFFF', link: '#17497F' },
+    dark: { background: '#1E1020', backgroundElement: '#331A36', backgroundSelected: '#46254A', primary: '#E4A0DB', onPrimary: '#2B0F2A', link: '#8EC2F5' },
+  },
+  indigo: {
+    light: { background: '#E7E9FA', backgroundElement: '#CDD2F3', backgroundSelected: '#C6CCF1', primary: '#3B49A8', onPrimary: '#FFFFFF', link: '#17497F' },
+    dark: { background: '#11142A', backgroundElement: '#1C2142', backgroundSelected: '#292F5A', primary: '#A9B4F5', onPrimary: '#0E1235', link: '#8EC2F5' },
+  },
+  olive: {
+    light: { background: '#EEF1DC', backgroundElement: '#DDE4B9', backgroundSelected: '#D0DAA0', primary: '#5A6B12', onPrimary: '#FFFFFF', link: '#17497F' },
+    dark: { background: '#181B0B', backgroundElement: '#272D12', backgroundSelected: '#373F1B', primary: '#C5D66A', onPrimary: '#1B2000', link: '#8EC2F5' },
+  },
   // Violet: caregiver mode.
   caregiver: {
     light: { background: '#EFE9FA', backgroundElement: '#DDD1F3', backgroundSelected: '#D3C6EE', primary: '#5B3F9E', onPrimary: '#FFFFFF', link: '#17497F' },
@@ -77,4 +101,21 @@ export const Tones: Record<Tone, { light: ToneColors; dark: ToneColors }> = {
 /** The palette for a mode, with a screen's tone (if it has one) laid over the neutral colors. */
 export function paletteFor(mode: 'light' | 'dark', tone: Tone | null) {
   return tone ? { ...Colors[mode], ...Tones[tone][mode] } : Colors[mode];
+}
+
+export const QUEST_TONES: readonly QuestTone[] = ['teal', 'orange', 'plum', 'indigo', 'olive'];
+
+// The three starter quests keep a fixed color. Any other quest gets one from its id, so it never changes when quests are reordered.
+const FIXED_QUEST_TONES: Record<string, QuestTone> = {
+  'starter-bathroom': 'teal',
+  'starter-kitchen': 'orange',
+  'starter-laundry': 'plum',
+};
+
+export function questToneFor(questId: string): QuestTone {
+  const fixed = FIXED_QUEST_TONES[questId];
+  if (fixed) return fixed;
+  let hash = 0;
+  for (const ch of questId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return QUEST_TONES[hash % QUEST_TONES.length];
 }

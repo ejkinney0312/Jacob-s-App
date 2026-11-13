@@ -430,3 +430,8 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - Checks run: `tsc` clean, lint clean, 45 suites / 1076 tests pass. Every tone passes the same contrast tests as the plain palette in both modes (two light tones were lightened after the test failed). Eight deliberate breaks of the palette code were all caught.
 - **Not tested on a device:** how the colors look on a real screen, dark mode, large text, and with Reduce Motion or any color-vision difference. The tab bar stays neutral. Erin to react to the actual colors.
 
+## A color for each quest (2026-11-12)
+- Each quest has its own color (teal, orange, plum, indigo, olive). Starter quests are fixed: Bathroom teal, Kitchen orange, Laundry plum; others come from a stable hash of the quest id. It colors the quest card on Today (tint and a thick left edge), the quest pages, the bar above them and the celebration. Code: `QUEST_TONES` and `questToneFor` in `src/constants/palette.ts`, `src/features/today/quest-card.tsx`, `src/app/quest/[instanceId].tsx`, `src/features/quest/celebration.tsx`.
+- Checks run: `tsc` clean, lint clean, 45 suites / 1235 tests pass (all new colors pass the same contrast tests). Five deliberate breaks were all caught. One lint error I introduced (a comment inside JSX) was fixed.
+- **Not tested on a device:** how the colors look, dark mode, large text. Uncommitted.
+

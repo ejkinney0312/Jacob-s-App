@@ -1,5 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { questToneFor } from '@/constants/palette';
+import { ToneContext } from '@/hooks/tone-context';
+
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Sizing, Spacing } from '@/constants/theme';
@@ -13,8 +16,16 @@ import {
 import { describeSchedule } from '@/domain/schedule';
 import { useTheme } from '@/hooks/use-theme';
 
-/** One quest on Today. Status and progress are always in words as well as the bar. */
+/** One quest on Today, in the quest's own color. Status and progress are always in words as well as the bar. */
 export function QuestCard({ item, onPress }: { item: TodayItem; onPress: () => void }) {
+  return (
+    <ToneContext.Provider value={questToneFor(item.quest.id)}>
+      <QuestCardBody item={item} onPress={onPress} />
+    </ToneContext.Provider>
+  );
+}
+
+function QuestCardBody({ item, onPress }: { item: TodayItem; onPress: () => void }) {
   const theme = useTheme();
   const { quest, instance, progress } = item;
   const status = describeQuestStatus(instance.status);
@@ -36,7 +47,8 @@ export function QuestCard({ item, onPress }: { item: TodayItem; onPress: () => v
       accessibilityHint={action}
       onPress={onPress}
       style={({ pressed }) => (pressed ? styles.pressed : undefined)}>
-      <ThemedView type="backgroundElement" style={styles.card}>
+      {/* The thick edge in the quest's color is decoration; the title and status carry the meaning. */}
+      <ThemedView type="backgroundElement" style={[styles.card, { borderLeftColor: theme.primary }]}>
         <ThemedText type="smallBold">{quest.title}</ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
           {status} · {describeSchedule(quest.schedule)}
@@ -60,6 +72,7 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     gap: Spacing.one,
     minHeight: Sizing.minTouchTarget,
+    borderLeftWidth: 8,
   },
   track: {
     height: 8,

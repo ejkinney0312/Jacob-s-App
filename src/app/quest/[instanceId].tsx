@@ -1,10 +1,11 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useColorScheme, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
+import { questToneFor, Tones } from '@/constants/palette';
 import { Spacing } from '@/constants/theme';
 import { missionLine } from '@/domain/rook';
 import { helpTextFor } from '@/features/quest/help-text';
@@ -32,6 +33,10 @@ export default function QuestScreen() {
   const [helpOpen, setHelpOpen] = useState(false);
 
   const view = state.status === 'ready' ? state.view : null;
+  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  // Each quest has its own color; before it has loaded, the page is the Today green.
+  const tone = view ? questToneFor(view.quest.id) : 'today';
+  const header = <Stack.Screen options={{ headerStyle: { backgroundColor: Tones[tone][scheme].background } }} />;
   const current = view?.current?.mission ?? null;
   const spokenText = current ? (helpOpen ? helpTextFor(current) : current.instruction) : null;
 
@@ -45,7 +50,8 @@ export default function QuestScreen() {
 
   if (state.status === 'loading') {
     return (
-      <Screen withTabBar={false} tone="today">
+      <Screen withTabBar={false} tone={tone}>
+        {header}
         <ThemedText themeColor="textSecondary" accessibilityLiveRegion="polite">
           Loading your quest…
         </ThemedText>
@@ -55,7 +61,8 @@ export default function QuestScreen() {
 
   if (state.status === 'notFound' || state.status === 'error') {
     return (
-      <Screen withTabBar={false} tone="today">
+      <Screen withTabBar={false} tone={tone}>
+        {header}
         <ThemedText type="subtitle" accessibilityRole="header">
           {state.status === 'notFound' ? "We couldn't find that quest" : "We couldn't load this quest"}
         </ThemedText>
@@ -69,13 +76,19 @@ export default function QuestScreen() {
   const { quest, finished, waitingForApproval, total, currentNumber, currentRedoCount } = state.view;
 
   if (celebration) {
-    return <Celebration questTitle={quest.title} bonus={celebration.bonus} audioEnabled={audioEnabled} onDone={backToToday} />;
+    return (
+      <>
+        {header}
+        <Celebration tone={tone} questTitle={quest.title} bonus={celebration.bonus} audioEnabled={audioEnabled} onDone={backToToday} />
+      </>
+    );
   }
 
   if (finished || !current) {
     const waiting = waitingForApproval > 0;
     return (
-      <Screen withTabBar={false} tone="today">
+      <Screen withTabBar={false} tone={tone}>
+        {header}
         <ThemedText type="small" themeColor="textSecondary">
           {quest.title}
         </ThemedText>
@@ -103,7 +116,8 @@ export default function QuestScreen() {
 
   if (helpOpen) {
     return (
-      <Screen withTabBar={false} tone="today">
+      <Screen withTabBar={false} tone={tone}>
+        {header}
         <ThemedText type="small" themeColor="textSecondary">
           {quest.title} · Mission {currentNumber} of {total}
         </ThemedText>
@@ -125,7 +139,8 @@ export default function QuestScreen() {
   }
 
   return (
-    <Screen withTabBar={false} tone="today">
+    <Screen withTabBar={false} tone={tone}>
+        {header}
       <ThemedText type="small" themeColor="textSecondary">
         {quest.title}
       </ThemedText>

@@ -454,5 +454,6 @@ Erin asked for more color across the whole app. Decision recorded as an assumpti
 | 3 | Every tone is contrast-tested in light and dark with the same 4.5:1 (text) and 3:1 (borders, primary) rules as the plain palette. | CLAUDE.md accessibility rule. |
 | 4 | Color is decoration only. Each screen still names itself in words and keeps its icons and labels. | Color is never the only signal. |
 | 5 | The quest and celebration pages use the Today green; the bar above them matches. | Avoids a cream bar over a green page. |
-| 6 | Not changed: the tab bar stays neutral, and original art is still not drawn. Quest-by-quest colors are not built. | Smaller, safer first step. |
+| 6 | Not changed: the tab bar stays neutral, and original art is still not drawn. | Smaller, safer first step. |
+| 7 | **Each quest has its own color** (added later the same day): teal, orange, plum, indigo or olive, none of them the Today green. The three starter quests are fixed (Bathroom teal, Kitchen orange, Laundry plum); any other quest gets one from a stable hash of its id, so it does not change if quests are reordered. The color shows as the quest card's tint and left edge, the whole quest page, the bar above it and the celebration. | Quests are told apart by color as well as by name. The same contrast tests cover these colors. |
 

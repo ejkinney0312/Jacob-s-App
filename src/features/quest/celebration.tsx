@@ -5,6 +5,7 @@ import { AccessibilityInfo, Animated, Easing, StyleSheet, View } from 'react-nat
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
+import type { Tone } from '@/constants/palette';
 import { Spacing } from '@/constants/theme';
 import { CELEBRATION_TIMING, celebrationMode, describeCelebration } from '@/domain/celebration';
 import type { RewardValue } from '@/domain/types';
@@ -19,6 +20,8 @@ interface CelebrationProps {
   bonus: RewardValue;
   /** Whether the player's read-aloud / sound setting allows the chime. */
   audioEnabled: boolean;
+  /** The quest's color. */
+  tone: Tone;
   onDone: () => void;
 }
 
@@ -27,23 +30,24 @@ interface CelebrationProps {
  * and that is all. It never loops or flashes. With Reduce Motion on, nothing moves: the finished picture
  * is shown at once. With sound off it is silent. It pays nothing; the bonus was already paid.
  */
-export function Celebration({ questTitle, bonus, audioEnabled, onDone }: CelebrationProps) {
+export function Celebration({ questTitle, bonus, audioEnabled, tone, onDone }: CelebrationProps) {
   const { reduceMotion, ready } = useReduceMotion();
   // Wait for the Reduce Motion answer (a few milliseconds) so we never show a still frame and then start moving.
-  if (!ready) return <Screen withTabBar={false} tone="today">{null}</Screen>;
+  if (!ready) return <Screen withTabBar={false} tone={tone}>{null}</Screen>;
 
   return (
     <CelebrationBody
       questTitle={questTitle}
       bonus={bonus}
       audioEnabled={audioEnabled}
+      tone={tone}
       still={celebrationMode(reduceMotion) === 'still'}
       onDone={onDone}
     />
   );
 }
 
-function CelebrationBody({ questTitle, bonus, audioEnabled, still, onDone }: CelebrationProps & { still: boolean }) {
+function CelebrationBody({ questTitle, bonus, audioEnabled, tone, still, onDone }: CelebrationProps & { still: boolean }) {
   const theme = useTheme();
   const copy = describeCelebration(bonus);
   const [block] = useState(() => new Animated.Value(still ? 1 : 0));
@@ -81,7 +85,7 @@ function CelebrationBody({ questTitle, bonus, audioEnabled, still, onDone }: Cel
   }, []);
 
   return (
-    <Screen withTabBar={false} tone="today">
+    <Screen withTabBar={false} tone={tone}>
       <View style={styles.center}>
         <Animated.View
           style={{

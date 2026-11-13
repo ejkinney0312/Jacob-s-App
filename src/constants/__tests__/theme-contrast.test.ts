@@ -1,4 +1,4 @@
-import { Colors, Tones, paletteFor, type ThemeColor, type Tone } from '@/constants/palette';
+import { Colors, QUEST_TONES, Tones, paletteFor, questToneFor, type ThemeColor, type Tone } from '@/constants/palette';
 
 // WCAG 2.x relative luminance and contrast ratio.
 function luminance(hex: string): number {
@@ -90,6 +90,30 @@ describe('laying a tone over the palette', () => {
   it('gives each area its own look', () => {
     const backgrounds = TONES.map((tone) => Tones[tone].light.background);
     expect(new Set(backgrounds).size).toBe(TONES.length);
+  });
+});
+
+describe('quest colors', () => {
+  it('keeps the starter quests on fixed colors', () => {
+    expect(questToneFor('starter-bathroom')).toBe('teal');
+    expect(questToneFor('starter-kitchen')).toBe('orange');
+    expect(questToneFor('starter-laundry')).toBe('plum');
+  });
+
+  it('gives any other quest the same color every time, from a color a quest can have', () => {
+    for (const id of ['quest-a', 'garage', 'starter-new', 'x', '']) {
+      expect(questToneFor(id)).toBe(questToneFor(id));
+      expect(QUEST_TONES).toContain(questToneFor(id));
+    }
+  });
+
+  it('spreads other quests across the colors instead of giving them all one', () => {
+    const used = new Set(Array.from({ length: 40 }, (_, i) => questToneFor(`quest-${i}`)));
+    expect(used.size).toBeGreaterThanOrEqual(4);
+  });
+
+  it('never uses the Today green, so a quest stands out from its page', () => {
+    for (const tone of QUEST_TONES) expect(Tones[tone].light.primary).not.toBe(Tones.today.light.primary);
   });
 });
 
