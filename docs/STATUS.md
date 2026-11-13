@@ -444,3 +444,8 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - On Erin's iPhone 17 Pro (iOS 26.7.1): colors look good, all 23 voice clips say their line, replay works, a reworded chore falls back to the phone's voice and the recording returns when reverted, a routine reminder arrived with the app closed, tapping it from the lock screen opened the app, a reminder on a day that is not today did not arrive, and private names work. Erin also used the recovery code to get back into caregiver mode.
 - Still to show: a **weekly-trigger** reminder arriving on a chosen day, restart and next-day behavior, time-zone change, adding a mission in the app, VoiceOver and 200% text on the new screens, and everything on Android. Details are in `docs/DEVICE_TESTING.md` under "Results".
 
+## Draft privacy policy and store privacy answers (2026-11-12)
+- Wrote `docs/PRIVACY_DRAFT.md`: what the app does with data (checked in the code: no network code, no analytics or crash SDKs, no accounts, no remote push, no microphone or camera), a draft policy, draft Apple App Privacy and Google Play Data safety answers, and what to check before submitting. **Draft only; nothing submitted or published; not legal advice.**
+- Needs Erin: a hosted policy URL, contact details and developer name, the distribution choice, a decision on Android automatic backup (the app does not turn it off today), a check of the real permission list in a release build, and the ElevenLabs license check.
+- No code was changed.
+
