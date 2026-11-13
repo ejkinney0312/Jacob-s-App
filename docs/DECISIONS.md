@@ -442,3 +442,17 @@ Handled (decided 2026-10-29: private on-device content):
 - **Care routine:** treat it as a caregiver-authored reminder only, never medical guidance and never in notifications.
 - **Name check:** "Mend" availability was not verified.
 - The product requirements document (committed at the start) already names some of these items; that history is public and was not rewritten.
+
+## Color across the app (2026-11-12)
+
+Erin asked for more color across the whole app. Decision recorded as an assumption; the exact colors are a first pass for Erin to react to on the phone.
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | **Each area has its own color family:** Today green, Progress gold, Village sky blue, Health rose, Caregiver violet. A tone replaces the page and card backgrounds, the selected state, the primary color (buttons, level bar) and the link color. | One neutral palette made every screen look alike. A tone is set once on `Screen`, so no screen has its own hard-coded colors. |
+| 2 | Text, secondary text, border and the notice colors are **not** changed by a tone. | The same readable text colors keep the same contrast rules everywhere. |
+| 3 | Every tone is contrast-tested in light and dark with the same 4.5:1 (text) and 3:1 (borders, primary) rules as the plain palette. | CLAUDE.md accessibility rule. |
+| 4 | Color is decoration only. Each screen still names itself in words and keeps its icons and labels. | Color is never the only signal. |
+| 5 | The quest and celebration pages use the Today green; the bar above them matches. | Avoids a cream bar over a green page. |
+| 6 | Not changed: the tab bar stays neutral, and original art is still not drawn. Quest-by-quest colors are not built. | Smaller, safer first step. |
+

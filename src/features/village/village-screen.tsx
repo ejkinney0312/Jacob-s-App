@@ -47,7 +47,7 @@ export function VillageScreen() {
   const anyDemo = snapshot?.state.structures.some((s) => s.structure.isDemo) ?? false;
 
   return (
-    <Screen>
+    <Screen tone="village">
       <ThemedText type="title" accessibilityRole="header">
         Village
       </ThemedText>

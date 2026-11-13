@@ -79,3 +79,8 @@ Not yet tried on any device. The daily repeating notifications are the part the 
 11. **VoiceOver, 200% text and Android** on the Health tab, the day picker and the form.
 12. **Today card.** With a reminder switched on, Today shows "Next reminder" with the right time; tapping it opens Health. With every reminder off, the card is gone. A private name shows as "Private reminder".
 13. **Tap a reminder.** Tap a routine reminder from the lock screen with the app (a) in the background and (b) completely closed: both open the Health tab. Tap a quest reminder: it opens Today. Check VoiceOver reads the Today card as a button.
+
+## Colors by area
+14. Each tab has its own color: Today green, Progress gold, Village blue, Health rose, Caregiver violet. Check them in light and dark mode, and at 200% text. Text, buttons and the level bar should all be easy to read. Tell me which colors you like or want changed.
+15. The bar above a quest page matches its green, and the quest, celebration and approval screens read clearly.
+

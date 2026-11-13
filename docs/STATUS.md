@@ -424,3 +424,9 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - `describeNext` now uses a shared `nextOccurrence`; its wording is unchanged.
 - Checks run: `tsc` clean, lint clean, 45 suites / 919 tests pass (9 new). Ten deliberate breaks in the new code were all caught.
 - **Not tested on a device:** the card layout, VoiceOver and 200% text on it, and whether a tap on a real notification opens Health from a locked phone, from the background and from a closed app (the cold-start case is the one most likely to need a fix). Android is untested.
+
+## Color across the app (2026-11-12)
+- Each area now has its own color family (Today green, Progress gold, Village sky blue, Health rose, Caregiver violet), in light and dark. `Screen` takes a `tone`; `useTheme()` lays it over the neutral palette, so every card, button and link follows it. Code: `Tones` and `paletteFor` in `src/constants/palette.ts`, `src/hooks/tone-context.ts`, `src/hooks/use-theme.ts`, `src/components/screen.tsx`. Decisions in `docs/DECISIONS.md`.
+- Checks run: `tsc` clean, lint clean, 45 suites / 1076 tests pass. Every tone passes the same contrast tests as the plain palette in both modes (two light tones were lightened after the test failed). Eight deliberate breaks of the palette code were all caught.
+- **Not tested on a device:** how the colors look on a real screen, dark mode, large text, and with Reduce Motion or any color-vision difference. The tab bar stays neutral. Erin to react to the actual colors.
+

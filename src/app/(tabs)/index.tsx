@@ -32,7 +32,7 @@ export default function TodayScreen() {
 
   if (state.status === 'loading') {
     return (
-      <Screen>
+      <Screen tone="today">
         <ThemedText type="title" accessibilityRole="header">
           Today
         </ThemedText>
@@ -45,7 +45,7 @@ export default function TodayScreen() {
 
   if (state.status === 'error') {
     return (
-      <Screen>
+      <Screen tone="today">
         <ThemedText type="title" accessibilityRole="header">
           Today
         </ThemedText>
@@ -66,7 +66,7 @@ export default function TodayScreen() {
   const hasDemo = items.some((item) => item.quest.isDemo);
 
   return (
-    <Screen>
+    <Screen tone="today">
       <ThemedText type="title" accessibilityRole="header">
         Today
       </ThemedText>

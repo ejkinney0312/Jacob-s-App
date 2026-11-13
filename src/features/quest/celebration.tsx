@@ -30,7 +30,7 @@ interface CelebrationProps {
 export function Celebration({ questTitle, bonus, audioEnabled, onDone }: CelebrationProps) {
   const { reduceMotion, ready } = useReduceMotion();
   // Wait for the Reduce Motion answer (a few milliseconds) so we never show a still frame and then start moving.
-  if (!ready) return <Screen withTabBar={false}>{null}</Screen>;
+  if (!ready) return <Screen withTabBar={false} tone="today">{null}</Screen>;
 
   return (
     <CelebrationBody
@@ -81,7 +81,7 @@ function CelebrationBody({ questTitle, bonus, audioEnabled, still, onDone }: Cel
   }, []);
 
   return (
-    <Screen withTabBar={false}>
+    <Screen withTabBar={false} tone="today">
       <View style={styles.center}>
         <Animated.View
           style={{

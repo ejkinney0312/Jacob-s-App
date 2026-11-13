@@ -45,7 +45,7 @@ export default function QuestScreen() {
 
   if (state.status === 'loading') {
     return (
-      <Screen withTabBar={false}>
+      <Screen withTabBar={false} tone="today">
         <ThemedText themeColor="textSecondary" accessibilityLiveRegion="polite">
           Loading your quest…
         </ThemedText>
@@ -55,7 +55,7 @@ export default function QuestScreen() {
 
   if (state.status === 'notFound' || state.status === 'error') {
     return (
-      <Screen withTabBar={false}>
+      <Screen withTabBar={false} tone="today">
         <ThemedText type="subtitle" accessibilityRole="header">
           {state.status === 'notFound' ? "We couldn't find that quest" : "We couldn't load this quest"}
         </ThemedText>
@@ -75,7 +75,7 @@ export default function QuestScreen() {
   if (finished || !current) {
     const waiting = waitingForApproval > 0;
     return (
-      <Screen withTabBar={false}>
+      <Screen withTabBar={false} tone="today">
         <ThemedText type="small" themeColor="textSecondary">
           {quest.title}
         </ThemedText>
@@ -103,7 +103,7 @@ export default function QuestScreen() {
 
   if (helpOpen) {
     return (
-      <Screen withTabBar={false}>
+      <Screen withTabBar={false} tone="today">
         <ThemedText type="small" themeColor="textSecondary">
           {quest.title} · Mission {currentNumber} of {total}
         </ThemedText>
@@ -125,7 +125,7 @@ export default function QuestScreen() {
   }
 
   return (
-    <Screen withTabBar={false}>
+    <Screen withTabBar={false} tone="today">
       <ThemedText type="small" themeColor="textSecondary">
         {quest.title}
       </ThemedText>

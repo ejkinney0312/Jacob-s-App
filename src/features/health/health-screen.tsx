@@ -56,7 +56,7 @@ export function HealthScreen() {
   const leftOut = new Set(loaded?.leftOut);
 
   return (
-    <Screen>
+    <Screen tone="health">
       <ThemedText type="title" accessibilityRole="header">
         Health
       </ThemedText>

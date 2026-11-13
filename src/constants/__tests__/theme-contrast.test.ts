@@ -1,4 +1,4 @@
-import { Colors, type ThemeColor } from '@/constants/palette';
+import { Colors, Tones, paletteFor, type ThemeColor, type Tone } from '@/constants/palette';
 
 // WCAG 2.x relative luminance and contrast ratio.
 function luminance(hex: string): number {
@@ -44,6 +44,52 @@ describe.each(['light', 'dark'] as const)('%s theme contrast', (mode) => {
 
   it.each(GRAPHIC_PAIRS)('%s against %s is at least 3:1', (fg, bg) => {
     expect(contrast(palette[fg], palette[bg])).toBeGreaterThanOrEqual(3);
+  });
+});
+
+// A tone replaces some colors and keeps the rest, so check the merged palette against the same pairs.
+const TONES = Object.keys(Tones) as Tone[];
+
+describe.each(TONES.flatMap((tone) => (['light', 'dark'] as const).map((mode) => [tone, mode] as const)))(
+  '%s tone, %s theme',
+  (tone, mode) => {
+    const palette = { ...Colors[mode], ...Tones[tone][mode] };
+
+    it.each(TEXT_PAIRS)('%s on %s is at least 4.5:1', (fg, bg) => {
+      expect(contrast(palette[fg], palette[bg])).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it.each(GRAPHIC_PAIRS)('%s against %s is at least 3:1', (fg, bg) => {
+      expect(contrast(palette[fg], palette[bg])).toBeGreaterThanOrEqual(3);
+    });
+
+    it('is visibly different from the plain page, so the color is real', () => {
+      expect(palette.background).not.toBe(Colors[mode].background);
+      expect(contrast(palette.background, palette.backgroundElement)).toBeGreaterThan(1.05);
+    });
+  },
+);
+
+describe('laying a tone over the palette', () => {
+  it.each(TONES)('%s changes only the page colors and leaves text, border and notice alone', (tone) => {
+    for (const mode of ['light', 'dark'] as const) {
+      const merged = paletteFor(mode, tone);
+      for (const key of ['text', 'textSecondary', 'border', 'notice', 'onNotice'] as const) {
+        expect(merged[key]).toBe(Colors[mode][key]);
+      }
+      expect(merged.background).toBe(Tones[tone][mode].background);
+      expect(merged.primary).toBe(Tones[tone][mode].primary);
+    }
+  });
+
+  it('gives the plain palette when there is no tone', () => {
+    expect(paletteFor('light', null)).toBe(Colors.light);
+    expect(paletteFor('dark', null)).toBe(Colors.dark);
+  });
+
+  it('gives each area its own look', () => {
+    const backgrounds = TONES.map((tone) => Tones[tone].light.background);
+    expect(new Set(backgrounds).size).toBe(TONES.length);
   });
 });
 

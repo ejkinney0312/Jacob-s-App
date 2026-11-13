@@ -45,7 +45,7 @@ export function ProgressScreen() {
   const levelNote = snapshot?.levelReached ? describeLevelReached(snapshot.levelReached.from, snapshot.levelReached.to) : null;
 
   return (
-    <Screen>
+    <Screen tone="progress">
       <ThemedText type="title" accessibilityRole="header">
         Progress
       </ThemedText>

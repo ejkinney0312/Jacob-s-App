@@ -3,12 +3,15 @@
  * https://docs.expo.dev/guides/color-schemes/
  */
 
-import { Colors } from '@/constants/theme';
+import { paletteFor } from '@/constants/palette';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTone } from '@/hooks/tone-context';
 
+/** The colors for the current mode, with the current screen's tone (if it has one) laid over the neutral palette. */
 export function useTheme() {
   const scheme = useColorScheme();
-  const theme = scheme === 'dark' ? 'dark' : 'light';
+  const mode = scheme === 'dark' ? 'dark' : 'light';
+  const tone = useTone();
 
-  return Colors[theme];
+  return paletteFor(mode, tone);
 }

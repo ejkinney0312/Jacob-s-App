@@ -3,7 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { Colors, Tones } from '@/constants/palette';
 import { DatabaseProvider } from '@/db/database-provider';
 import { CaregiverSessionProvider } from '@/features/caregiver/session-context';
 import { useNotificationTap } from '@/features/reminders/use-notification-tap';
@@ -61,7 +61,13 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen
               name="quest/[instanceId]"
-              options={{ title: '', headerBackTitle: 'Today', headerShadowVisible: false }}
+              options={{
+                title: '',
+                headerBackTitle: 'Today',
+                headerShadowVisible: false,
+                // The quest pages are green, so the bar above them is too.
+                headerStyle: { backgroundColor: Tones.today[scheme].background },
+              }}
             />
           </Stack>
         </CaregiverSessionProvider>

@@ -130,7 +130,7 @@ export function CaregiverScreen() {
   }
 
   return (
-    <Screen>
+    <Screen tone="caregiver">
       <View onTouchStart={touch} style={styles.stack}>
         <ThemedText type="title" accessibilityRole="header">
           Caregiver
