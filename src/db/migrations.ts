@@ -290,6 +290,16 @@ export const MIGRATIONS: readonly Migration[] = [
       );
     `,
   },
+  {
+    version: 11,
+    description: 'Routine reminders: days of the week, and keeping the name off the Health tab',
+    sql: `
+      -- days_json is a list of weekdays, 0 = Sunday. Every existing routine keeps firing every day.
+      ALTER TABLE routine_reminders ADD COLUMN days_json TEXT NOT NULL DEFAULT '[0,1,2,3,4,5,6]';
+      -- When 1, the Health tab shows "Private reminder" instead of the name (for a phone other people use).
+      ALTER TABLE routine_reminders ADD COLUMN private_on_tab INTEGER NOT NULL DEFAULT 0 CHECK (private_on_tab IN (0, 1));
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

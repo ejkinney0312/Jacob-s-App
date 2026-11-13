@@ -8,7 +8,7 @@ export interface FakeNotifications extends NotificationsPort {
   /** Everything scheduled, by id. */
   scheduled: Map<string, PlannedReminder | PlannedRoutineTime | { foreign: true }>;
   scheduleCalls: string[];
-  dailyCalls: string[];
+  routineCalls: string[];
   cancelCalls: string[];
   failScheduleFor: Set<string>;
   failCancelFor: Set<string>;
@@ -24,7 +24,7 @@ export function createFakeNotifications(permission: NotificationPermission = 'gr
     permission,
     scheduled: new Map(),
     scheduleCalls: [],
-    dailyCalls: [],
+    routineCalls: [],
     cancelCalls: [],
     failScheduleFor: new Set(),
     failCancelFor: new Set(),
@@ -47,8 +47,8 @@ export function createFakeNotifications(permission: NotificationPermission = 'gr
       if (fake.scheduled.has(reminder.id)) throw new Error(`DUPLICATE: ${reminder.id} is already scheduled`);
       fake.scheduled.set(reminder.id, reminder);
     },
-    async scheduleDaily(routine) {
-      fake.dailyCalls.push(routine.id);
+    async scheduleRoutine(routine) {
+      fake.routineCalls.push(routine.id);
       if (fake.failScheduleFor.has(routine.id)) throw new Error('could not schedule');
       if (fake.scheduled.has(routine.id)) throw new Error(`DUPLICATE: ${routine.id} is already scheduled`);
       fake.scheduled.set(routine.id, routine);

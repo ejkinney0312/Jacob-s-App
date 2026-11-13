@@ -6,6 +6,7 @@ import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { DatabaseProvider } from '@/db/database-provider';
 import { CaregiverSessionProvider } from '@/features/caregiver/session-context';
+import { useNotificationTap } from '@/features/reminders/use-notification-tap';
 import { useReminderSync } from '@/features/reminders/use-reminder-sync';
 import { configureNotificationPresentation } from '@/services/device-notifications';
 
@@ -23,6 +24,12 @@ function HideSplashWhenReady() {
 /** Keeps quest reminders scheduled whenever the app opens or returns to the foreground. */
 function ReminderSync() {
   useReminderSync();
+  return null;
+}
+
+/** Opens Health or Today when a reminder is tapped. */
+function NotificationTap() {
+  useNotificationTap();
   return null;
 }
 
@@ -49,6 +56,7 @@ export default function RootLayout() {
         <HideSplashWhenReady />
         <ReminderSync />
         <CaregiverSessionProvider>
+          <NotificationTap />
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen

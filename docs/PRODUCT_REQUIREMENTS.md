@@ -497,9 +497,10 @@ care task every few hours, "it's time to do the dishes" or "it's time to take a 
 
 - A **Health tab** lists the reminders and when they are due today, in plain words. It is for reminding only.
 - A caregiver (PIN mode) adds, edits, switches on or off, and deletes reminders. Each has a name, optional category, and either fixed times of day
-  or "every N hours between a start and an end time". Starting points are offered (Take medicine, Drink water, Do the dishes, Take a shower, or
+  or "every N hours between a start and an end time", on chosen days of the week. Starting points are offered (Take medicine, Drink water, Do the dishes, Take a shower, or
   a blank one); nothing medical is pre-filled.
 - Reminders are local notifications: permission-aware, timezone-aware, duplicate-safe, never promised (same rules as quest reminders, F11).
+- **Shared-phone privacy:** a reminder's name can be kept off the Health tab (it then reads "Private reminder"); the full name stays visible in caregiver mode.
 - **Lock-screen privacy:** a notification says only "Mend / A reminder is ready." unless the caregiver switches on showing the reminder's own words
   for that reminder, after a warning that a locked phone can show them.
 - **Not in scope:** medical advice or monitoring, dose or interval guidance, recording whether something was taken, streaks, points or rewards for

@@ -1,15 +1,21 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { Sizing, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { addRoutine, deleteRoutine, listRoutines, setRoutineEnabled, updateRoutine } from '@/db/routines';
 import { parseClockFields } from '@/domain/reminders';
+import type { Weekday } from '@/domain/types';
 import {
+  ALL_DAYS,
+  WEEKDAYS,
+  dayName,
+  dayShortName,
   MAX_ROUTINE_TITLE,
   ROUTINE_CATEGORY_NAMES,
   ROUTINE_PRESETS,
@@ -39,8 +45,10 @@ interface Draft {
   id: string | null;
   title: string;
   category: RoutineCategory;
+  days: Weekday[];
   enabled: boolean;
   showOnLockScreen: boolean;
+  privateOnTab: boolean;
   repeating: boolean;
   times: Box[];
   everyHours: string;
@@ -54,8 +62,11 @@ function draftFrom(source: { title: string; category: RoutineCategory; schedule:
     id: null,
     title: source.title,
     category: source.category,
+    days: [...ALL_DAYS],
     enabled: true,
     showOnLockScreen: false,
+    // A health reminder starts out hidden on the Health tab, in case other people use the phone. A caregiver can turn that off.
+    privateOnTab: source.category === 'health',
     repeating: s.kind === 'every',
     times: s.kind === 'times' ? s.times.map(box) : [box({ hour: 9, minute: 0 })],
     everyHours: s.kind === 'every' ? String(s.everyHours) : '3',
@@ -80,7 +91,15 @@ function toInput(draft: Draft): { ok: true; input: RoutineInput } | { ok: false;
     if (times.some((t) => t === null)) return { ok: false, message: timeError };
     schedule = { kind: 'times', times: times as { hour: number; minute: number }[] };
   }
-  const input: RoutineInput = { title: draft.title, category: draft.category, schedule, enabled: draft.enabled, showOnLockScreen: draft.showOnLockScreen };
+  const input: RoutineInput = {
+    title: draft.title,
+    category: draft.category,
+    schedule,
+    days: draft.days,
+    enabled: draft.enabled,
+    showOnLockScreen: draft.showOnLockScreen,
+    privateOnTab: draft.privateOnTab,
+  };
   const checked = checkRoutine(input);
   return checked.ok ? { ok: true, input: checked.value } : { ok: false, message: describeRoutineProblem(checked.problem) };
 }
@@ -187,7 +206,7 @@ export function RoutinesPanel() {
                 label={`${routine.title} reminder`}
                 value={routine.enabled}
                 onChange={(value) => void run(async () => ((await setRoutineEnabled(db, routine.id, value)) ? (value ? 'Switched on.' : 'Switched off.') : "We couldn't find that reminder."))}>
-                <SwitchRowText title={routine.title} caption={`${ROUTINE_CATEGORY_NAMES[routine.category]} · ${describeRoutineSchedule(routine.schedule)} · ${routine.enabled ? 'On' : 'Off'}`} />
+                <SwitchRowText title={routine.title} caption={`${ROUTINE_CATEGORY_NAMES[routine.category]} · ${describeRoutineSchedule(routine.schedule, routine.days)} · ${routine.enabled ? 'On' : 'Off'}`} />
               </SwitchRow>
               <Button
                 label="Edit"
@@ -196,7 +215,7 @@ export function RoutinesPanel() {
                 onPress={() => {
                   setMessage(null);
                   setConfirmDelete(false);
-                  setDraft(draftFrom(routine, { id: routine.id, enabled: routine.enabled, showOnLockScreen: routine.showOnLockScreen }));
+                  setDraft(draftFrom(routine, { id: routine.id, days: [...routine.days], enabled: routine.enabled, showOnLockScreen: routine.showOnLockScreen, privateOnTab: routine.privateOnTab }));
                 }}
               />
             </ThemedView>
@@ -262,10 +281,21 @@ export function RoutinesPanel() {
             </>
           )}
 
+          <ThemedText type="smallBold" accessibilityRole="header">
+            Days
+          </ThemedText>
+          <DayPicker days={draft.days} onChange={(days) => patch({ days })} />
+
           <SwitchRow label="Show the words on the lock screen" value={draft.showOnLockScreen} onChange={(showOnLockScreen) => patch({ showOnLockScreen })}>
             <SwitchRowText
               title="Show the words on the lock screen"
               caption={draft.showOnLockScreen ? 'On · anyone who sees the locked phone can read the name' : 'Off · the notification just says a reminder is ready'}
+            />
+          </SwitchRow>
+          <SwitchRow label="Keep the name private on the Health tab" value={draft.privateOnTab} onChange={(privateOnTab) => patch({ privateOnTab })}>
+            <SwitchRowText
+              title="Keep the name private on the Health tab"
+              caption={draft.privateOnTab ? 'On · the tab says "Private reminder" and shows only the times' : 'Off · the tab shows the name and the times'}
             />
           </SwitchRow>
           <SwitchRow label="Reminder is on" value={draft.enabled} onChange={(enabled) => patch({ enabled })}>
@@ -290,7 +320,49 @@ export function RoutinesPanel() {
   );
 }
 
+/** Seven day buttons. Each says its day in words and shows a tick when chosen, so colour is never the only signal. */
+function DayPicker({ days, onChange }: { days: Weekday[]; onChange: (days: Weekday[]) => void }) {
+  const theme = useTheme();
+  const toggle = (day: Weekday) => onChange(days.includes(day) ? days.filter((d) => d !== day) : [...days, day].sort((a, b) => a - b));
+  return (
+    <>
+      <View style={styles.row}>
+        {ALL_DAYS.map((day) => {
+          const chosen = days.includes(day);
+          return (
+            <Pressable
+              key={day}
+              accessibilityRole="checkbox"
+              accessibilityLabel={dayName(day)}
+              accessibilityState={{ checked: chosen }}
+              onPress={() => toggle(day)}
+              style={[
+                styles.day,
+                { borderColor: theme.border, backgroundColor: chosen ? theme.backgroundSelected : theme.backgroundElement },
+              ]}>
+              <ThemedText type="smallBold">{chosen ? `✓ ${dayShortName(day)}` : dayShortName(day)}</ThemedText>
+            </Pressable>
+          );
+        })}
+      </View>
+      <View style={styles.row}>
+        <Button label="Every day" variant="secondary" onPress={() => onChange([...ALL_DAYS])} />
+        <Button label="Weekdays" variant="secondary" onPress={() => onChange([...WEEKDAYS])} />
+      </View>
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
+  day: {
+    minWidth: Sizing.minTouchTarget + 8,
+    minHeight: Sizing.minTouchTarget,
+    paddingHorizontal: Spacing.two,
+    borderWidth: 2,
+    borderRadius: Spacing.two,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   panel: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
   card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },

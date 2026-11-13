@@ -16,15 +16,19 @@ const water: RoutineInput = {
   title: 'Drink water',
   category: 'water',
   schedule: { kind: 'every', everyHours: 2, from: { hour: 9, minute: 0 }, until: { hour: 17, minute: 0 } },
+  days: [0, 1, 2, 3, 4, 5, 6],
   enabled: true,
   showOnLockScreen: false,
+  privateOnTab: false,
 };
 const medicine: RoutineInput = {
   title: 'Take medicine',
   category: 'health',
   schedule: { kind: 'times', times: [{ hour: 9, minute: 0 }, { hour: 21, minute: 0 }] },
+  days: [0, 1, 2, 3, 4, 5, 6],
   enabled: true,
   showOnLockScreen: false,
+  privateOnTab: false,
 };
 
 describe('saving routines', () => {
@@ -103,6 +107,36 @@ describe('storage', () => {
     ['an unknown category', "INSERT INTO routine_reminders (id, title, category, schedule_json) VALUES ('x', 'T', 'medical', '{}')"],
   ])('refuses %s', async (_name, sql) => {
     await expect(db.runAsync(sql)).rejects.toThrow(/CHECK/);
+  });
+
+  it('saves the days and the private switch, and reads them back', async () => {
+    const id = await addRoutine(db, { ...medicine, days: [5, 1, 3], privateOnTab: true });
+    expect((await listRoutines(db))[0]).toMatchObject({ id, days: [1, 3, 5], privateOnTab: true });
+    await updateRoutine(db, id, { ...medicine, days: [0, 6], privateOnTab: false });
+    expect((await listRoutines(db))[0]).toMatchObject({ days: [0, 6], privateOnTab: false });
+  });
+
+  it('refuses no days and a day that does not exist, saving nothing', async () => {
+    await expect(addRoutine(db, { ...medicine, days: [] })).rejects.toThrow(/noDays/);
+    await expect(addRoutine(db, { ...medicine, days: [7 as never] })).rejects.toThrow(/badDay/);
+    expect(await listRoutines(db)).toEqual([]);
+  });
+
+  it('leaves out a row whose days cannot be read', async () => {
+    await addRoutine(db, medicine);
+    for (const days of ['not json', '[]', '[9]', '"mon"']) {
+      await db.runAsync('INSERT INTO routine_reminders (id, title, category, schedule_json, days_json) VALUES (?, ?, ?, ?, ?)', `bad-${days}`, 'Bad', 'health', JSON.stringify(medicine.schedule), days);
+    }
+    expect((await listRoutines(db)).map((r) => r.title)).toEqual(['Take medicine']);
+  });
+
+  it('upgrades a routine saved before days existed so it still fires every day, with its name shown', async () => {
+    const old = createTestDb();
+    await runMigrations(old, MIGRATIONS.slice(0, 10));
+    await old.runAsync("INSERT INTO routine_reminders (id, title, category, schedule_json) VALUES ('r', 'Drink water', 'water', ?)", JSON.stringify(water.schedule));
+    await runMigrations(old);
+    expect((await listRoutines(old))[0]).toMatchObject({ days: [0, 1, 2, 3, 4, 5, 6], privateOnTab: false });
+    old.close();
   });
 
   it('upgrades from before routines existed, keeping what is there', async () => {

@@ -9,12 +9,19 @@ import {
   ROUTINE_SLOT_LIMIT,
   checkRoutine,
   clockTimeIn,
-  describeNextToday,
+  describeDays,
+  describeNext,
+  displayCategory,
+  displayTitle,
+  ALL_DAYS,
+  WEEKDAYS,
   describeRoutineProblem,
   describeRoutineSchedule,
   diffRoutineReminders,
   expandTimes,
   isRoutineId,
+  nextOccurrence,
+  nextRoutineDue,
   nextTimeToday,
   planRoutineReminders,
   routineNotificationBody,
@@ -32,8 +39,10 @@ const input = (over: Partial<RoutineInput> = {}): RoutineInput => ({
   title: 'Take medicine',
   category: 'health',
   schedule: times(9),
+  days: ALL_DAYS,
   enabled: true,
   showOnLockScreen: false,
+  privateOnTab: false,
   ...over,
 });
 const routine = (id: string, over: Partial<Routine> = {}): Routine => ({ id, sortOrder: 1, ...input(), ...over });
@@ -65,6 +74,10 @@ describe('checking a routine', () => {
     [{ title: 'a'.repeat(MAX_ROUTINE_TITLE + 1) }, 'titleTooLong'],
     [{ title: 'bell\u0007' }, 'badCharacters'],
     [{ category: 'nope' as never }, 'badCategory'],
+    [{ days: [] }, 'noDays'],
+    [{ days: [7 as never] }, 'badDay'],
+    [{ days: [-1 as never] }, 'badDay'],
+    [{ days: [1.5 as never] }, 'badDay'],
     [{ schedule: { kind: 'times', times: [] } as RoutineSchedule }, 'noTimes'],
     [{ schedule: { kind: 'times', times: [t(24)] } as RoutineSchedule }, 'badTime'],
     [{ schedule: { kind: 'times', times: [t(9, 60)] } as RoutineSchedule }, 'badTime'],
@@ -84,7 +97,7 @@ describe('checking a routine', () => {
   });
 
   it('has calm wording for every problem', () => {
-    const all = (['titleEmpty', 'titleTooLong', 'badCharacters', 'badCategory', 'noTimes', 'tooManyTimes', 'badTime', 'badInterval', 'windowBackwards'] as const).map(describeRoutineProblem);
+    const all = (['noDays', 'badDay', 'titleEmpty', 'titleTooLong', 'badCharacters', 'badCategory', 'noTimes', 'tooManyTimes', 'badTime', 'badInterval', 'windowBackwards'] as const).map(describeRoutineProblem);
     expect(all.every((text) => text.length > 0 && text.length < 90)).toBe(true);
     expect(all.join(' ')).not.toMatch(/\b(invalid|error|wrong|fail|failed|must|illegal)\b/i);
     expect(all.join(' ')).not.toMatch(/!/);
@@ -107,16 +120,18 @@ describe('what a notification says', () => {
 describe('plain words', () => {
   it('describes fixed times and an "every" window', () => {
     expect(describeRoutineSchedule(times(9, 21))).toBe('Every day at 9:00 AM, 9:00 PM');
-    expect(describeRoutineSchedule(every(3, 8, 20))).toBe('Every 3 hours from 8:00 AM to 8:00 PM (5 times a day)');
-    expect(describeRoutineSchedule(every(1, 9, 9))).toBe('Every hour from 9:00 AM to 9:00 AM (1 time a day)');
+    expect(describeRoutineSchedule(every(3, 8, 20))).toBe('Every day: every 3 hours from 8:00 AM to 8:00 PM (5 times a day)');
+    expect(describeRoutineSchedule(every(1, 9, 9))).toBe('Every day: every hour from 9:00 AM to 9:00 AM (1 time a day)');
+    expect(describeRoutineSchedule(times(9), [1, 3, 5])).toBe('Mon, Wed, Fri at 9:00 AM');
+    expect(describeRoutineSchedule(every(2, 9, 13), WEEKDAYS)).toBe('Weekdays: every 2 hours from 9:00 AM to 1:00 PM (3 times a day)');
   });
 
   it('finds the next time today, or says there is none', () => {
     expect(nextTimeToday(times(9, 13, 20), t(12, 59))).toEqual(t(13));
     expect(nextTimeToday(times(9, 13, 20), t(13))).toEqual(t(13)); // exactly now still counts
     expect(nextTimeToday(times(9), t(9, 1))).toBeNull();
-    expect(describeNextToday(times(9, 15), t(10))).toBe('Next today: 3:00 PM');
-    expect(describeNextToday(times(9), t(10))).toBe('No more today.');
+    expect(describeNext(times(9, 15), ALL_DAYS, t(10), 2)).toBe('Next today: 3:00 PM');
+    expect(describeNext(times(9), ALL_DAYS, t(10), 2)).toBe('Next: tomorrow at 9:00 AM');
   });
 
   it('reads the clock in a time zone', () => {
@@ -192,5 +207,112 @@ describe('the starting points', () => {
     expect(ROUTINE_PRESETS.map((p) => p.key)).toEqual(['medicine', 'water', 'dishes', 'shower', 'blank']);
     const words = ROUTINE_PRESETS.map((p) => p.title).join(' ');
     expect(words).not.toMatch(/\b(dose|mg|insulin|catheter|cath|prescription|doctor)\b/i);
+  });
+});
+
+describe('days of the week', () => {
+  it('words the common sets and any other set', () => {
+    expect(describeDays(ALL_DAYS)).toBe('Every day');
+    expect(describeDays(WEEKDAYS)).toBe('Weekdays');
+    expect(describeDays([6, 0])).toBe('Weekends');
+    expect(describeDays([5, 1, 3, 1])).toBe('Mon, Wed, Fri');
+    expect(describeDays([0])).toBe('Sun');
+  });
+
+  it('keeps each day once, in order, when saved', () => {
+    const checked = checkRoutine(input({ days: [5, 1, 5, 3] }));
+    expect(checked).toMatchObject({ ok: true, value: { days: [1, 3, 5] } });
+  });
+
+  it('says when the next one comes if today is not one of the days or nothing is left today', () => {
+    const mwf = [1, 3, 5] as const;
+    expect(describeNext(times(9), mwf, t(8), 1)).toBe('Next today: 9:00 AM'); // Monday morning
+    expect(describeNext(times(9), mwf, t(10), 1)).toBe('Next: Wednesday at 9:00 AM'); // Monday, already past
+    expect(describeNext(times(9, 15), mwf, t(10), 2)).toBe('Next: tomorrow at 9:00 AM'); // Tuesday, so Wednesday is tomorrow
+    expect(describeNext(times(9), mwf, t(10), 5)).toBe('Next: Monday at 9:00 AM'); // Friday, past: wraps over the weekend
+    expect(describeNext(times(9), [3], t(10), 3)).toBe('Next: Wednesday at 9:00 AM'); // a week away
+  });
+
+  it('plans one notification per chosen day and time, each on that weekday', () => {
+    const { planned } = planRoutineReminders([routine('r1', { days: [1, 3, 5], schedule: times(9, 17) })]);
+    expect(planned).toHaveLength(6);
+    expect(planned.map((p) => [p.weekday, p.time.hour])).toEqual([[1, 9], [1, 17], [3, 9], [3, 17], [5, 9], [5, 17]]);
+    expect(new Set(planned.map((p) => p.id)).size).toBe(6);
+  });
+
+  it('plans every day as one repeating daily notification per time', () => {
+    const { planned } = planRoutineReminders([routine('r1', { days: ALL_DAYS, schedule: times(9, 17) })]);
+    expect(planned).toHaveLength(2);
+    expect(planned.every((p) => p.weekday === null)).toBe(true);
+  });
+
+  it('counts a day times a time as one slot each, whole routine or nothing', () => {
+    const wed3x4 = routine('a', { sortOrder: 1, days: [1, 3, 5], schedule: times(8, 12, 16, 20) }); // 12 slots
+    const second = routine('b', { sortOrder: 2, days: [2, 4], schedule: times(8, 12, 16, 20) }); // 8 slots
+    const plan = planRoutineReminders([wed3x4, second], 19);
+    expect(plan.planned.filter((p) => p.routineId === 'a')).toHaveLength(12);
+    expect(plan.leftOut).toEqual(['b']);
+    expect(planRoutineReminders([wed3x4, second], 20).leftOut).toEqual([]);
+  });
+
+  it('gives a new id when the days change', () => {
+    const a = planRoutineReminders([routine('r1', { days: [1] })]).planned[0].id;
+    const b = planRoutineReminders([routine('r1', { days: [2] })]).planned[0].id;
+    expect(a).not.toBe(b);
+  });
+
+  it('keeps routines that are on every day under the same id they had before days existed', () => {
+    expect(planRoutineReminders([routine('r1')]).planned[0].id).toMatch(/^qb-routine:r1:0900:[0-9a-f]{8}$/);
+  });
+});
+
+describe('keeping a name private on the Health tab', () => {
+  it('shows a general name and kind only when switched on', () => {
+    expect(displayTitle({ title: 'Take medicine', privateOnTab: false })).toBe('Take medicine');
+    expect(displayTitle({ title: 'Take medicine', privateOnTab: true })).toBe('Private reminder');
+    expect(displayCategory({ category: 'health', privateOnTab: false })).toBe('Health');
+    expect(displayCategory({ category: 'health', privateOnTab: true })).toBe('Reminder');
+    expect(`${displayTitle({ title: 'Secret', privateOnTab: true })}${displayCategory({ category: 'health', privateOnTab: true })}`).not.toMatch(/Secret|Health/);
+  });
+});
+
+describe('the next reminder across all routines', () => {
+  it('finds the next time for one routine, today or on its next chosen day', () => {
+    expect(nextOccurrence(times(9, 15), ALL_DAYS, t(10), 2)).toEqual({ dayOffset: 0, time: t(15) });
+    expect(nextOccurrence(times(9), ALL_DAYS, t(10), 2)).toEqual({ dayOffset: 1, time: t(9) });
+    // Wednesday only, asked on Wednesday after the last time: a week away
+    expect(nextOccurrence(times(9), [3], t(10), 3)).toEqual({ dayOffset: 7, time: t(9) });
+    // Saturday to Monday wraps over the weekend
+    expect(nextOccurrence(times(9), [1], t(10), 6)).toEqual({ dayOffset: 2, time: t(9) });
+    expect(nextOccurrence(times(9), [], t(10), 2)).toBeNull();
+  });
+
+  it('picks the soonest across routines and says when', () => {
+    const rs = [
+      routine('r1', { sortOrder: 1, schedule: times(9) }),
+      routine('r2', { sortOrder: 2, schedule: times(15), title: 'Drink water' }),
+    ];
+    expect(nextRoutineDue(rs, t(10), 2)).toMatchObject({ routine: { id: 'r2' }, when: 'Today at 3:00 PM' });
+    expect(nextRoutineDue(rs, t(16), 2)).toMatchObject({ routine: { id: 'r1' }, when: 'Tomorrow at 9:00 AM' });
+  });
+
+  it('names the weekday when it is more than a day away', () => {
+    expect(nextRoutineDue([routine('r1', { days: [5] })], t(10), 2)).toMatchObject({ when: 'Friday at 9:00 AM' });
+  });
+
+  it('leaves out routines that are switched off, and returns null when nothing is due', () => {
+    const rs = [routine('r1', { enabled: false }), routine('r2', { enabled: true, schedule: times(20) })];
+    expect(nextRoutineDue(rs, t(10), 2)).toMatchObject({ routine: { id: 'r2' } });
+    expect(nextRoutineDue([routine('r1', { enabled: false })], t(10), 2)).toBeNull();
+    expect(nextRoutineDue([], t(10), 2)).toBeNull();
+  });
+
+  it('breaks a tie by the order the routines are listed in', () => {
+    const rs = [routine('late', { sortOrder: 5 }), routine('early', { sortOrder: 1 })];
+    expect(nextRoutineDue(rs, t(8), 2)?.routine.id).toBe('early');
+  });
+
+  it('counts a reminder due this very minute as still coming up today', () => {
+    expect(nextRoutineDue([routine('r1', { schedule: times(10) })], t(10), 2)?.when).toBe('Today at 10:00 AM');
   });
 });

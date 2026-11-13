@@ -10,7 +10,8 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { listRoutines } from '@/db/routines';
 import { NOTIFICATIONS_OFF_NOTE } from '@/domain/reminders';
-import { clockTimeIn, describeNextToday, describeRoutineSchedule, ROUTINE_CATEGORY_NAMES, type Routine } from '@/domain/routines';
+import { toLocalDate, weekdayOf } from '@/domain/local-date';
+import { clockTimeIn, describeNext, describeRoutineSchedule, displayCategory, displayTitle, type Routine } from '@/domain/routines';
 import { deviceTimeZone, syncReminders } from '@/features/reminders/sync';
 import { deviceNotifications } from '@/services/device-notifications';
 import type { NotificationPermission } from '@/services/reminders';
@@ -48,7 +49,9 @@ export function HealthScreen() {
     }, [db]),
   );
 
-  const now = clockTimeIn(new Date(), deviceTimeZone());
+  const zone = deviceTimeZone();
+  const now = clockTimeIn(new Date(), zone);
+  const today = weekdayOf(toLocalDate(new Date(), zone));
   const on = loaded?.routines.filter((r) => r.enabled) ?? [];
   const leftOut = new Set(loaded?.leftOut);
 
@@ -85,12 +88,12 @@ export function HealthScreen() {
           type="backgroundElement"
           style={styles.card}
           accessible
-          accessibilityLabel={`${routine.title}. ${describeRoutineSchedule(routine.schedule)}. ${describeNextToday(routine.schedule, now)}.`}>
-          <ThemedText type="smallBold">{ROUTINE_CATEGORY_NAMES[routine.category]}</ThemedText>
-          <ThemedText type="subtitle">{routine.title}</ThemedText>
-          <ThemedText type="small">{describeRoutineSchedule(routine.schedule)}</ThemedText>
+          accessibilityLabel={`${displayTitle(routine)}. ${describeRoutineSchedule(routine.schedule, routine.days)}. ${describeNext(routine.schedule, routine.days, now, today)}.`}>
+          <ThemedText type="smallBold">{displayCategory(routine)}</ThemedText>
+          <ThemedText type="subtitle">{displayTitle(routine)}</ThemedText>
+          <ThemedText type="small">{describeRoutineSchedule(routine.schedule, routine.days)}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            {describeNextToday(routine.schedule, now)}
+            {describeNext(routine.schedule, routine.days, now, today)}
           </ThemedText>
           {leftOut.has(routine.id) && (
             <ThemedText type="small">

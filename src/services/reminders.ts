@@ -27,8 +27,8 @@ export interface NotificationsPort {
   /** Identifiers of everything currently scheduled, ours or not. */
   getScheduledIds(): Promise<string[]>;
   schedule(reminder: PlannedReminder): Promise<void>;
-  /** A notification that repeats every day at the same time, so it keeps coming even if the app is not opened. */
-  scheduleDaily(routine: PlannedRoutineTime): Promise<void>;
+  /** A notification that repeats every day, or every week on one day, at the same time, so it keeps coming even if the app is not opened. */
+  scheduleRoutine(routine: PlannedRoutineTime): Promise<void>;
   cancel(id: string): Promise<void>;
 }
 
@@ -50,7 +50,7 @@ export interface ReconcileResult {
   failed: number;
   /** The earliest planned reminder, or null. */
   next: PlannedReminder | null;
-  /** How many daily routine times the plan wants scheduled. */
+  /** How many repeating routine notifications the plan wants scheduled. */
   routineTimes: number;
   /** Routines that are on but did not fit under the limit. None of their times is scheduled. */
   routinesLeftOut: string[];
@@ -104,7 +104,7 @@ async function reconcileNow({ db, port, timeZone, now = new Date() }: ReconcileD
   }
   for (const routine of routineDiff.toSchedule) {
     try {
-      await port.scheduleDaily(routine);
+      await port.scheduleRoutine(routine);
       scheduled++;
     } catch {
       failed++;

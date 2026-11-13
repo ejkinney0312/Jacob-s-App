@@ -74,4 +74,8 @@ Not yet tried on any device. The daily repeating notifications are the part the 
 6. **Time zone and daylight saving.** Change the phone's time zone (or set the clock across a daylight-saving change), open the app once, and check the times still match the clock on the wall.
 7. **Switch off and delete.** Switching off stops it at once; deleting removes it; neither affects the quest reminders.
 8. **Too many.** Add enough times to pass 20 a day: the Health tab and Caregiver mode say one did not fit.
-9. **VoiceOver, 200% text and Android** on the Health tab and the form.
+9. **Days of the week.** Add a reminder on only some days, including today, a few minutes ahead: it arrives. Move it to a day that is not today: it does not. This is the **weekly** trigger, which the Expo docs describe mainly for Android, so check it on the iPhone with the app closed and after a restart.
+10. **Private name.** Switch "Keep the name private" on: the Health tab says "Private reminder" and shows only times; caregiver mode still shows the name.
+11. **VoiceOver, 200% text and Android** on the Health tab, the day picker and the form.
+12. **Today card.** With a reminder switched on, Today shows "Next reminder" with the right time; tapping it opens Health. With every reminder off, the card is gone. A private name shows as "Private reminder".
+13. **Tap a reminder.** Tap a routine reminder from the lock screen with the app (a) in the background and (b) completely closed: both open the Health tab. Tap a quest reminder: it opens Today. Check VoiceOver reads the Today card as a button.

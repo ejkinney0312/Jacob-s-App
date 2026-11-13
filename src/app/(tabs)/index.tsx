@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
@@ -10,9 +10,11 @@ import { Spacing } from '@/constants/theme';
 import { speak } from '@/services/speech';
 import { formatLocalDate } from '@/domain/local-date';
 import { allQuestsDone } from '@/domain/progress';
+import { displayCategory, displayTitle } from '@/domain/routines';
 import { describeReward } from '@/domain/rewards';
 import { levelProgress } from '@/domain/progression';
 import { lineAt, todayLines } from '@/domain/rook';
+import { useNextReminder } from '@/features/health/use-next-reminder';
 import { LevelBar } from '@/features/progress/level-bar';
 import { RookSays } from '@/features/rook/rook-says';
 import { QuestCard } from '@/features/today/quest-card';
@@ -26,6 +28,7 @@ export default function TodayScreen() {
   const { audioEnabled, setEnabled } = useAudioEnabled();
   const { hapticsEnabled, setEnabled: setHapticsEnabledSetting } = useHapticsEnabled();
   const [rookIndex, setRookIndex] = useState(0);
+  const nextReminder = useNextReminder();
 
   if (state.status === 'loading') {
     return (
@@ -132,6 +135,22 @@ export default function TodayScreen() {
         />
       ))}
 
+      {nextReminder && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Next reminder: ${displayTitle(nextReminder.routine)}, ${nextReminder.when}`}
+          accessibilityHint="Opens the Health tab"
+          onPress={() => router.navigate('/health')}>
+          <ThemedView type="backgroundElement" style={[styles.card, styles.reminderCard]}>
+            <ThemedText type="smallBold">Next reminder</ThemedText>
+            <ThemedText>{displayTitle(nextReminder.routine)}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {displayCategory(nextReminder.routine)} · {nextReminder.when}
+            </ThemedText>
+          </ThemedView>
+        </Pressable>
+      )}
+
       <SettingRow title="Read aloud and sounds" value={audioEnabled} onChange={setEnabled} />
       <SettingRow title="Gentle vibration" value={hapticsEnabled} onChange={setHapticsEnabledSetting} />
     </Screen>
@@ -139,6 +158,7 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
+  reminderCard: { minHeight: 64, justifyContent: 'center' },
   card: {
     padding: Spacing.three,
     borderRadius: Spacing.three,

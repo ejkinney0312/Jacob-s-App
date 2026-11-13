@@ -16,9 +16,10 @@ import type { NotificationPermission, NotificationsPort } from './reminders';
  * The phone's notification system, behind the small interface the reminder logic uses. Reminders are one-off
  * notifications at an exact date and time (a "date trigger"), planned by `planReminders`, so the platform's own
  * repeating triggers (whose time-zone and reboot behavior the Expo docs do not specify) are not relied on for quests.
- * Routine reminders (care and everyday prompts) DO use a daily repeating trigger, so they keep coming if the app is not
- * opened for a while; they are re-checked every time the app opens, but how a daily trigger behaves after a reboot or a
- * time-zone change is not stated in the Expo docs and has to be tried on a real phone.
+ * Routine reminders (care and everyday prompts) DO use a repeating trigger (daily, or weekly on chosen days), so they keep coming if the app is not
+ * opened for a while; they are re-checked every time the app opens, but how a repeating trigger behaves after a reboot or a
+ * time-zone change is not stated in the Expo docs, and the weekly trigger is documented mainly for Android, so both have to
+ * be tried on a real iPhone.
  *
  * The notification text is only what the plan gives (a general title and body, and a data field that says what kind
  * of notification it is). Nothing about a quest, and nothing private, is ever put in it, because a locked phone can show it.
@@ -78,13 +79,18 @@ export const deviceNotifications: NotificationsPort = {
     });
   },
 
-  async scheduleDaily(routine: PlannedRoutineTime) {
+  async scheduleRoutine(routine: PlannedRoutineTime) {
     await ensureChannel();
-    // Repeats every day at this clock time. The text is only the plan's general title and body.
+    // Repeats every day, or every week on one day, at this clock time. The text is only the plan's general title and body.
+    // Expo numbers weekdays 1 to 7 with 1 as Sunday; the app numbers them 0 to 6 with 0 as Sunday.
+    const { hour, minute } = routine.time;
     await Notifications.scheduleNotificationAsync({
       identifier: routine.id,
       content: { title: routine.title, body: routine.body, data: { type: 'routine-reminder' } },
-      trigger: { type: SchedulableTriggerInputTypes.DAILY, hour: routine.time.hour, minute: routine.time.minute, channelId: CHANNEL_ID },
+      trigger:
+        routine.weekday === null
+          ? { type: SchedulableTriggerInputTypes.DAILY, hour, minute, channelId: CHANNEL_ID }
+          : { type: SchedulableTriggerInputTypes.WEEKLY, weekday: routine.weekday + 1, hour, minute, channelId: CHANNEL_ID },
     });
   },
 

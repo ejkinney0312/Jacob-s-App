@@ -1,3 +1,4 @@
+import type { Weekday } from '@/domain/types';
 import { checkRoutine, ROUTINE_CATEGORIES, type Routine, type RoutineCategory, type RoutineInput, type RoutineSchedule } from '@/domain/routines';
 import { isValidClockTime, type ClockTime } from '@/domain/reminders';
 
@@ -17,6 +18,8 @@ interface RoutineRow {
   enabled: number;
   show_on_lock_screen: number;
   sort_order: number;
+  days_json: string;
+  private_on_tab: number;
 }
 
 const isTime = (value: unknown): value is ClockTime =>
@@ -39,15 +42,30 @@ function parseRoutineSchedule(json: string): RoutineSchedule | null {
   return null;
 }
 
+/** Reads the stored days, or null if they are not a non-empty list of weekdays. */
+function parseDays(json: string): Weekday[] | null {
+  let data: unknown;
+  try {
+    data = JSON.parse(json);
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(data) || data.length === 0 || !data.every((d) => Number.isInteger(d) && d >= 0 && d <= 6)) return null;
+  return [...new Set(data as Weekday[])].sort((a, b) => a - b);
+}
+
 function toRoutine(row: RoutineRow): Routine | null {
   const schedule = parseRoutineSchedule(row.schedule_json);
-  if (!schedule || !ROUTINE_CATEGORIES.includes(row.category as RoutineCategory)) return null;
+  const days = parseDays(row.days_json);
+  if (!schedule || !days || !ROUTINE_CATEGORIES.includes(row.category as RoutineCategory)) return null;
   return {
     id: row.id,
     title: row.title,
     category: row.category as RoutineCategory,
     schedule,
+    days,
     enabled: row.enabled === 1,
+    privateOnTab: row.private_on_tab === 1,
     showOnLockScreen: row.show_on_lock_screen === 1,
     sortOrder: row.sort_order,
   };
@@ -80,13 +98,15 @@ export function addRoutine(db: Db, input: RoutineInput): Promise<string> {
       } while (await db.getFirstAsync('SELECT 1 FROM routine_reminders WHERE id = ?', id));
       const next = (await db.getFirstAsync<{ next: number }>('SELECT COALESCE(MAX(sort_order), 0) + 1 AS next FROM routine_reminders'))?.next ?? 1;
       await db.runAsync(
-        'INSERT INTO routine_reminders (id, title, category, schedule_json, enabled, show_on_lock_screen, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO routine_reminders (id, title, category, schedule_json, days_json, enabled, show_on_lock_screen, private_on_tab, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         id,
         value.title,
         value.category,
         JSON.stringify(value.schedule),
+        JSON.stringify(value.days),
         value.enabled ? 1 : 0,
         value.showOnLockScreen ? 1 : 0,
+        value.privateOnTab ? 1 : 0,
         next,
       );
     });
@@ -101,12 +121,14 @@ export function updateRoutine(db: Db, id: string, input: RoutineInput): Promise<
     if (!checked.ok) throw problemError(checked.problem);
     const { value } = checked;
     const result = await db.runAsync(
-      'UPDATE routine_reminders SET title = ?, category = ?, schedule_json = ?, enabled = ?, show_on_lock_screen = ? WHERE id = ?',
+      'UPDATE routine_reminders SET title = ?, category = ?, schedule_json = ?, days_json = ?, enabled = ?, show_on_lock_screen = ?, private_on_tab = ? WHERE id = ?',
       value.title,
       value.category,
       JSON.stringify(value.schedule),
+      JSON.stringify(value.days),
       value.enabled ? 1 : 0,
       value.showOnLockScreen ? 1 : 0,
+      value.privateOnTab ? 1 : 0,
       id,
     );
     return result.changes === 1;

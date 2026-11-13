@@ -7,7 +7,7 @@ import { addRoutine, setRoutineEnabled, updateRoutine } from '@/db/routines';
 import { seedDemoContent } from '@/db/seed';
 import { createTestDb, type TestDb } from '@/db/test-utils/node-sqlite-db';
 import { DEFAULT_MAX_PENDING, REMINDER_ID_PREFIX, isReminderId, type PlannedReminder } from '@/domain/reminders';
-import { isRoutineId, type RoutineInput } from '@/domain/routines';
+import { isRoutineId, type PlannedRoutineTime, type RoutineInput } from '@/domain/routines';
 
 import { reconcileReminders } from '../reminders';
 import { createFakeNotifications, type FakeNotifications } from '../test-utils/fake-notifications';
@@ -281,8 +281,10 @@ describe('routine reminders (care and everyday prompts)', () => {
     title: 'Secret medicine name',
     category: 'health',
     schedule: { kind: 'times', times: [{ hour: 9, minute: 0 }, { hour: 21, minute: 0 }] },
+    days: [0, 1, 2, 3, 4, 5, 6],
     enabled: true,
     showOnLockScreen: false,
+    privateOnTab: false,
   };
   const routinesIn = (fake: FakeNotifications) => [...fake.scheduled.keys()].filter(isRoutineId);
 
@@ -291,7 +293,7 @@ describe('routine reminders (care and everyday prompts)', () => {
     const result = await run();
 
     expect(result).toMatchObject({ routineTimes: 2, routinesLeftOut: [], failed: 0 });
-    expect(port.dailyCalls).toHaveLength(2);
+    expect(port.routineCalls).toHaveLength(2);
     expect(routinesIn(port)).toHaveLength(2);
     expect(JSON.stringify([...port.scheduled.values()])).not.toContain('Secret');
   });
@@ -301,7 +303,7 @@ describe('routine reminders (care and everyday prompts)', () => {
     await run();
     const again = await run();
     expect(again).toMatchObject({ scheduled: 0, cancelled: 0 });
-    expect(port.dailyCalls).toHaveLength(2);
+    expect(port.routineCalls).toHaveLength(2);
   });
 
   it('follows a change: a new time replaces the old one, switching off removes it', async () => {
@@ -353,6 +355,25 @@ describe('routine reminders (care and everyday prompts)', () => {
     const result = await run();
     expect(result.routineTimes).toBe(20);
     expect(result.routinesLeftOut).toEqual([second]);
+  });
+
+  it('schedules a routine on chosen days once per day and time, each on its own weekday', async () => {
+    await addRoutine(db, { ...medicine, days: [1, 3, 5] });
+    const result = await run();
+    expect(result).toMatchObject({ routineTimes: 6, failed: 0 });
+    const planned = [...port.scheduled.values()].filter((v): v is PlannedRoutineTime => 'routineId' in v);
+    expect(planned.map((p) => p.weekday).sort()).toEqual([1, 1, 3, 3, 5, 5]);
+    expect((await run()).scheduled).toBe(0); // repeatable
+  });
+
+  it('moves from daily to chosen days: the daily ones are cancelled and the weekly ones added', async () => {
+    const id = await addRoutine(db, medicine);
+    await run();
+    await updateRoutine(db, id, { ...medicine, days: [2] });
+    const changed = await run();
+    expect(changed).toMatchObject({ scheduled: 2, cancelled: 2 });
+    const planned = [...port.scheduled.values()].filter((v): v is PlannedRoutineTime => 'routineId' in v);
+    expect(planned.every((p) => p.weekday === 2)).toBe(true);
   });
 
   it('retries a failed schedule on the next run', async () => {
