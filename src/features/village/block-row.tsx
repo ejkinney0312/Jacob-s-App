@@ -4,7 +4,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /**
- * A row of small squares: filled for blocks placed, outlined for blocks still to come. The shapes differ,
+ * A row of small squares: solid for blocks placed, dashed outlines for blocks still to come. The shapes differ,
  * not just the colors, and the words next to it carry the same information, so it is decoration for screen readers.
  */
 export function BlockRow({ placed, needed }: { placed: number; needed: number }) {
@@ -17,8 +17,8 @@ export function BlockRow({ placed, needed }: { placed: number; needed: number })
           style={[
             styles.block,
             i < placed
-              ? { backgroundColor: theme.primary, borderColor: theme.primary }
-              : { backgroundColor: 'transparent', borderColor: theme.border },
+              ? { backgroundColor: theme.primary, borderColor: theme.ink, borderStyle: 'solid' }
+              : { backgroundColor: 'transparent', borderColor: theme.border, borderStyle: 'dashed' },
           ]}
         />
       ))}

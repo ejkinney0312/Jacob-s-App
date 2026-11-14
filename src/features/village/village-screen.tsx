@@ -3,9 +3,9 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
+import { ChunkyCard } from '@/components/chunky-card';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { loadVillage, markVillageSeen, type VillageSnapshot } from '@/db/village';
 import {
@@ -15,12 +15,15 @@ import {
   describeStructureStatus,
   type StructureState,
 } from '@/domain/village';
+import { useTheme } from '@/hooks/use-theme';
 
 import { BlockRow } from './block-row';
+import { VillageScene } from './village-scene';
 
 /** The village: each structure grows from the blocks its own quest earns. Opening it records that growth has been seen. */
 export function VillageScreen() {
   const db = useSQLiteContext();
+  const theme = useTheme();
   const [snapshot, setSnapshot] = useState<VillageSnapshot | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -48,7 +51,7 @@ export function VillageScreen() {
 
   return (
     <Screen tone="village">
-      <ThemedText type="title" accessibilityRole="header">
+      <ThemedText type="display" accessibilityRole="header">
         Village
       </ThemedText>
 
@@ -57,39 +60,47 @@ export function VillageScreen() {
 
       {snapshot && (
         <>
-          <ThemedView type="backgroundElement" style={styles.card}>
-            <ThemedText type="smallBold">Building blocks</ThemedText>
-            <ThemedText>
-              {snapshot.state.blocksPlaced} of {snapshot.state.blocksNeeded} blocks placed
+          {/* The blocks, as a big tile in the page's deep color. The words say the same as the numbers. */}
+          <ChunkyCard
+            color={theme.primary}
+            style={styles.card}
+            accessible
+            accessibilityLabel={`Building blocks. ${snapshot.state.blocksPlaced} of ${snapshot.state.blocksNeeded} blocks placed. ${describeNextGoal(snapshot.state)} Finishing a quest earns a block for its structure. Earned blocks are never lost.`}>
+            <ThemedText type="smallBold" themeColor="onPrimary">
+              Building blocks
             </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="stat" themeColor="onPrimary">
+              {snapshot.state.blocksPlaced} of {snapshot.state.blocksNeeded}
+            </ThemedText>
+            <ThemedText themeColor="onPrimary">blocks placed</ThemedText>
+            <ThemedText type="small" themeColor="onPrimary">
               {describeNextGoal(snapshot.state)}
             </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="small" themeColor="onPrimary">
               Finishing a quest earns a block for its structure. Earned blocks are never lost.
             </ThemedText>
-          </ThemedView>
+          </ChunkyCard>
 
           {snapshot.newlyGrown.length > 0 && (
-            <ThemedView type="backgroundElement" style={styles.card} accessibilityLiveRegion="polite">
+            <ChunkyCard color={theme.card} style={styles.card} accessibilityLiveRegion="polite">
               <ThemedText type="smallBold">The village grew</ThemedText>
               {snapshot.newlyGrown.map((grown) => (
                 <ThemedText key={`${grown.structureId}:${grown.level}`} type="small">
                   {grown.structureName} · Level {grown.level}. {grown.story}
                 </ThemedText>
               ))}
-            </ThemedView>
+            </ChunkyCard>
           )}
 
           {anyDemo && (
-            <ThemedView type="notice" style={styles.card}>
+            <ChunkyCard color={theme.notice} style={styles.card}>
               <ThemedText type="smallBold" themeColor="onNotice">
                 Demo village
               </ThemedText>
               <ThemedText type="small" themeColor="onNotice">
                 These structures and stories are samples.
               </ThemedText>
-            </ThemedView>
+            </ChunkyCard>
           )}
 
           {snapshot.state.structures.length === 0 && (
@@ -108,15 +119,17 @@ export function VillageScreen() {
 }
 
 function StructureCard({ structure, isNew }: { structure: StructureState; isNew: boolean }) {
+  const theme = useTheme();
   const { structure: def } = structure;
   const status = describeStructureStatus(structure.status);
 
   return (
-    <ThemedView
-      type="backgroundElement"
+    <ChunkyCard
+      color={theme.card}
       style={styles.card}
       accessible
       accessibilityLabel={`${def.name}${def.isDemo ? '. Demo structure' : ''}. ${describeLevel(structure)}. ${status}. ${describeProgress(structure)}${isNew ? ' New.' : ''} ${structure.story}`}>
+      <VillageScene structureId={def.id} level={structure.level} maxLevel={def.maxLevel} />
       <ThemedText type="subtitle">{def.name}</ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
         {describeLevel(structure)} · {status}
@@ -129,10 +142,10 @@ function StructureCard({ structure, isNew }: { structure: StructureState; isNew:
       <ThemedText type="small" themeColor="textSecondary">
         {structure.story}
       </ThemedText>
-    </ThemedView>
+    </ChunkyCard>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
+  card: { gap: Spacing.two },
 });

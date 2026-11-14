@@ -137,3 +137,8 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 37. **Large text and VoiceOver.** At 200% text the three stat tiles wrap onto their own lines and nothing is cut off. VoiceOver reads each stat tile ("12 Missions done") and each badge as one item.
 38. **Reward store.** The cards look like the rest; "Asking is turned off" still shows and still does nothing.
 
+## Redesign Phase 1: Village
+39. **Look.** Village has the pixel "Village" headline, a blue "Building blocks" tile and chunky structure cards, each with a small picture. Tell me what you like and what feels off.
+40. **Growth.** Each structure's picture matches its level (a bare plot at level 0, finished at the top level). Finish a quest, open Village, and see the picture grow one stage. The words (level, story, "N blocks to go") still say the same.
+41. **Blocks row.** Placed blocks are solid; blocks still to come are dashed outlines. Check on Android and at 200% text.
+

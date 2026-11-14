@@ -493,3 +493,9 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - **Not tested on a device:** all of it, in particular the dashed badge frame on Android, the stat tiles wrapping at 200% text, and VoiceOver reading each stat tile and badge as one item. A new build is needed.
 - **Not changed:** Village, Health, Caregiver, and the mission screen. Not built: a day-by-day chart (needs per-day data) and XP, emerald and block icons (waiting on art).
 
+## Redesign Phase 1: Village (2026-11-14)
+- Village now has the pixel headline, chunky cards, a deep sky-blue "building blocks" tile, and on each structure card a **stand-in picture that grows with its level** (own six-stage drawings for the fountain, bakehouse and windmill; a plain growing house for any other structure). The blocks row uses solid squares for placed blocks and dashed outlines for blocks to come. Code: `src/features/village/village-screen.tsx`, `village-scene.tsx`, `village-shapes.ts`, `block-row.tsx`, `src/domain/village-stage.ts`, and `ShapesSvg` in `src/features/quest/mission-art.tsx` (shared drawing code; the shape-checking test helpers moved to `src/features/quest/test-utils/`).
+- Checks run: `tsc` clean, lint clean, 53 suites / 1490 tests pass (new: the stage rule, six well-formed in-bounds stages per picture that only add to the one before, a picture for every starter structure, odd ids fall back safely). Eleven deliberate breaks of the new code: ten caught; one was an equivalent change (a redundant clamp), which I removed. I also rendered every stage to look at them: each reads clearly as it grows.
+- **Not tested on a device:** all of it; in particular the scene frame at 200% text, the dashed block squares on Android, and the look in dark mode. A new build is needed.
+- **Not built:** real village art, a cutaway house or larger scene, ground and path tiles (`docs/ART_LIST.md`). Health, Caregiver and the mission screen are not restyled yet.
+

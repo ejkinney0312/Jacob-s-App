@@ -546,3 +546,16 @@ Erin shared nine screenshots of other apps (flat room tiles, a cozy pixel-art ch
 | 6 | New neutral color `card` (cream paper, light and dark) with contrast tests on every tone. | Cards that sit on a tinted page. |
 | 7 | **Not built:** a day-by-day bar chart (the app does not store per-day totals, so it would need new data), and icons for XP, emeralds and blocks (waiting on Erin's art, `docs/ART_LIST.md`). The badge pictures are still system symbols. | Needs data or art that does not exist yet. |
 
+## Redesign Phase 1: Village (2026-11-14)
+
+Erin chose simple stand-ins now, to be replaced by real art later.
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | Village follows the same look: pixel "Village" headline, chunky cards, a deep sky-blue tile for the building blocks (the pixel number "7 of 90" with the words "blocks placed", the next goal and the "never lost" line). | Erin's order: Today, Progress, Village. |
+| 2 | **Each structure card shows a stand-in picture that grows with its level.** The fountain, bakehouse and windmill each have their own six stages (bare plot to finished, matching the story lines); any other structure (the demo ones, or a household's own) shows a plain growing little house. The picture is drawn from plain shapes and keyed by structure id, so real art (`docs/ART_LIST.md`, the `village-<name>-<stage>` pictures) can replace it. | A picture that grows is more rewarding than rows of squares, and needs no art yet. |
+| 3 | **The stage is the level spread over six stages** (`villageStage`): five levels give one stage per level. It never goes down because the level never does. | Structures may have any number of levels. |
+| 4 | The blocks row keeps its meaning but changes its look: solid squares for blocks placed, **dashed outlines** for blocks still to come. The words say the same. | Shape, not just color. |
+| 5 | The pictures are decoration for screen readers. The card's spoken label (name, level, status, progress, story) is unchanged. | Words carry the meaning. |
+| 6 | **Not built:** the cutaway house or larger village scene, ground and path tiles, and decorations (all in `docs/ART_LIST.md`, Batch 3 and the "later" list). | Needs real art. |
+
