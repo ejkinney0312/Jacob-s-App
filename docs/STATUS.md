@@ -510,3 +510,9 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - After seeing the build, Erin said Village still felt empty. Added `src/features/village/village-overview.tsx` at the top of Village: all structures in one wide scene at their current stages, with sun, clouds, grass, a path and flowers. Sizing rule: `src/domain/village-layout.ts`.
 - Checks run: `tsc` clean, lint clean, 55 suites / 1501 tests pass (new: the sizing rule). Eight deliberate breaks of it: seven caught, one redundant check removed.
 - **Not tested on a device, and not even rendered as a picture:** the scene was written from the layout code only. Look first at how it sits at 200% text, on a small phone, in dark mode (sun and cloud colors), and whether the grass lines up under each structure.
+
+## Redesign Phase 1: Health (2026-11-14)
+- Health now has the pixel headline, chunky paper cards for reminders (category as a small rose tag), a notice-colored card and chunky button for "notifications are off". The reminder wording, the accessible labels and the logic are unchanged. Code: `src/features/health/health-screen.tsx`.
+- Checks run: `tsc` clean, lint clean, 55 suites / 1501 tests pass (no new logic, so no new tests; the health tone's colors are already covered by the contrast tests). The screen itself has no automated test.
+- **Not tested on a device:** all of it, in particular the card layout at 200% text, VoiceOver reading each reminder as one item, and dark mode. A new build is needed.
+- **Not changed:** Caregiver, the celebration.

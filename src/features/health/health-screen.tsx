@@ -1,17 +1,18 @@
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
-import { Linking, StyleSheet } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { listRoutines } from '@/db/routines';
 import { NOTIFICATIONS_OFF_NOTE } from '@/domain/reminders';
 import { toLocalDate, weekdayOf } from '@/domain/local-date';
 import { clockTimeIn, describeNext, describeRoutineSchedule, displayCategory, displayTitle, type Routine } from '@/domain/routines';
+import { useTheme } from '@/hooks/use-theme';
 import { deviceTimeZone, syncReminders } from '@/features/reminders/sync';
 import { deviceNotifications } from '@/services/device-notifications';
 import type { NotificationPermission } from '@/services/reminders';
@@ -28,6 +29,7 @@ interface Loaded {
  */
 export function HealthScreen() {
   const db = useSQLiteContext();
+  const theme = useTheme();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -57,7 +59,7 @@ export function HealthScreen() {
 
   return (
     <Screen tone="health">
-      <ThemedText type="title" accessibilityRole="header">
+      <ThemedText type="display" accessibilityRole="header">
         Health
       </ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
@@ -67,29 +69,36 @@ export function HealthScreen() {
       {failed && <ThemedText>We couldn&apos;t load the reminders. Please try again.</ThemedText>}
 
       {loaded?.permission === 'denied' && (
-        <ThemedView type="backgroundElement" style={styles.card}>
-          <ThemedText type="small">{NOTIFICATIONS_OFF_NOTE}</ThemedText>
-          <Button label="Open phone settings" variant="secondary" onPress={() => void Linking.openSettings()} />
-        </ThemedView>
+        <ChunkyCard color={theme.notice} style={styles.card}>
+          <ThemedText type="small" themeColor="onNotice">
+            {NOTIFICATIONS_OFF_NOTE}
+          </ThemedText>
+          <Button chunky label="Open phone settings" variant="secondary" onPress={() => void Linking.openSettings()} />
+        </ChunkyCard>
       )}
 
       {loaded && on.length === 0 && (
-        <ThemedView type="backgroundElement" style={styles.card}>
+        <ChunkyCard color={theme.card} style={styles.card}>
           <ThemedText>There are no reminders yet.</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             A caregiver can add them under Caregiver, then Routine reminders.
           </ThemedText>
-        </ThemedView>
+        </ChunkyCard>
       )}
 
       {on.map((routine) => (
-        <ThemedView
+        <ChunkyCard
           key={routine.id}
-          type="backgroundElement"
+          color={theme.card}
           style={styles.card}
           accessible
           accessibilityLabel={`${displayTitle(routine)}. ${describeRoutineSchedule(routine.schedule, routine.days)}. ${describeNext(routine.schedule, routine.days, now, today)}.`}>
-          <ThemedText type="smallBold">{displayCategory(routine)}</ThemedText>
+          {/* The category as a small colored tag. The color is decoration; the word carries the meaning. */}
+          <View style={[styles.tag, { backgroundColor: theme.primary }]}>
+            <ThemedText type="smallBold" themeColor="onPrimary">
+              {displayCategory(routine)}
+            </ThemedText>
+          </View>
           <ThemedText type="subtitle">{displayTitle(routine)}</ThemedText>
           <ThemedText type="small">{describeRoutineSchedule(routine.schedule, routine.days)}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
@@ -100,7 +109,7 @@ export function HealthScreen() {
               This reminder is not scheduled yet: there are too many reminder times on this phone. A caregiver can switch another one off.
             </ThemedText>
           )}
-        </ThemedView>
+        </ChunkyCard>
       ))}
 
       {loaded && on.length > 0 && (
@@ -114,5 +123,6 @@ export function HealthScreen() {
 }
 
 const styles = StyleSheet.create({
-  card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.one },
+  card: { gap: Spacing.one },
+  tag: { alignSelf: 'flex-start', paddingHorizontal: Spacing.two, paddingVertical: Spacing.half, borderRadius: Spacing.two },
 });

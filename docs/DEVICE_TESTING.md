@@ -151,3 +151,7 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 
 ## Village scene
 46. A wide scene at the top of Village shows each structure side by side, with sun, clouds, grass, a path and flowers. Does Village still feel empty? Do the grass strips line up under each structure, in light and dark mode? At 200% text and on a small phone, is nothing cut off? VoiceOver skips the scene and reads the cards.
+
+## Redesign Phase 1: Health
+47. **Look.** Health has the pixel headline and each reminder on a chunky card with its category as a small tag. With notifications off, a notice card and an "Open phone settings" button show. Tell me what feels off.
+48. **Words and reading.** The wording is the same as before. VoiceOver reads each reminder as one item (title, schedule, next time). At 200% text nothing is cut off.

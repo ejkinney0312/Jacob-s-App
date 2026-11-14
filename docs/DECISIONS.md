@@ -578,3 +578,10 @@ Erin saw the new build: the Village view still felt empty.
 | 1 | **A wide village scene now sits at the top of Village**: every structure side by side at its current stage, a sky with a sun and clouds, grass under each, and a path with flowers in front. Up to three share a row; more wrap. | The small pictures lived in separate cards, so nothing looked like one place. |
 | 2 | It is a stand-in drawn from the same plain shapes and theme colors; no new colors. The real cutaway house or larger scene (`docs/ART_LIST.md`, "Later") replaces it. | Erin chose stand-ins for now. |
 | 3 | The scene is decoration for screen readers; the structure cards below carry the words. | Words carry the meaning. |
+
+## Redesign Phase 1: Health (2026-11-14)
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | Health follows the same look: pixel "Health" headline, each reminder on a chunky paper card with its category as a small rose tag, the "notifications are off" note on a notice-colored card with a chunky "Open phone settings" button. | Next screen after the mission screen. |
+| 2 | **No wording changed.** The screen still only reminds, gives no medical advice and records nothing about whether anything was done. No Rook, pictures or progress marks were added. | Care routines are caregiver-written reminders only (`CLAUDE.md`). A picture or praise next to a care reminder could read as advice or judgment. |
