@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, useColorScheme, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { questToneFor, Tones } from '@/constants/palette';
@@ -12,6 +13,7 @@ import { clipIdFor } from '@/domain/voice-clips';
 import { helpTextFor } from '@/features/quest/help-text';
 import { Celebration } from '@/features/quest/celebration';
 import { MissionIcon } from '@/features/quest/mission-icon';
+import { StepMarks } from '@/features/quest/step-marks';
 import { RookSays } from '@/features/rook/rook-says';
 import { useQuestFlow } from '@/features/quest/use-quest-flow';
 import { useScreenReader } from '@/features/quest/use-screen-reader';
@@ -95,7 +97,7 @@ export default function QuestScreen() {
         <ThemedText type="small" themeColor="textSecondary">
           {quest.title}
         </ThemedText>
-        <ThemedText type="title" accessibilityRole="header" accessibilityLiveRegion="polite">
+        <ThemedText type="display" accessibilityRole="header" accessibilityLiveRegion="polite">
           {waiting ? 'All missions finished' : 'Quest finished'}
         </ThemedText>
         <ThemedText>
@@ -103,7 +105,7 @@ export default function QuestScreen() {
             ? `${waitingForApproval} ${waitingForApproval === 1 ? 'mission is' : 'missions are'} waiting for a caregiver to check. You are all set for now.`
             : 'Nice work.'}
         </ThemedText>
-        <Button label="Back to Today" onPress={backToToday} />
+        <Button chunky label="Back to Today" onPress={backToToday} />
       </Screen>
     );
   }
@@ -127,15 +129,18 @@ export default function QuestScreen() {
         <ThemedText type="title" accessibilityRole="header">
           Take your time
         </ThemedText>
-        <ThemedText>{helpTextFor(current)}</ThemedText>
+        <ChunkyCard>
+          <ThemedText>{helpTextFor(current)}</ThemedText>
+        </ChunkyCard>
         <View style={styles.buttons}>
           <Button
+            chunky
             label={replayLabel}
             variant="secondary"
             disabled={!audioEnabled}
             onPress={() => spokenText && narrate(spokenText, clipId)}
           />
-          <Button label="Back to mission" onPress={() => setHelpOpen(false)} />
+          <Button chunky label="Back to mission" onPress={() => setHelpOpen(false)} />
         </View>
       </Screen>
     );
@@ -143,17 +148,19 @@ export default function QuestScreen() {
 
   return (
     <Screen withTabBar={false} tone={tone}>
-        {header}
+      {header}
       <ThemedText type="small" themeColor="textSecondary">
         {quest.title}
       </ThemedText>
       <ThemedText type="smallBold">
         Mission {currentNumber} of {total}
       </ThemedText>
+      <StepMarks currentNumber={currentNumber} total={total} />
 
-      <View style={styles.icon}>
-        <MissionIcon icon={current.icon} />
-      </View>
+      {/* The picture sits on a tile in the quest's color. The color and edge are decoration; the words below carry the meaning. */}
+      <ChunkyCard color={Tones[tone][scheme].primary} style={styles.picture}>
+        <MissionIcon icon={current.icon} size={128} onPrimary />
+      </ChunkyCard>
 
       <ThemedText type="title" style={styles.centered} accessibilityRole="header">
         {current.title}
@@ -167,19 +174,22 @@ export default function QuestScreen() {
 
       <View style={styles.buttons}>
         <Button
+          chunky
           label={replayLabel}
           variant="secondary"
           disabled={!audioEnabled}
           onPress={() => narrate(current.instruction, clipId)}
         />
-        <Button label="I need help" variant="secondary" onPress={() => setHelpOpen(true)} />
+        <Button chunky label="I need help" variant="secondary" onPress={() => setHelpOpen(true)} />
         <Button
+          chunky
           label="Pause"
           variant="secondary"
           hint="Saves your place so you can pick up here later"
           onPress={() => void pause().then(backToToday)}
         />
         <Button
+          chunky
           label="Mission complete"
           onPress={() => {
             if (hapticsEnabled) void gentleTap();
@@ -195,7 +205,7 @@ export default function QuestScreen() {
 }
 
 const styles = StyleSheet.create({
-  icon: { alignItems: 'center', paddingVertical: Spacing.three },
+  picture: { alignItems: 'center', paddingVertical: Spacing.four },
   centered: { textAlign: 'center' },
   buttons: { gap: Spacing.three, marginTop: Spacing.three },
 });

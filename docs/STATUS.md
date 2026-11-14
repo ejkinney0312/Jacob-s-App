@@ -499,3 +499,9 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - **Not tested on a device:** all of it; in particular the scene frame at 200% text, the dashed block squares on Android, and the look in dark mode. A new build is needed.
 - **Not built:** real village art, a cutaway house or larger scene, ground and path tiles (`docs/ART_LIST.md`). Health, Caregiver and the mission screen are not restyled yet.
 
+
+## Redesign Phase 1: the mission screen (2026-11-14)
+- The mission screen now has a row of step marks, the picture on a big tile in the quest's color, chunky buttons (same order and sizes as before), a card for the help text and the pixel headline on "Quest finished". The mission title and instruction keep the normal font. Code: `src/app/quest/[instanceId].tsx`, `src/features/quest/step-marks.tsx`, `src/domain/step-marks.ts`, an opt-in `chunky` option on `src/components/button.tsx`, `onPrimary` on `mission-icon.tsx`.
+- Checks run: `tsc` clean, lint clean, 54 suites / 1496 tests pass (new: step marks for first, middle, last, single, too-long and nonsense numbers). Seven deliberate breaks of the step-mark rule: five caught; one redundant check removed and one real gap (a fractional total) closed with a test, then caught.
+- **Not tested on a device:** all of it; in particular the tile and buttons at 200% text, the control positions on a small phone (the mission screen must not push "Mission complete" below the fold), VoiceOver reading the screen in order, and dark mode. A new build is needed. The screen itself has no automated test (no component test setup yet).
+- **Not changed:** Health and Caregiver, the celebration, and other screens' buttons.

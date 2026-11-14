@@ -559,3 +559,12 @@ Erin chose simple stand-ins now, to be replaced by real art later.
 | 5 | The pictures are decoration for screen readers. The card's spoken label (name, level, status, progress, story) is unchanged. | Words carry the meaning. |
 | 6 | **Not built:** the cutaway house or larger village scene, ground and path tiles, and decorations (all in `docs/ART_LIST.md`, Batch 3 and the "later" list). | Needs real art. |
 
+
+## Redesign Phase 1: the mission screen (2026-11-14)
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | **The mission's title and instruction stay in the normal font.** The pixel font is used only on the "Quest finished" headline. | The mission words are what Jacob reads to do the task; legibility comes first. |
+| 2 | The picture moves onto a big tile in the quest's own color, drawn light on it. A row of step marks (solid done, thick-edged current, dashed to come) sits above it, next to the words "Mission N of M". Quests of more than 16 missions show the words only. | A sense of place in the quest; shape, not just color, and the words say the same. |
+| 3 | **The controls keep their order and place** (Replay audio, I need help, Pause, Mission complete) and get the chunky look through an opt-in `chunky` option on `Button`. Sizes (48 / 64 high) and the spoken label are unchanged; other screens' buttons are not changed. | The controls must stay in the same place on every mission. |
+| 4 | The help view puts its text on a card; the celebration is unchanged. | Small step; the celebration was restyled with Rook already. |

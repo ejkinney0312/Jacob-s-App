@@ -142,3 +142,9 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 40. **Growth.** Each structure's picture matches its level (a bare plot at level 0, finished at the top level). Finish a quest, open Village, and see the picture grow one stage. The words (level, story, "N blocks to go") still say the same.
 41. **Blocks row.** Placed blocks are solid; blocks still to come are dashed outlines. Check on Android and at 200% text.
 
+
+## Redesign Phase 1: the mission screen
+42. **Look.** The mission screen has a row of step marks, the picture on a colored tile, and chunky buttons. The mission's title and words are in the normal font. Tell me what you like and what feels off.
+43. **Controls.** "Replay audio", "I need help", "Pause" and "Mission complete" are in the same order and place on every mission, and **"Mission complete" is still on screen without scrolling** on your phone. At 200% text it may scroll; nothing is cut off.
+44. **Step marks.** They match "Mission N of M" as you finish missions. VoiceOver skips them and reads the words.
+45. **Help and finish.** "I need help" shows the help text on a card; "Back to mission" returns to the same step. The finished screen shows the pixel headline.

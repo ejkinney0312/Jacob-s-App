@@ -27,20 +27,22 @@ const FALLBACK: SymbolName = ICONS.check;
 
 /**
  * The mission's picture. A drawn picture (see `art-shapes.ts`) is described in words for screen readers; a plain symbol
- * is only a decoration, because the mission's words carry the meaning.
+ * is only a decoration, because the mission's words carry the meaning. `onPrimary` draws it light, for a tile in the quest's color.
  */
-export function MissionIcon({ icon, size = 96 }: { icon: string; size?: number }) {
+export function MissionIcon({ icon, size = 96, onPrimary = false }: { icon: string; size?: number; onPrimary?: boolean }) {
   const theme = useTheme();
+  // On a tile filled with the quest's color the drawing is light; elsewhere it is in the quest's color.
+  const line = onPrimary ? theme.onPrimary : theme.primary;
 
   if (hasMissionArt(icon)) {
-    return <MissionArt icon={icon} size={size} colors={{ line: theme.primary, soft: theme.backgroundSelected }} />;
+    return <MissionArt icon={icon} size={size} colors={{ line, soft: onPrimary ? `${theme.onPrimary}33` : theme.backgroundSelected }} />;
   }
 
   return (
     <SymbolView
       name={ICONS[icon] ?? FALLBACK}
       size={size}
-      tintColor={theme.primary}
+      tintColor={line}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     />
