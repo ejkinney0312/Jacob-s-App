@@ -1,16 +1,15 @@
 import { useEffect } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { ChunkyCard } from '@/components/chunky-card';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { ROOK_NAME, type RookLine } from '@/domain/rook';
+import { poseForKind, ROOK_NAME, type RookLine } from '@/domain/rook';
 import { useTheme } from '@/hooks/use-theme';
 import { speak, stopSpeaking } from '@/services/speech';
 
-// Rook's face, cropped from the same picture as the app icon.
-const ROOK_AVATAR = require('@/assets/images/rook-avatar.png');
+import { RookPicture } from './rook-picture';
 
 interface RookSaysProps {
   line: RookLine;
@@ -34,14 +33,9 @@ export function RookSays({ line, audioEnabled, onAnother }: RookSaysProps) {
   return (
     <View style={styles.row}>
       <View style={styles.rook}>
-        <View style={[styles.avatar, { backgroundColor: theme.backgroundSelected, borderColor: theme.ink }]}>
-          {/* Decoration: the name "Rook" next to it and the words in the bubble carry the meaning. */}
-          <Image
-            source={ROOK_AVATAR}
-            style={styles.face}
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          />
+        {/* Decoration: the name "Rook" next to it and the words in the bubble carry the meaning. */}
+        <View style={[styles.frame, { backgroundColor: theme.backgroundSelected, borderColor: theme.ink }]}>
+          <RookPicture pose={poseForKind(line.kind)} size={FRAME - 6} />
         </View>
         <ThemedText type="smallBold">{ROOK_NAME}</ThemedText>
       </View>
@@ -68,17 +62,20 @@ export function RookSays({ line, audioEnabled, onAnother }: RookSaysProps) {
   );
 }
 
+const FRAME = 88;
+
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.three },
-  rook: { alignItems: 'center', gap: Spacing.one, width: 64 },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+  rook: { alignItems: 'center', gap: Spacing.one, width: FRAME },
+  frame: {
+    width: FRAME,
+    height: FRAME,
+    borderRadius: Spacing.three,
     borderWidth: 3,
     overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
-  face: { width: '100%', height: '100%' },
   bubble: { flex: 1 },
   card: { gap: Spacing.two },
   // A small rotated square on the bubble's left edge: its left and bottom edges make the pointer toward Rook.

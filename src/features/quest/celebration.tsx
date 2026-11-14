@@ -12,6 +12,8 @@ import type { RewardValue } from '@/domain/types';
 import { useTheme } from '@/hooks/use-theme';
 import { playChime, releaseChime } from '@/services/chime';
 
+import { RookPicture } from '../rook/rook-picture';
+
 import { useReduceMotion } from './use-reduce-motion';
 
 interface CelebrationProps {
@@ -105,6 +107,8 @@ function CelebrationBody({ questTitle, bonus, audioEnabled, tone, still, onDone 
         </Animated.View>
 
         <Animated.View style={[styles.text, { opacity: text }]}>
+          {/* Rook cheers. A still picture: it fades in with the words and never moves. */}
+          <RookPicture pose="cheer" size={176} />
           <ThemedText type="title" style={styles.centered} accessibilityRole="header">
             {copy.headline}
           </ThemedText>

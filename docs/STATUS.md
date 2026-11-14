@@ -481,3 +481,9 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - **Not tested on a device:** how the face looks at 64 points on a real screen and in dark mode, and the speech-bubble pointer from the last change.
 - Open: the style mismatch between this smooth cartoon and the planned pixel-art world (see `docs/DECISIONS.md`). The Rook poses in `docs/ART_LIST.md` are now optional until that is decided.
 
+## Rook's five poses (2026-11-14)
+- Cut Erin's five poses out of the sheet (white removed, burst and wave marks kept with their poses) into `assets/images/rook/rook-{idle,wave,cheer,proud,thinking}.png` (512 px, transparent, same bottom line). Rook's card picks a pose by the kind of line (greeting wave, intro idle, tip thinking, milestone proud) in an 88 pt frame; the quest-finished screen shows the cheer. Code: `RookPose` and `poseForKind` in `src/domain/rook.ts`, `src/features/rook/rook-picture.tsx`, `rook-says.tsx`, `src/features/quest/celebration.tsx`. Removed the face crop and the bird symbol.
+- Started `docs/ART_CREDITS.md` (what came from where; Erin to fill in the tool and permission for the icon and pose sheet).
+- Checks run: `tsc` clean, lint clean, 51 suites / 1339 tests pass (new: pose mapping; each picture is a square transparent PNG with clear corners and a solid middle, all one size; the app lists exactly the five files; hidden from screen readers; used by the Rook card and the celebration). Nine deliberate breaks (including an opaque and a tiny replacement picture) were caught.
+- **Not tested on a device:** how the poses look in the 88 pt frame (the heads are small), in dark mode, at 200% text (the bubble gets narrower), and on the finished screen. A new build is needed.
+

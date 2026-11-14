@@ -9,6 +9,28 @@ export const ROOK_NAME = 'Rook';
 
 export type RookLineKind = 'greeting' | 'milestone' | 'intro' | 'tip';
 
+/** Rook's five pictures. Each is the same character; only the pose differs. */
+export type RookPose = 'idle' | 'wave' | 'cheer' | 'proud' | 'thinking';
+
+export const ROOK_POSES: readonly RookPose[] = ['idle', 'wave', 'cheer', 'proud', 'thinking'];
+
+/**
+ * Which pose goes with which kind of line. A greeting waves, a quest intro is calm, a tip is a thinking pose and a
+ * milestone is quietly proud. The cheer is kept for finishing a quest (the celebration screen), so it is not tied to a line.
+ */
+export function poseForKind(kind: RookLineKind): RookPose {
+  switch (kind) {
+    case 'greeting':
+      return 'wave';
+    case 'intro':
+      return 'idle';
+    case 'tip':
+      return 'thinking';
+    case 'milestone':
+      return 'proud';
+  }
+}
+
 export interface RookLine {
   /** Stable id, so the same line is the same line every time. */
   id: string;

@@ -523,3 +523,14 @@ Erin shared nine screenshots of other apps (flat room tiles, a cozy pixel-art ch
 | 4 | The picture is decoration for screen readers: the name "Rook" and the words in the bubble carry the meaning. | Words, not the picture, are the text alternative. |
 | 5 | The earlier open note still applies: the picture shows an identifiable cartoon portrait in a public app, and its origin and license are Erin's to confirm (`App icon and opening animation`, row 6). Making it the in-app character puts it in more places. | Privacy and licensing. |
 
+## Rook's five poses (2026-11-14)
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | Erin supplied a sheet of Rook in five poses (idle, wave, cheer, proud, thinking). I cut each out onto a transparent 512 px canvas, all resting on the same bottom line, in `assets/images/rook/`. The sheet itself stays in Erin's Downloads. | Erin's request. |
+| 2 | **Which pose where:** a greeting waves, the quest intro stands calm, a tip is the thinking pose, a milestone is the quietly proud pose, and **finishing a quest shows the cheer** (a still picture that fades in with the words and never moves). | Fits the mood of each line without adding motion. |
+| 3 | The old bird symbol and the face crop are gone. Rook's card shows the pose in an 88 pt rounded frame next to the speech bubble. | One Rook. |
+| 4 | **Style question settled:** Rook stays a smooth cartoon. The pixel-art idea is now only the headline font and any small touches Erin chooses to draw. `docs/ART_LIST.md` updated. | Erin supplied smooth cartoon poses. |
+| 5 | The pictures are hidden from screen readers; the name "Rook" and the words carry the meaning. | Words, not the picture, are the text alternative. |
+| 6 | **Open, for Erin:** how the pose sheet was made, and its license, are recorded as "Erin to fill in" in `docs/ART_CREDITS.md`. The earlier note about an identifiable cartoon portrait in a public app still applies. | Provenance and privacy are Erin's to confirm. |
+

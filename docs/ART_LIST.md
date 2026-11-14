@@ -20,16 +20,11 @@ The reference screenshots you shared are other companies' apps. **Do not copy th
 ## What to make, in batches
 Names matter: the app finds each picture by its file name. Use exactly these names, lower case, `.png`.
 
-### Batch 1: Rook and the three room scenes (8 pieces). Start with the room scenes.
-Rook is the encouraging companion who speaks on Today. **Update 2026-11-14: Rook is now the character in the app icon** (the bearded man giving a thumbs up), shown as a round face on the Rook card. Only that one picture exists, so Rook has one expression everywhere. For more poses, the character has to be redrawn: by you, an artist, or an AI tool whose terms you have checked. Decide first whether the new poses should keep the icon's smooth cartoon style or be redrawn as pixel art, because the two styles do not match when shown together. Until then, the poses below are optional.
+### Batch 1: the three room scenes (3 pieces) and Rook (done). Start with the room scenes.
+**Rook is done (2026-11-14).** Rook is the character in the app icon, and Erin supplied five poses (idle, wave, cheer, proud, thinking), now in `assets/images/rook/`. They are smooth cartoon art, not pixel art, so **Rook stays a smooth cartoon** and the rest of the world is flat tiles with simple drawings. That settles the style question: pixel-style art is now only a headline font plus any small touches Erin chooses to draw. Optional extra poses: `rook-sleepy` (quiet or empty screens) and `rook-idle-blink`.
 
 | File | Native size | What it shows |
 |---|---|---|
-| `rook-idle.png` | 48 x 48 | Standing, calm. The default. |
-| `rook-wave.png` | 48 x 48 | A friendly hello, used for greetings. |
-| `rook-cheer.png` | 48 x 48 | Happy, wings up. Used when a quest is finished. |
-| `rook-proud.png` | 48 x 48 | Quietly proud. Used for a new level or badge. |
-| `rook-thinking.png` | 48 x 48 | Head tilted, holding a tip. Used for help and tips. |
 | `room-bathroom.png` | 96 x 64 | A small bathroom scene (tub, sink, mirror, toilet). |
 | `room-kitchen.png` | 96 x 64 | A small kitchen scene (stove, sink, fridge, counter). |
 | `room-laundry.png` | 96 x 64 | A small laundry scene (washer, dryer, basket, shelf). |
@@ -80,7 +75,7 @@ Each structure grows through 6 stages, from a bare plot (stage 0) to finished (s
 - **A cutaway house or a larger village scene** as the Village home screen. This is the biggest piece of art, so we decide after the first batches show how it looks.
 
 ## Suggested order
-Batch 1 first. It lets me rebuild Today with real art (Rook and the room tiles). Then Batch 2, which improves the mission screen. Then Batch 3 for Progress and Village. You don't need to finish a batch before starting the next, but please settle Rook's design before drawing the other poses.
+Batch 1 first (the room scenes). It lets me rebuild Today with real art for the tiles. Then Batch 2, which improves the mission screen. Then Batch 3 for Progress and Village. You don't need to finish a batch before starting the next, but please settle Rook's design before drawing the other poses.
 
 ## How to deliver
 Put the files in one new folder (for example `~/Desktop/mend-art`) and tell me the path. I read them as data only, check the names and sizes against this list, enlarge them in whole-number steps, and add them to the app. Please do not put anything else in that folder.
