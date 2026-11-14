@@ -463,3 +463,8 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - Checks run: `tsc` clean, lint clean, `npx expo config` reads the new config, 49 suites / 1278 tests pass (new tests for the opening rules and for the icon files against `app.json`). Eleven deliberate breaks were all caught.
 - **Not tested on a device:** how the icon looks on the home screen (iPhone and Android), the splash-to-opening handoff (a visible jump or flash would show up there), the animation itself, Reduce Motion, VoiceOver skipping it, and Android's splash cropping (Android 12 and later crops the splash picture into a circle, which may cut the badge). A new build is needed to see any of it. Open privacy and licensing questions are in `docs/DECISIONS.md`.
 
+## Redesign direction and art list (2026-11-14)
+- Reviewed nine reference screenshots with Erin and agreed a direction: a blend of flat tiles and cozy pixel art; Today, Progress, then Village; a pixel-style font for headlines only. Details and what is deliberately not copied are in `docs/DECISIONS.md`.
+- Wrote `docs/ART_LIST.md` (the artwork needed, exact file names and sizes, delivery and record-keeping rules) and `docs/art/mend-palette.hex` plus `mend-palette.png` (a shared 36-color palette matching the app's color families).
+- No app code was changed. **Next:** Erin starts Batch 1 (Rook's five poses and three room scenes) and says when the files are ready; meanwhile Erin to say "go" for Phase 1 (tiles, warmer base, headlines, Rook bubble), which needs no new art.
+

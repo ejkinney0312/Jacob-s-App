@@ -496,3 +496,17 @@ Erin supplied a picture ("Bordered Mend Thumbs-Up Icon", a cartoon portrait with
 | 6 | **Open, for Erin:** the picture shows an identifiable cartoon portrait. This repo is public and the icon will be public in the stores. Confirm the person pictured agrees, and decide whether the repo should be public while it contains it. The picture's origin is also unknown to me: if it was made with an AI image tool, its license for a public app is the same open question as the other art (`Visual aids for missions`, row 6). | Privacy and licensing are Erin's to confirm. |
 | 7 | Only a still picture was animated. An animation that moves the hand or face needs the artwork in separate layers, which only the artist or tool that made it can provide. | One flat image cannot be animated in parts. |
 
+## Redesign direction: a cozy blend (2026-11-14)
+
+Erin shared nine screenshots of other apps (flat room tiles, a cozy pixel-art chore game, a dense family calendar) and asked for Mend to look more like them.
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | **Blend:** clean flat rounded tiles on a warm cream base, with pixel-art touches for Rook, objects and the village. | Erin's answer. |
+| 2 | **Screens, in order:** Today, then Progress, then Village. | Erin's answer. |
+| 3 | **Pixel-style font for big headlines only;** body text stays in the normal readable font. | Erin chose a pixel style; pixel fonts are harder to read for an early reader, so they stay out of anything long. The font must have an open license, recorded before it is bundled. |
+| 4 | **Not copied:** the screenshots' art, characters, names and slogans (they belong to other companies; CLAUDE.md requires original art and no store-listing wording from others). Also not copied: "5 days overdue" in orange and the dust monster that "catches up", which read as pressure and shaming. | Original art; no shaming. |
+| 5 | **Art is made by Erin or an artist; I do not generate it.** The list is `docs/ART_LIST.md` (56 required pieces in three batches, plus optional ones) with a shared palette in `docs/art/`. Art must be original, with a record of who made it and under what permission (`docs/ART_CREDITS.md`, to be created when files arrive). | Original art only; the repo and app are public. |
+| 6 | Pictures contain **no words** and show **no people** for now. | Screen readers and large text cannot reach words in a picture; no real person is pictured. |
+| 7 | **Phase 1 needs no new art:** Today quests as big colored tiles with the existing line pictures, a warmer cream base, thicker outlines, headline styling, and a more visible Rook speech bubble. Not built yet; waiting for Erin's go-ahead. | Smallest visible step. |
+
