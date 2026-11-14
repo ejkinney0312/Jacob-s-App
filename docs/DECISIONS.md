@@ -568,3 +568,13 @@ Erin chose simple stand-ins now, to be replaced by real art later.
 | 2 | The picture moves onto a big tile in the quest's own color, drawn light on it. A row of step marks (solid done, thick-edged current, dashed to come) sits above it, next to the words "Mission N of M". Quests of more than 16 missions show the words only. | A sense of place in the quest; shape, not just color, and the words say the same. |
 | 3 | **The controls keep their order and place** (Replay audio, I need help, Pause, Mission complete) and get the chunky look through an opt-in `chunky` option on `Button`. Sizes (48 / 64 high) and the spoken label are unchanged; other screens' buttons are not changed. | The controls must stay in the same place on every mission. |
 | 4 | The help view puts its text on a card; the celebration is unchanged. | Small step; the celebration was restyled with Rook already. |
+
+## Village: one scene for the whole village (2026-11-14)
+
+Erin saw the new build: the Village view still felt empty.
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | **A wide village scene now sits at the top of Village**: every structure side by side at its current stage, a sky with a sun and clouds, grass under each, and a path with flowers in front. Up to three share a row; more wrap. | The small pictures lived in separate cards, so nothing looked like one place. |
+| 2 | It is a stand-in drawn from the same plain shapes and theme colors; no new colors. The real cutaway house or larger scene (`docs/ART_LIST.md`, "Later") replaces it. | Erin chose stand-ins for now. |
+| 3 | The scene is decoration for screen readers; the structure cards below carry the words. | Words carry the meaning. |

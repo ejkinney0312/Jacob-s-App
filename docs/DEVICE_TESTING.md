@@ -148,3 +148,6 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 43. **Controls.** "Replay audio", "I need help", "Pause" and "Mission complete" are in the same order and place on every mission, and **"Mission complete" is still on screen without scrolling** on your phone. At 200% text it may scroll; nothing is cut off.
 44. **Step marks.** They match "Mission N of M" as you finish missions. VoiceOver skips them and reads the words.
 45. **Help and finish.** "I need help" shows the help text on a card; "Back to mission" returns to the same step. The finished screen shows the pixel headline.
+
+## Village scene
+46. A wide scene at the top of Village shows each structure side by side, with sun, clouds, grass, a path and flowers. Does Village still feel empty? Do the grass strips line up under each structure, in light and dark mode? At 200% text and on a small phone, is nothing cut off? VoiceOver skips the scene and reads the cards.

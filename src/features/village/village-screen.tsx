@@ -18,6 +18,7 @@ import {
 import { useTheme } from '@/hooks/use-theme';
 
 import { BlockRow } from './block-row';
+import { VillageOverview } from './village-overview';
 import { VillageScene } from './village-scene';
 
 /** The village: each structure grows from the blocks its own quest earns. Opening it records that growth has been seen. */
@@ -60,6 +61,8 @@ export function VillageScreen() {
 
       {snapshot && (
         <>
+          <VillageOverview structures={snapshot.state.structures} />
+
           {/* The blocks, as a big tile in the page's deep color. The words say the same as the numbers. */}
           <ChunkyCard
             color={theme.primary}
