@@ -1,6 +1,5 @@
-import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { ChunkyCard } from '@/components/chunky-card';
@@ -9,6 +8,9 @@ import { Spacing } from '@/constants/theme';
 import { ROOK_NAME, type RookLine } from '@/domain/rook';
 import { useTheme } from '@/hooks/use-theme';
 import { speak, stopSpeaking } from '@/services/speech';
+
+// Rook's face, cropped from the same picture as the app icon.
+const ROOK_AVATAR = require('@/assets/images/rook-avatar.png');
 
 interface RookSaysProps {
   line: RookLine;
@@ -33,10 +35,10 @@ export function RookSays({ line, audioEnabled, onAnother }: RookSaysProps) {
     <View style={styles.row}>
       <View style={styles.rook}>
         <View style={[styles.avatar, { backgroundColor: theme.backgroundSelected, borderColor: theme.ink }]}>
-          <SymbolView
-            name={{ ios: 'bird.fill', android: 'emoji_nature', web: 'emoji_nature' }}
-            size={32}
-            tintColor={theme.primary}
+          {/* Decoration: the name "Rook" next to it and the words in the bubble carry the meaning. */}
+          <Image
+            source={ROOK_AVATAR}
+            style={styles.face}
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
           />
@@ -74,9 +76,9 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 32,
     borderWidth: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
+    overflow: 'hidden',
   },
+  face: { width: '100%', height: '100%' },
   bubble: { flex: 1 },
   card: { gap: Spacing.two },
   // A small rotated square on the bubble's left edge: its left and bottom edges make the pointer toward Rook.

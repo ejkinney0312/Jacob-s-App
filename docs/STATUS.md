@@ -475,3 +475,9 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - **Not tested on a device:** all of it. In particular the real font on a phone, the speech-bubble pointer (a rotated square, the part I am least sure of), tile layout at 200% text, VoiceOver, and Android. A new build is needed.
 - **Unchanged:** Progress, Village, Health, Caregiver and the mission screen. Rook is still a bird symbol; real Rook art and pixel art are waiting on Erin's art (`docs/ART_LIST.md`).
 
+## Rook looks like the app icon (2026-11-14)
+- Cropped the face from Erin's icon picture (the original file is untouched; the crop was made outside the project) and used it as Rook's round avatar in `src/features/rook/rook-says.tsx`, replacing the bird symbol. It shows on Today and on the mission screen. Only the face avatar was made; the larger crop included part of the lettering and the frame, so it was not used.
+- Checks run: `tsc` clean, lint clean, 50 suites / 1330 tests pass (new: the file is a square PNG of a sensible size, the Rook card shows exactly that file, the old bird symbol is gone, and the picture is hidden from screen readers). Four deliberate breaks were caught.
+- **Not tested on a device:** how the face looks at 64 points on a real screen and in dark mode, and the speech-bubble pointer from the last change.
+- Open: the style mismatch between this smooth cartoon and the planned pixel-art world (see `docs/DECISIONS.md`). The Rook poses in `docs/ART_LIST.md` are now optional until that is decided.
+

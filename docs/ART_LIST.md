@@ -20,8 +20,8 @@ The reference screenshots you shared are other companies' apps. **Do not copy th
 ## What to make, in batches
 Names matter: the app finds each picture by its file name. Use exactly these names, lower case, `.png`.
 
-### Batch 1: Rook and the three room scenes (8 pieces). Start here.
-Rook is the encouraging companion who speaks on Today. Today it is a plain bird symbol. **You decide Rook's design** (a small friendly rook, the bird, in your own style). Settle one character design first, then draw the poses.
+### Batch 1: Rook and the three room scenes (8 pieces). Start with the room scenes.
+Rook is the encouraging companion who speaks on Today. **Update 2026-11-14: Rook is now the character in the app icon** (the bearded man giving a thumbs up), shown as a round face on the Rook card. Only that one picture exists, so Rook has one expression everywhere. For more poses, the character has to be redrawn: by you, an artist, or an AI tool whose terms you have checked. Decide first whether the new poses should keep the icon's smooth cartoon style or be redrawn as pixel art, because the two styles do not match when shown together. Until then, the poses below are optional.
 
 | File | Native size | What it shows |
 |---|---|---|

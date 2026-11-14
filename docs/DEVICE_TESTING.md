@@ -127,3 +127,6 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 31. **Dark mode.** The outline is light and the cards are still easy to see. **VoiceOver:** each tile reads its quest, status and progress as one button; the picture is not read twice.
 32. **Start-up.** The headline is in the pixel font from the first frame (no flash of the normal font).
 
+## Rook's picture
+33. Rook shows the bearded face from the app icon in a round frame, on Today and on a mission screen, in light and dark mode. The face is not cut off awkwardly and the frame is easy to see. VoiceOver reads "Rook" and the line, and does not describe the picture.
+

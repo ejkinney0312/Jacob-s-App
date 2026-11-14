@@ -513,3 +513,13 @@ Erin shared nine screenshots of other apps (flat room tiles, a cozy pixel-art ch
 | 9 | **Not yet done:** Progress and Village are unchanged (Erin's order is Today, Progress, Village), as are Caregiver, Health, and the mission screen. Rook is still a system bird symbol and the quest pictures are my placeholder drawings until Erin's art arrives (`docs/ART_LIST.md`). | Staged. |
 | 10 | **Open:** an in-app licenses screen is needed before a store release to show the font notice. | OFL asks that the notice accompany the font. |
 
+## Rook looks like the app icon (2026-11-14)
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | **Rook is now the character in the app icon** (the bearded man with a thumbs up). The Rook card shows a round face cropped from that picture (`assets/images/rook-avatar.png`) in place of the bird symbol. The name "Rook" and the lines are unchanged. | Erin's request. |
+| 2 | **One expression only.** There is a single picture, so Rook looks the same for greetings, tips and celebrations. More poses need the character redrawn (`docs/ART_LIST.md`). I cannot make new poses from one flat picture. | No image generation here; original art only. |
+| 3 | **Style mismatch to decide:** the icon is a smooth cartoon, and the planned pixel-art objects and village are a different style. Erin to choose: redraw Rook's poses as pixel art to match the world, or keep the smooth cartoon for Rook and let the world be flat tiles. | The blend direction assumed a pixel-art Rook. |
+| 4 | The picture is decoration for screen readers: the name "Rook" and the words in the bubble carry the meaning. | Words, not the picture, are the text alternative. |
+| 5 | The earlier open note still applies: the picture shows an identifiable cartoon portrait in a public app, and its origin and license are Erin's to confirm (`App icon and opening animation`, row 6). Making it the in-app character puts it in more places. | Privacy and licensing. |
+
