@@ -130,3 +130,10 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 ## Rook's pictures
 33. Rook appears in a pose that fits the line: waving for a greeting, calm for a quest intro, thinking for a tip, quietly proud for a milestone. He is easy to recognize in the 88 pt frame, in light and dark mode. At 200% text the bubble still reads well. VoiceOver reads "Rook" and the line, and does not describe the picture.
 34. Finish a quest: the finished screen shows Rook cheering above "Quest finished", fading in with the words. Nothing moves; with Reduce Motion it is simply there.
+
+## Redesign Phase 1: Progress
+35. **Look.** Progress has the pixel "Progress" headline, a big gold "Level N" tile, three stat tiles and paper-card badges with thick outlines. Tell me what you like and what feels off.
+36. **Badges.** An earned badge has a solid gold frame; one not earned yet has a dashed, quiet frame, and the words say which. Check the dashed frame looks right on Android.
+37. **Large text and VoiceOver.** At 200% text the three stat tiles wrap onto their own lines and nothing is cut off. VoiceOver reads each stat tile ("12 Missions done") and each badge as one item.
+38. **Reward store.** The cards look like the rest; "Asking is turned off" still shows and still does nothing.
+

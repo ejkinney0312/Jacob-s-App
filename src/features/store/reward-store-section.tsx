@@ -4,8 +4,8 @@ import { useCallback, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { askForReward, getRewardNotices, listOpenRequests, markRewardNoticesSeen, withdrawRequest } from '@/db/reward-requests';
 import { getBalances, listRewardItems } from '@/db/reward-store';
@@ -23,6 +23,7 @@ import {
   type RewardRequest,
 } from '@/domain/reward-store';
 import type { RewardItem } from '@/domain/types';
+import { useTheme } from '@/hooks/use-theme';
 
 /** One key per tap. The same tap repeated (a double tap, a retry) reuses it, so it can only ask once. */
 const newRequestKey = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -34,6 +35,7 @@ const newRequestKey = () => `${Date.now().toString(36)}-${Math.random().toString
  */
 export function RewardStoreSection() {
   const db = useSQLiteContext();
+  const theme = useTheme();
   const [rewards, setRewards] = useState<RewardItem[] | null>(null);
   const [balances, setBalances] = useState<Balances | null>(null);
   const [pending, setPending] = useState<RewardRequest[]>([]);
@@ -101,26 +103,26 @@ export function RewardStoreSection() {
         Reward store
       </ThemedText>
 
-      <ThemedView type="notice" style={styles.card}>
+      <ChunkyCard color={theme.notice} style={styles.card}>
         <ThemedText type="smallBold" themeColor="onNotice">
           Demo rewards
         </ThemedText>
         <ThemedText type="small" themeColor="onNotice">
           {status.player} These rewards are samples.
         </ThemedText>
-      </ThemedView>
+      </ChunkyCard>
 
       {failed && <ThemedText>We couldn&apos;t load the rewards. Nothing was lost.</ThemedText>}
 
       {news.length > 0 && (
-        <ThemedView type="backgroundElement" style={styles.card} accessibilityLiveRegion="polite">
+        <ChunkyCard color={theme.card} style={styles.card} accessibilityLiveRegion="polite">
           <ThemedText type="smallBold">News about your rewards</ThemedText>
           {news.map((notice) => (
             <ThemedText key={`${notice.requestId}:${notice.kind}`} type="small">
               {describeRewardNotice(notice)}
             </ThemedText>
           ))}
-        </ThemedView>
+        </ChunkyCard>
       )}
 
       {message && (
@@ -130,7 +132,7 @@ export function RewardStoreSection() {
       )}
 
       {pending.map((request) => (
-        <ThemedView key={request.id} type="backgroundElement" style={styles.card}>
+        <ChunkyCard key={request.id} color={theme.card} style={styles.card}>
           <ThemedText type="smallBold">{request.rewardTitle}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             {describeRequestStatus(request)} · {describeCost(request.costEmeralds)}
@@ -144,17 +146,17 @@ export function RewardStoreSection() {
               onPress={() => void takeBack(request)}
             />
           )}
-        </ThemedView>
+        </ChunkyCard>
       ))}
 
       {balances && (
-        <ThemedView type="backgroundElement" style={styles.card} accessible accessibilityLabel={`Emeralds available: ${balances.spendableEmeralds}. Earned in total: ${balances.earnedEmeralds}. This number never goes down.`}>
+        <ChunkyCard color={theme.card} style={styles.card} accessible accessibilityLabel={`Emeralds available: ${balances.spendableEmeralds}. Earned in total: ${balances.earnedEmeralds}. This number never goes down.`}>
           <ThemedText type="smallBold">Emeralds available</ThemedText>
           <ThemedText type="subtitle">{balances.spendableEmeralds}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             Earned in total: {balances.earnedEmeralds}. This number never goes down.
           </ThemedText>
-        </ThemedView>
+        </ChunkyCard>
       )}
 
       {rewards?.length === 0 && (
@@ -164,7 +166,7 @@ export function RewardStoreSection() {
       )}
 
       {rewards?.map((reward) => (
-        <ThemedView key={reward.id} type="backgroundElement" style={styles.card}>
+        <ChunkyCard key={reward.id} color={theme.card} style={styles.card}>
           <ThemedText type="smallBold">{reward.title}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             {describeCost(reward.costEmeralds)}
@@ -182,12 +184,12 @@ export function RewardStoreSection() {
             }
             onPress={() => void ask(reward)}
           />
-        </ThemedView>
+        </ChunkyCard>
       ))}
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.one },
+  card: { gap: Spacing.one },
 });

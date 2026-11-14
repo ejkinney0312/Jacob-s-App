@@ -15,13 +15,13 @@ const ICONS: Record<string, SymbolName> = {
 };
 
 /** Decorative: the badge's words carry the meaning. Earned badges use the main color, others a quiet one. */
-export function BadgeIcon({ icon, earned, size = 40 }: { icon: string; earned: boolean; size?: number }) {
+export function BadgeIcon({ icon, earned, size = 40, color }: { icon: string; earned: boolean; size?: number; color?: string }) {
   const theme = useTheme();
   return (
     <SymbolView
       name={ICONS[icon] ?? ICONS.seal}
       size={size}
-      tintColor={earned ? theme.primary : theme.textSecondary}
+      tintColor={color ?? (earned ? theme.primary : theme.textSecondary)}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     />

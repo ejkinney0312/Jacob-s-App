@@ -3,13 +3,15 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { ChunkyCard } from '@/components/chunky-card';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { loadProgress, markProgressSeen, type BadgeStatus, type ProgressSnapshot } from '@/db/progress';
 import { formatLocalDate, toLocalDate } from '@/domain/local-date';
 import { describeLevelReached } from '@/domain/progression';
+import { describeReward } from '@/domain/rewards';
+import { useTheme } from '@/hooks/use-theme';
 
 import { RewardStoreSection } from '@/features/store/reward-store-section';
 
@@ -41,12 +43,13 @@ export function ProgressScreen() {
     }, [db]),
   );
 
+  const theme = useTheme();
   const earnedCount = snapshot?.badges.filter((b) => b.earnedAt !== null).length ?? 0;
   const levelNote = snapshot?.levelReached ? describeLevelReached(snapshot.levelReached.from, snapshot.levelReached.to) : null;
 
   return (
     <Screen tone="progress">
-      <ThemedText type="title" accessibilityRole="header">
+      <ThemedText type="display" accessibilityRole="header">
         Progress
       </ThemedText>
 
@@ -55,25 +58,36 @@ export function ProgressScreen() {
 
       {snapshot && (
         <>
-          <ThemedView type="backgroundElement" style={styles.card}>
-            <LevelBar progress={snapshot.level} />
+          {/* The level, as a big tile in the page's deep color. The words and the bar say the same thing. */}
+          <ChunkyCard color={theme.primary} style={styles.card}>
+            <LevelBar progress={snapshot.level} variant="tile" />
             {levelNote && (
-              <ThemedText type="smallBold" accessibilityLiveRegion="polite">
+              <ThemedText type="smallBold" themeColor="onPrimary" accessibilityLiveRegion="polite">
                 {levelNote}
               </ThemedText>
             )}
-          </ThemedView>
+          </ChunkyCard>
+
+          {/* Everything here only ever goes up. There are no streaks and nothing here can be lost. */}
+          <View style={styles.stats}>
+            <StatTile value={snapshot.stats.missionsPaid} label="Missions done" />
+            <StatTile value={snapshot.stats.questsFinished} label="Quests finished" />
+            <StatTile value={snapshot.stats.daysWithFinishedQuest} label="Days with a finished quest" />
+          </View>
+          <ThemedText type="small" themeColor="textSecondary">
+            Earned in total: {describeReward(snapshot.stats)}. These only go up.
+          </ThemedText>
 
           <RewardStoreSection />
 
-          <ThemedView type="notice" style={styles.card}>
+          <ChunkyCard color={theme.notice} style={styles.card}>
             <ThemedText type="smallBold" themeColor="onNotice">
               Demo badges
             </ThemedText>
             <ThemedText type="small" themeColor="onNotice">
               These badges are placeholders. The real badges, and how they are earned, will be confirmed with the household.
             </ThemedText>
-          </ThemedView>
+          </ChunkyCard>
 
           <ThemedText type="subtitle" accessibilityRole="header">
             Badges
@@ -91,18 +105,41 @@ export function ProgressScreen() {
   );
 }
 
+function StatTile({ value, label }: { value: number; label: string }) {
+  return (
+    <View style={styles.stat}>
+      <ChunkyCard accessible accessibilityLabel={`${value} ${label}`} style={styles.statCard}>
+        <ThemedText type="stat">{value}</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {label}
+        </ThemedText>
+      </ChunkyCard>
+    </View>
+  );
+}
+
 function BadgeCard({ badge }: { badge: BadgeStatus }) {
+  const theme = useTheme();
   const { definition, earnedAt, isNew } = badge;
   const earned = earnedAt !== null;
   const status = earned ? `Earned on ${formatLocalDate(toLocalDate(new Date(earnedAt)))}` : 'Not earned yet';
 
   return (
-    <ThemedView
-      type="backgroundElement"
+    <ChunkyCard
+      color={theme.card}
       style={styles.badge}
       accessible
       accessibilityLabel={`${definition.title}. Demo badge. ${definition.description} ${status}.${isNew ? ' New.' : ''}`}>
-      <BadgeIcon icon={definition.icon} earned={earned} />
+      {/* Earned: a solid frame. Not earned yet: a dashed, quiet frame. The words below say it too, so color is never the only sign. */}
+      <View
+        style={[
+          styles.frame,
+          earned
+            ? { backgroundColor: theme.primary, borderColor: theme.ink, borderStyle: 'solid' }
+            : { backgroundColor: theme.backgroundSelected, borderColor: theme.border, borderStyle: 'dashed' },
+        ]}>
+        <BadgeIcon icon={definition.icon} earned={earned} size={36} color={earned ? theme.onPrimary : theme.textSecondary} />
+      </View>
       <View style={styles.badgeText}>
         <ThemedText type="smallBold">
           {definition.title}
@@ -113,18 +150,24 @@ function BadgeCard({ badge }: { badge: BadgeStatus }) {
           {status} · Demo badge
         </ThemedText>
       </View>
-    </ThemedView>
+    </ChunkyCard>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
-  badge: {
-    padding: Spacing.three,
+  card: { gap: Spacing.two },
+  stats: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
+  // Each tile takes a third of the row, and wraps onto its own line when the text is large.
+  stat: { flexGrow: 1, flexBasis: 104, minWidth: 104 },
+  statCard: { gap: Spacing.half },
+  badge: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  frame: {
+    width: 64,
+    height: 64,
     borderRadius: Spacing.three,
-    flexDirection: 'row',
+    borderWidth: 3,
     alignItems: 'center',
-    gap: Spacing.three,
+    justifyContent: 'center',
   },
   badgeText: { flex: 1, gap: Spacing.half },
 });

@@ -4,7 +4,7 @@ import { Fonts, PixelFont, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'display' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
+  type?: 'default' | 'display' | 'stat' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
   themeColor?: ThemeColor;
 };
 
@@ -38,6 +38,12 @@ const styles = StyleSheet.create({
     fontFamily: PixelFont,
     fontSize: 40,
     lineHeight: 48,
+  },
+  // A big number on a stat tile, in the pixel font. Short numbers only.
+  stat: {
+    fontFamily: PixelFont,
+    fontSize: 32,
+    lineHeight: 40,
   },
   title: {
     fontSize: 36,

@@ -21,6 +21,8 @@ export const Colors = {
     // The thick outline and the hard offset shadow of the chunky cards.
     ink: '#26203A',
     shadow: '#C9BBA0',
+    // Cream paper for cards that sit on a tinted page.
+    card: '#FFFDF8',
   },
   dark: {
     text: '#F4F1E8',
@@ -36,6 +38,7 @@ export const Colors = {
     onNotice: '#F6E9B8',
     ink: '#E8E2D4',
     shadow: '#3D3A48',
+    card: '#2A2418',
   },
 } as const;
 

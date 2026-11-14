@@ -26,6 +26,9 @@ const TEXT_PAIRS: [ThemeColor, ThemeColor][] = [
   ['link', 'background'],
   ['link', 'backgroundElement'],
   ['onNotice', 'notice'],
+  ['text', 'card'],
+  ['textSecondary', 'card'],
+  ['link', 'card'],
 ];
 
 const GRAPHIC_PAIRS: [ThemeColor, ThemeColor][] = [
@@ -35,6 +38,9 @@ const GRAPHIC_PAIRS: [ThemeColor, ThemeColor][] = [
   ['border', 'backgroundElement'],
   ['ink', 'background'],
   ['ink', 'backgroundElement'],
+  ['ink', 'card'],
+  ['primary', 'card'],
+  ['border', 'card'],
 ];
 
 describe.each(['light', 'dark'] as const)('%s theme contrast', (mode) => {
@@ -76,7 +82,7 @@ describe('laying a tone over the palette', () => {
   it.each(TONES)('%s changes only the page colors and leaves text, border and notice alone', (tone) => {
     for (const mode of ['light', 'dark'] as const) {
       const merged = paletteFor(mode, tone);
-      for (const key of ['text', 'textSecondary', 'border', 'notice', 'onNotice', 'ink', 'shadow'] as const) {
+      for (const key of ['text', 'textSecondary', 'border', 'notice', 'onNotice', 'ink', 'shadow', 'card'] as const) {
         expect(merged[key]).toBe(Colors[mode][key]);
       }
       expect(merged.background).toBe(Tones[tone][mode].background);
@@ -110,6 +116,18 @@ describe('tile colors', () => {
         expect(contrast(palette.ink, palette.background)).toBeGreaterThanOrEqual(3);
         expect(contrast(palette.shadow, palette.background)).toBeGreaterThan(1.1);
         expect(contrast(palette.shadow, palette.backgroundElement)).toBeGreaterThan(1.05);
+      }
+    }
+  });
+});
+
+describe('paper cards', () => {
+  it('stand out from the page on every tone and mode (the outline helps, but the fill should differ too)', () => {
+    for (const tone of TONES) {
+      for (const mode of ['light', 'dark'] as const) {
+        const palette = paletteFor(mode, tone);
+        expect(palette.card).not.toBe(palette.background);
+        expect(contrast(palette.card, palette.background)).toBeGreaterThan(1.03);
       }
     }
   });

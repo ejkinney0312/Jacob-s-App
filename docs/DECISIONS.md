@@ -534,3 +534,15 @@ Erin shared nine screenshots of other apps (flat room tiles, a cozy pixel-art ch
 | 5 | The pictures are hidden from screen readers; the name "Rook" and the words carry the meaning. | Words, not the picture, are the text alternative. |
 | 6 | **Open, for Erin:** how the pose sheet was made, and its license, are recorded as "Erin to fill in" in `docs/ART_CREDITS.md`. The earlier note about an identifiable cartoon portrait in a public app still applies. | Provenance and privacy are Erin's to confirm. |
 
+## Redesign Phase 1: Progress (2026-11-14)
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | Progress follows the Today look: pixel-style "Progress" headline, chunky cards (thick outline, hard shadow), on the warm gold page. | Erin's order was Today, Progress, then Village. |
+| 2 | **The level is a big deep-gold tile** with the pixel "Level N", a white bar and the words ("35 of 100 XP towards Level 3"). | Same pattern as the quest tiles; words still carry the meaning. |
+| 3 | **A row of three stat tiles:** missions done, quests finished, days with a finished quest. They use numbers the app already keeps (`ProgressStats`); nothing new is counted or invented. All only ever go up, there are no streaks, and nothing can be lost. A line under them gives the earned totals in words. | Positive-only, like "even the little things count". |
+| 4 | **Badges are paper cards.** Earned: a solid gold frame with a white icon. Not earned yet: a dashed, quiet frame. The words ("Earned on…" / "Not earned yet") stay, so color is never the only signal. | Accessibility rule. |
+| 5 | The reward store cards and the demo notices use the same chunky cards. **The "asking is turned off" wording and buttons are unchanged.** | Restyle only; redemption stays off. |
+| 6 | New neutral color `card` (cream paper, light and dark) with contrast tests on every tone. | Cards that sit on a tinted page. |
+| 7 | **Not built:** a day-by-day bar chart (the app does not store per-day totals, so it would need new data), and icons for XP, emeralds and blocks (waiting on Erin's art, `docs/ART_LIST.md`). The badge pictures are still system symbols. | Needs data or art that does not exist yet. |
+
