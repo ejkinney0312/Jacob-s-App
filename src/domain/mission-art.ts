@@ -12,6 +12,7 @@ export const ART_DESCRIPTIONS: Readonly<Record<string, string>> = {
   door: 'A door',
   fridge: 'A refrigerator',
   heat: 'A stovetop with heat rising',
+  kitchen: 'A cooking pot with steam',
   mirror: 'A mirror',
   paper: 'A roll of toilet paper',
   shirt: 'A shirt',

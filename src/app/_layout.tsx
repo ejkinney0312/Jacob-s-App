@@ -1,3 +1,5 @@
+import { PixelifySans_700Bold } from '@expo-google-fonts/pixelify-sans';
+import { useFonts } from 'expo-font';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -35,6 +37,8 @@ function NotificationTap() {
 }
 
 export default function RootLayout() {
+  // Hold the app back for a moment so the headline font is ready (the opening picture covers this wait).
+  const [fontsLoaded, fontError] = useFonts({ PixelifySans_700Bold });
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
   const colors = Colors[scheme];
@@ -51,30 +55,34 @@ export default function RootLayout() {
     },
   };
 
+  const ready = fontsLoaded || fontError !== null;
+
   return (
     <View style={{ flex: 1 }}>
-      <ThemeProvider value={navigationTheme}>
-        <DatabaseProvider>
-          <HideSplashWhenReady />
-          <ReminderSync />
-          <CaregiverSessionProvider>
-            <NotificationTap />
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="quest/[instanceId]"
-                options={{
-                  title: '',
-                  headerBackTitle: 'Today',
-                  headerShadowVisible: false,
-                  // The quest pages are green, so the bar above them is too.
-                  headerStyle: { backgroundColor: Tones.today[scheme].background },
-                }}
-              />
-            </Stack>
-          </CaregiverSessionProvider>
-        </DatabaseProvider>
-      </ThemeProvider>
+      {ready && (
+        <ThemeProvider value={navigationTheme}>
+          <DatabaseProvider>
+            <HideSplashWhenReady />
+            <ReminderSync />
+            <CaregiverSessionProvider>
+              <NotificationTap />
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="quest/[instanceId]"
+                  options={{
+                    title: '',
+                    headerBackTitle: 'Today',
+                    headerShadowVisible: false,
+                    // The default bar color; each quest page sets its own to match its quest color.
+                    headerStyle: { backgroundColor: Tones.today[scheme].background },
+                  }}
+                />
+              </Stack>
+            </CaregiverSessionProvider>
+          </DatabaseProvider>
+        </ThemeProvider>
+      )}
       <OpeningScreen />
     </View>
   );

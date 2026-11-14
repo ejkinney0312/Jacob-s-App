@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -33,7 +34,7 @@ export default function TodayScreen() {
   if (state.status === 'loading') {
     return (
       <Screen tone="today">
-        <ThemedText type="title" accessibilityRole="header">
+        <ThemedText type="display" accessibilityRole="header">
           Today
         </ThemedText>
         <ThemedText themeColor="textSecondary" accessibilityLiveRegion="polite">
@@ -46,7 +47,7 @@ export default function TodayScreen() {
   if (state.status === 'error') {
     return (
       <Screen tone="today">
-        <ThemedText type="title" accessibilityRole="header">
+        <ThemedText type="display" accessibilityRole="header">
           Today
         </ThemedText>
         <ThemedText>We couldn&apos;t load today&apos;s quests. Nothing was lost.</ThemedText>
@@ -67,10 +68,14 @@ export default function TodayScreen() {
 
   return (
     <Screen tone="today">
-      <ThemedText type="title" accessibilityRole="header">
+      <ThemedText type="display" accessibilityRole="header">
         Today
       </ThemedText>
-      <ThemedText themeColor="textSecondary">{formatLocalDate(date)}</ThemedText>
+      <View style={styles.chip}>
+        <ChunkyCard style={styles.chipCard}>
+          <ThemedText type="smallBold">{formatLocalDate(date)}</ThemedText>
+        </ChunkyCard>
+      </View>
 
       <RookSays
         line={rookLine}
@@ -82,15 +87,13 @@ export default function TodayScreen() {
         }}
       />
 
-      <ThemedView
-        type="backgroundElement"
-        style={styles.card}
+      <ChunkyCard
         accessible
         accessibilityLabel={`Earned so far: ${describeReward(totals)}. Level ${levelProgress(totals.xp).level}.`}>
         <ThemedText type="smallBold">Earned so far</ThemedText>
         <ThemedText>{describeReward(totals)}</ThemedText>
         <LevelBar progress={levelProgress(totals.xp)} />
-      </ThemedView>
+      </ChunkyCard>
 
       {hasDemo && (
         <ThemedView type="notice" style={styles.card}>
@@ -117,12 +120,12 @@ export default function TodayScreen() {
       )}
 
       {allQuestsDone(items.map((item) => item.instance)) && (
-        <ThemedView type="backgroundElement" style={styles.card} accessibilityLiveRegion="polite">
+        <ChunkyCard accessibilityLiveRegion="polite">
           <ThemedText type="smallBold">All of today&apos;s quests are done</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             Nice work.
           </ThemedText>
-        </ThemedView>
+        </ChunkyCard>
       )}
 
       {items.map((item) => (
@@ -141,13 +144,15 @@ export default function TodayScreen() {
           accessibilityLabel={`Next reminder: ${displayTitle(nextReminder.routine)}, ${nextReminder.when}`}
           accessibilityHint="Opens the Health tab"
           onPress={() => router.navigate('/health')}>
-          <ThemedView type="backgroundElement" style={[styles.card, styles.reminderCard]}>
-            <ThemedText type="smallBold">Next reminder</ThemedText>
-            <ThemedText>{displayTitle(nextReminder.routine)}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {displayCategory(nextReminder.routine)} · {nextReminder.when}
-            </ThemedText>
-          </ThemedView>
+          {({ pressed }) => (
+            <ChunkyCard pressed={pressed} style={styles.reminderCard}>
+              <ThemedText type="smallBold">Next reminder</ThemedText>
+              <ThemedText>{displayTitle(nextReminder.routine)}</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                {displayCategory(nextReminder.routine)} · {nextReminder.when}
+              </ThemedText>
+            </ChunkyCard>
+          )}
         </Pressable>
       )}
 
@@ -158,6 +163,8 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
+  chip: { alignSelf: 'flex-start' },
+  chipCard: { paddingVertical: Spacing.one, paddingHorizontal: Spacing.three },
   reminderCard: { minHeight: 64, justifyContent: 'center' },
   card: {
     padding: Spacing.three,

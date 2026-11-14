@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { ROOK_NAME, type RookLine } from '@/domain/rook';
 import { useTheme } from '@/hooks/use-theme';
@@ -30,48 +30,64 @@ export function RookSays({ line, audioEnabled, onAnother }: RookSaysProps) {
   useEffect(() => () => stopSpeaking(), []);
 
   return (
-    <ThemedView type="backgroundElement" style={styles.card}>
-      <View style={styles.header}>
-        <View style={[styles.avatar, { backgroundColor: theme.backgroundSelected, borderColor: theme.border }]}>
+    <View style={styles.row}>
+      <View style={styles.rook}>
+        <View style={[styles.avatar, { backgroundColor: theme.backgroundSelected, borderColor: theme.ink }]}>
           <SymbolView
             name={{ ios: 'bird.fill', android: 'emoji_nature', web: 'emoji_nature' }}
-            size={28}
+            size={32}
             tintColor={theme.primary}
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
           />
         </View>
-        <View>
-          <ThemedText type="smallBold">{ROOK_NAME}</ThemedText>
+        <ThemedText type="smallBold">{ROOK_NAME}</ThemedText>
+      </View>
+
+      {/* The speech bubble. Its pointer is decoration; the words inside are the text alternative. */}
+      <View style={styles.bubble}>
+        <ChunkyCard style={styles.card}>
+          <ThemedText accessibilityLiveRegion="polite">{line.text}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             Demo lines
           </ThemedText>
-        </View>
+          <Button
+            label={audioEnabled ? 'Hear Rook' : 'Audio is off'}
+            variant="secondary"
+            disabled={!audioEnabled}
+            hint="Reads what Rook says out loud"
+            onPress={() => speak(line.text)}
+          />
+          {onAnother && <Button label="Another line" variant="secondary" onPress={onAnother} />}
+        </ChunkyCard>
+        <View style={[styles.tail, { backgroundColor: theme.backgroundElement, borderColor: theme.ink }]} />
       </View>
-
-      <ThemedText accessibilityLiveRegion="polite">{line.text}</ThemedText>
-
-      <Button
-        label={audioEnabled ? 'Hear Rook' : 'Audio is off'}
-        variant="secondary"
-        disabled={!audioEnabled}
-        hint="Reads what Rook says out loud"
-        onPress={() => speak(line.text)}
-      />
-      {onAnother && <Button label="Another line" variant="secondary" onPress={onAnother} />}
-    </ThemedView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.two },
-  header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  row: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.three },
+  rook: { alignItems: 'center', gap: Spacing.one, width: 64 },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 2,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  bubble: { flex: 1 },
+  card: { gap: Spacing.two },
+  // A small rotated square on the bubble's left edge: its left and bottom edges make the pointer toward Rook.
+  tail: {
+    position: 'absolute',
+    left: -9,
+    top: 22,
+    width: 16,
+    height: 16,
+    borderLeftWidth: 3,
+    borderBottomWidth: 3,
+    transform: [{ rotate: '45deg' }],
   },
 });

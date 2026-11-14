@@ -33,6 +33,8 @@ const GRAPHIC_PAIRS: [ThemeColor, ThemeColor][] = [
   ['primary', 'backgroundElement'],
   ['border', 'background'],
   ['border', 'backgroundElement'],
+  ['ink', 'background'],
+  ['ink', 'backgroundElement'],
 ];
 
 describe.each(['light', 'dark'] as const)('%s theme contrast', (mode) => {
@@ -74,7 +76,7 @@ describe('laying a tone over the palette', () => {
   it.each(TONES)('%s changes only the page colors and leaves text, border and notice alone', (tone) => {
     for (const mode of ['light', 'dark'] as const) {
       const merged = paletteFor(mode, tone);
-      for (const key of ['text', 'textSecondary', 'border', 'notice', 'onNotice'] as const) {
+      for (const key of ['text', 'textSecondary', 'border', 'notice', 'onNotice', 'ink', 'shadow'] as const) {
         expect(merged[key]).toBe(Colors[mode][key]);
       }
       expect(merged.background).toBe(Tones[tone][mode].background);
@@ -90,6 +92,26 @@ describe('laying a tone over the palette', () => {
   it('gives each area its own look', () => {
     const backgrounds = TONES.map((tone) => Tones[tone].light.background);
     expect(new Set(backgrounds).size).toBe(TONES.length);
+  });
+});
+
+describe('tile colors', () => {
+  // The quest tile adds an alpha suffix to onPrimary (for example `${onPrimary}33`), which only works on a plain #RRGGBB value.
+  it.each(['light', 'dark'] as const)('keeps onPrimary a plain six-digit color in every %s tone', (mode) => {
+    for (const tone of TONES) expect(Tones[tone][mode].onPrimary).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    expect(Colors[mode].onPrimary).toMatch(/^#[0-9A-Fa-f]{6}$/);
+  });
+
+  it('shows the outline and the shadow on every tone, not just on the neutral page', () => {
+    for (const tone of TONES) {
+      for (const mode of ['light', 'dark'] as const) {
+        const palette = paletteFor(mode, tone);
+        // The outline must stand out clearly; the shadow only has to be visible against the page and the card.
+        expect(contrast(palette.ink, palette.background)).toBeGreaterThanOrEqual(3);
+        expect(contrast(palette.shadow, palette.background)).toBeGreaterThan(1.1);
+        expect(contrast(palette.shadow, palette.backgroundElement)).toBeGreaterThan(1.05);
+      }
+    }
   });
 });
 

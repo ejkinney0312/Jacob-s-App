@@ -33,6 +33,12 @@ export const Fonts = Platform.select({
   },
 });
 
+/**
+ * The pixel-style headline font (Pixelify Sans, SIL Open Font License; see docs/THIRD_PARTY_NOTICES.md). Big headlines only:
+ * everything people read stays in the normal font, because pixel fonts are harder to read in a sentence.
+ */
+export const PixelFont = 'PixelifySans_700Bold';
+
 export const Spacing = {
   half: 2,
   one: 4,

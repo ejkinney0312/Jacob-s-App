@@ -1,10 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { questToneFor } from '@/constants/palette';
-import { ToneContext } from '@/hooks/tone-context';
-
+import { ChunkyCard } from '@/components/chunky-card';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { questToneFor } from '@/constants/palette';
 import { Sizing, Spacing } from '@/constants/theme';
 import type { TodayItem } from '@/db/today';
 import {
@@ -14,7 +12,10 @@ import {
   progressFraction,
 } from '@/domain/progress';
 import { describeSchedule } from '@/domain/schedule';
+import { ToneContext } from '@/hooks/tone-context';
 import { useTheme } from '@/hooks/use-theme';
+
+import { MissionArt } from '../quest/mission-art';
 
 /** One quest on Today, in the quest's own color. Status and progress are always in words as well as the bar. */
 export function QuestCard({ item, onPress }: { item: TodayItem; onPress: () => void }) {
@@ -45,43 +46,51 @@ function QuestCardBody({ item, onPress }: { item: TodayItem; onPress: () => void
       accessibilityRole="button"
       accessibilityLabel={`${quest.title}. ${status}. ${progressText}.${pausedText ? ` ${pausedText}` : ''}`}
       accessibilityHint={action}
-      onPress={onPress}
-      style={({ pressed }) => (pressed ? styles.pressed : undefined)}>
-      {/* The thick edge in the quest's color is decoration; the title and status carry the meaning. */}
-      <ThemedView type="backgroundElement" style={[styles.card, { borderLeftColor: theme.primary }]}>
-        <ThemedText type="smallBold">{quest.title}</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
-          {status} · {describeSchedule(quest.schedule)}
-        </ThemedText>
-        <View style={[styles.track, { backgroundColor: theme.backgroundSelected }]}>
-          <View
-            style={[styles.fill, { width: `${Math.round(fraction * 100)}%`, backgroundColor: theme.primary }]}
-          />
-        </View>
-        <ThemedText type="small">{progressText}</ThemedText>
-        {pausedText && <ThemedText type="smallBold">{pausedText}</ThemedText>}
-      </ThemedView>
+      onPress={onPress}>
+      {({ pressed }) => (
+        // A big tile in the quest's own color. The color, the picture and the thick edge are decoration; the title,
+        // status and progress in words carry the meaning.
+        <ChunkyCard color={theme.primary} pressed={pressed} style={styles.tile}>
+          <View style={styles.row}>
+            <View style={styles.text}>
+              <ThemedText type="subtitle" themeColor="onPrimary">
+                {quest.title}
+              </ThemedText>
+              <ThemedText type="small" themeColor="onPrimary">
+                {status} · {describeSchedule(quest.schedule)}
+              </ThemedText>
+            </View>
+            <MissionArt icon={quest.icon} size={72} colors={{ line: theme.onPrimary, soft: `${theme.onPrimary}33` }} decorative />
+          </View>
+          <View style={[styles.track, { backgroundColor: `${theme.onPrimary}4D` }]}>
+            <View style={[styles.fill, { width: `${Math.round(fraction * 100)}%`, backgroundColor: theme.onPrimary }]} />
+          </View>
+          <ThemedText type="small" themeColor="onPrimary">
+            {progressText}
+          </ThemedText>
+          {pausedText && (
+            <ThemedText type="smallBold" themeColor="onPrimary">
+              {pausedText}
+            </ThemedText>
+          )}
+        </ChunkyCard>
+      )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  pressed: { opacity: 0.8 },
-  card: {
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
-    gap: Spacing.one,
-    minHeight: Sizing.minTouchTarget,
-    borderLeftWidth: 8,
-  },
+  tile: { minHeight: Sizing.minTouchTarget * 2, gap: Spacing.two },
+  row: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.three },
+  text: { flex: 1, gap: Spacing.half },
   track: {
-    height: 8,
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 5,
     overflow: 'hidden',
     marginVertical: Spacing.one,
   },
   fill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 5,
   },
 });

@@ -18,6 +18,9 @@ export const Colors = {
     border: '#6B7280',
     notice: '#F3E8C8',
     onNotice: '#3D2F00',
+    // The thick outline and the hard offset shadow of the chunky cards.
+    ink: '#26203A',
+    shadow: '#C9BBA0',
   },
   dark: {
     text: '#F4F1E8',
@@ -31,6 +34,8 @@ export const Colors = {
     border: '#8A93A3',
     notice: '#3A3216',
     onNotice: '#F6E9B8',
+    ink: '#E8E2D4',
+    shadow: '#3D3A48',
   },
 } as const;
 
@@ -50,10 +55,10 @@ export type QuestTone = 'teal' | 'orange' | 'plum' | 'indigo' | 'olive';
 type ToneColors = Record<'background' | 'backgroundElement' | 'backgroundSelected' | 'primary' | 'onPrimary' | 'link', string>;
 
 export const Tones: Record<Tone, { light: ToneColors; dark: ToneColors }> = {
-  // Green: the daily quests.
+  // Warm cream with a green primary: the daily quests. The quest tiles bring the color (see `QUEST_TONES`).
   today: {
-    light: { background: '#E8F4EA', backgroundElement: '#CFE9D6', backgroundSelected: '#B8DEC3', primary: '#1F6B45', onPrimary: '#FFFFFF', link: '#17497F' },
-    dark: { background: '#0F1C15', backgroundElement: '#1A2C21', backgroundSelected: '#264034', primary: '#8FD0B5', onPrimary: '#0F1A16', link: '#8EC2F5' },
+    light: { background: '#FBF4E4', backgroundElement: '#F4E9CF', backgroundSelected: '#EADBB5', primary: '#1F6B45', onPrimary: '#FFFFFF', link: '#17497F' },
+    dark: { background: '#1A1610', backgroundElement: '#272016', backgroundSelected: '#362C1C', primary: '#8FD0B5', onPrimary: '#0F1A16', link: '#8EC2F5' },
   },
   // Gold: what has been earned.
   progress: {

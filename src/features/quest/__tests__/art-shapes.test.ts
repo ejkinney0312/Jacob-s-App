@@ -58,6 +58,10 @@ describe('mission pictures', () => {
     for (const icon of used) expect(Object.keys(ART)).toContain(icon);
   });
 
+  it('has a picture for every starter quest icon too, since Today draws it on the quest tile', () => {
+    for (const quest of STARTER_PACK.quests) expect(Object.keys(ART)).toContain(quest.icon);
+  });
+
   it('describes every picture in words, and describes nothing that is not drawn', () => {
     expect(Object.keys(ART).sort()).toEqual(Object.keys(ART_DESCRIPTIONS).sort());
     for (const icon of Object.keys(ART)) expect(describeMissionArt(icon)?.trim().length).toBeGreaterThan(2);

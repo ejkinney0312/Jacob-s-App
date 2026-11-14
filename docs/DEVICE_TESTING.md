@@ -120,3 +120,10 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 26. **Reduce Motion** (Settings > Accessibility > Motion): the badge shows still for under a second, nothing moves. **VoiceOver on:** no opening at all.
 27. **Android 12 and later:** the splash picture is shown inside a circle; check the badge is not cut off.
 
+## Redesign Phase 1: Today
+28. **Look.** Today has a warm cream page and a pixel-style "Today" headline. Each quest is a big colored tile (Bathroom teal, Kitchen orange, Laundry plum) with white text, a white picture and a thick outline with a shadow. Tell me what you like and what feels off.
+29. **Readable.** All the words on the tiles are easy to read. The headline font is only used for "Today"; the sentences use the normal font. Check 200% text: tiles grow and wrap, nothing is cut off.
+30. **Rook.** Rook is on the left with a speech bubble. Check the small pointer on the bubble looks right and not like a glitch. "Hear Rook" and "Another line" still work.
+31. **Dark mode.** The outline is light and the cards are still easy to see. **VoiceOver:** each tile reads its quest, status and progress as one button; the picture is not read twice.
+32. **Start-up.** The headline is in the pixel font from the first frame (no flash of the normal font).
+

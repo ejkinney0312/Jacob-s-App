@@ -1,11 +1,8 @@
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
-import { View } from 'react-native';
-import Svg, { Circle, Ellipse, Line, Path, Rect } from 'react-native-svg';
 
-import { describeMissionArt } from '@/domain/mission-art';
 import { useTheme } from '@/hooks/use-theme';
 
-import { ART, ART_SIZE, type ArtFill, type ArtShape } from './art-shapes';
+import { hasMissionArt, MissionArt } from './mission-art';
 
 type SymbolName = SymbolViewProps['name'];
 
@@ -34,33 +31,9 @@ const FALLBACK: SymbolName = ICONS.check;
  */
 export function MissionIcon({ icon, size = 96 }: { icon: string; size?: number }) {
   const theme = useTheme();
-  const shapes = Object.hasOwn(ART, icon) ? ART[icon] : null;
-  const description = describeMissionArt(icon);
 
-  if (shapes) {
-    const fillFor = (fill: ArtFill) => (fill === 'soft' ? theme.backgroundSelected : fill === 'accent' ? theme.primary : 'none');
-    const line = { stroke: theme.primary, strokeWidth: 3, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
-    const draw = (shape: ArtShape, key: number) => {
-      switch (shape.t) {
-        case 'path':
-          return <Path key={key} d={shape.d} fill={fillFor(shape.fill)} {...line} />;
-        case 'rect':
-          return <Rect key={key} x={shape.x} y={shape.y} width={shape.w} height={shape.h} rx={shape.r} fill={fillFor(shape.fill)} {...line} />;
-        case 'circle':
-          return <Circle key={key} cx={shape.cx} cy={shape.cy} r={shape.r} fill={fillFor(shape.fill)} {...line} />;
-        case 'ellipse':
-          return <Ellipse key={key} cx={shape.cx} cy={shape.cy} rx={shape.rx} ry={shape.ry} fill={fillFor(shape.fill)} {...line} />;
-        case 'line':
-          return <Line key={key} x1={shape.x1} y1={shape.y1} x2={shape.x2} y2={shape.y2} {...line} />;
-      }
-    };
-    return (
-      <View accessible={description !== null} accessibilityRole="image" accessibilityLabel={description ?? undefined} importantForAccessibility={description ? 'yes' : 'no-hide-descendants'}>
-        <Svg width={size} height={size} viewBox={`0 0 ${ART_SIZE} ${ART_SIZE}`}>
-          {shapes.map(draw)}
-        </Svg>
-      </View>
-    );
+  if (hasMissionArt(icon)) {
+    return <MissionArt icon={icon} size={size} colors={{ line: theme.primary, soft: theme.backgroundSelected }} />;
   }
 
   return (
