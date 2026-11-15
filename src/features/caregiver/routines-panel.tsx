@@ -66,7 +66,7 @@ function draftFrom(source: { title: string; category: RoutineCategory; schedule:
     days: [...ALL_DAYS],
     enabled: true,
     showOnLockScreen: false,
-    // A health reminder starts out hidden on the Health tab, in case other people use the phone. A caregiver can turn that off.
+    // A health reminder starts out hidden on the Calendar tab, in case other people use the phone. A caregiver can turn that off.
     privateOnTab: source.category === 'health',
     repeating: s.kind === 'every',
     times: s.kind === 'times' ? s.times.map(box) : [box({ hour: 9, minute: 0 })],
@@ -190,7 +190,7 @@ export function RoutinesPanel() {
       </ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
         For things like taking medicine, drinking water or doing the dishes. Mend only reminds: it gives no medical advice and does not record whether anything
-        was done. These show on the Health tab. Notifications must be allowed under Reminders above.
+        was done. These show on the Calendar tab, under Care reminders. Notifications must be allowed under Reminders above.
       </ThemedText>
       {message && (
         <ThemedText type="small" accessibilityLiveRegion="polite">
@@ -244,7 +244,7 @@ export function RoutinesPanel() {
           <ThemedText type="smallBold" accessibilityRole="header">
             {draft.id === null ? 'New reminder' : 'Edit reminder'}
           </ThemedText>
-          <TextField label="Name" value={draft.title} onChangeText={(title) => patch({ title })} maxLength={MAX_ROUTINE_TITLE} note="Shown on the Health tab." />
+          <TextField label="Name" value={draft.title} onChangeText={(title) => patch({ title })} maxLength={MAX_ROUTINE_TITLE} note="Shown on the Calendar tab." />
 
           <SwitchRow label="Repeat every few hours" value={draft.repeating} onChange={(repeating) => patch({ repeating })}>
             <SwitchRowText title="Repeat every few hours" caption={draft.repeating ? 'On · from a start time to an end time' : 'Off · at times you choose'} />
@@ -296,9 +296,9 @@ export function RoutinesPanel() {
               caption={draft.showOnLockScreen ? 'On · anyone who sees the locked phone can read the name' : 'Off · the notification just says a reminder is ready'}
             />
           </SwitchRow>
-          <SwitchRow label="Keep the name private on the Health tab" value={draft.privateOnTab} onChange={(privateOnTab) => patch({ privateOnTab })}>
+          <SwitchRow label="Keep the name private on the Calendar tab" value={draft.privateOnTab} onChange={(privateOnTab) => patch({ privateOnTab })}>
             <SwitchRowText
-              title="Keep the name private on the Health tab"
+              title="Keep the name private on the Calendar tab"
               caption={draft.privateOnTab ? 'On · the tab says "Private reminder" and shows only the times' : 'Off · the tab shows the name and the times'}
             />
           </SwitchRow>

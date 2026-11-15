@@ -1,5 +1,6 @@
-import { HealthScreen } from '@/features/health/health-screen';
+import { CalendarScreen } from '@/features/calendar/calendar-screen';
 
-export default function HealthTab() {
-  return <HealthScreen />;
+// The route keeps its original name (`/health`) so a tapped reminder still lands here.
+export default function CalendarTab() {
+  return <CalendarScreen />;
 }

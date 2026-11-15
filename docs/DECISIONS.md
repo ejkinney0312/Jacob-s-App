@@ -593,3 +593,18 @@ Erin saw the new build: the Village view still felt empty.
 | 1 | Caregiver follows the same look: the pixel "Caregiver" headline, every outer panel and notice on a chunky card, and chunky buttons throughout (the same `chunky` option as the mission screen). The smaller cards inside a panel stay flat, so cards are not nested inside cards. | Last main screen in the redesign. |
 | 2 | **Looks only.** No wording, order, accessible label or behavior changed. The PIN field, PIN service, session locking and recovery code are untouched, and the recovery code stays in the normal font. | PIN and recovery behavior are security-sensitive and were verified on a device; this change should not touch them. |
 | 3 | No Rook, pictures or praise in Caregiver. | Adult tools; care reminders must not look like advice. |
+
+## Calendar (2026-11-14)
+
+Erin asked for a calendar of **events a caregiver adds**, on **its own tab**. Not in the imported PRD (`docs/PRODUCT_REQUIREMENTS.md`); this is an addition, recorded here.
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | **Health and Calendar share one tab, named "Calendar".** The tab has the month, the chosen day's events, then the care reminders under "Care reminders". The route is still `/health` internally, so a tapped routine reminder lands on it; only the label, icon and screen changed. | An iPhone's tab bar fits five tabs; a sixth hides the last ones behind "More". Erin chose to combine them. |
+| 2 | **An event is a name, a calendar date and an optional time** ("All day" when none), up to 60 characters. The date is a plain calendar date, so a time zone can never move it. | Same rule as quests (`Dates are calendar days`). |
+| 3 | **Events are shown, never scheduled.** No notification is sent for an event, and nothing records whether anyone went. A caregiver who wants a reminder at a set time uses Routine reminders. The caregiver panel says so. | Keeps to the offline, no-tracking rules, and avoids promising delivery. Event reminders can come later. |
+| 4 | **A caregiver can mark an event private**: the tab then shows "Private event" and the time, like private routine reminders. | The phone is shared; an appointment name can be sensitive. |
+| 5 | **Caregivers add, change and delete events under Caregiver (behind the PIN).** The list there shows events from today on; past events stay saved but are not listed. The Calendar tab itself is read-only. | Same split as quests and reminders. |
+| 6 | **Not built yet:** repeating events, event reminders, events on Today, notes or places on an event, a week view, and a picker instead of typed year/month/day boxes. | Small first version; each is a separate decision. |
+| 7 | **Touch size.** The day cells are about 44 to 47 wide on most phones (a 7-column grid on a phone), so each has a small extra touch margin to reach 48. | The 48-unit rule; checked on a device, not by test. |
+| 8 | Privacy: events are text a caregiver types and stay on the phone. `docs/PRIVACY_DRAFT.md` now lists them. | Draft answers must match what the app does. |

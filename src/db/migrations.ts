@@ -300,6 +300,22 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE routine_reminders ADD COLUMN private_on_tab INTEGER NOT NULL DEFAULT 0 CHECK (private_on_tab IN (0, 1));
     `,
   },
+  {
+    version: 12,
+    description: 'Calendar events a caregiver adds',
+    sql: `
+      -- Shown on the Calendar tab, never scheduled and never marked as attended. local_date is a plain calendar date
+      -- (YYYY-MM-DD); start_time is "HH:MM" or NULL for an all-day event.
+      CREATE TABLE calendar_events (
+        id TEXT PRIMARY KEY NOT NULL,
+        title TEXT NOT NULL CHECK (length(title) BETWEEN 1 AND 60),
+        local_date TEXT NOT NULL CHECK (local_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),
+        start_time TEXT CHECK (start_time IS NULL OR start_time GLOB '[0-2][0-9]:[0-5][0-9]'),
+        private_on_tab INTEGER NOT NULL DEFAULT 0 CHECK (private_on_tab IN (0, 1))
+      );
+      CREATE INDEX calendar_events_by_date ON calendar_events (local_date);
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

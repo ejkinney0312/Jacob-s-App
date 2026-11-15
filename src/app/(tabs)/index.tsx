@@ -142,7 +142,7 @@ export default function TodayScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Next reminder: ${displayTitle(nextReminder.routine)}, ${nextReminder.when}`}
-          accessibilityHint="Opens the Health tab"
+          accessibilityHint="Opens the Calendar tab"
           onPress={() => router.navigate('/health')}>
           {({ pressed }) => (
             <ChunkyCard pressed={pressed} style={styles.reminderCard}>

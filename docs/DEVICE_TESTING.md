@@ -160,3 +160,11 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 49. **PIN still works.** Open Caregiver: the pixel headline shows. Enter a wrong PIN, then the right one. Try "Forgot PIN?" only if you have your recovery code to hand. Nothing about how the PIN behaves should be different.
 50. **Look.** Each panel (approvals, quests, reminders, routines, rewards) is on a chunky card with chunky buttons. Tell me what feels off, especially anything harder to read or tap than before.
 51. **Editing.** Edit a quest's color or chores, add a reminder, add a routine and change a reward; each still saves. At 200% text nothing is cut off, and VoiceOver reads the same labels as before.
+
+## Calendar
+52. **Upgrade.** Install the new build over the old one: your quests, progress, PIN and reminders are all still there (the database moved from version 11 to 12).
+53. **Tab.** The tab bar has five tabs, with Calendar where Health was. Tap a routine reminder notification: it opens Calendar, with the care reminders at the bottom.
+54. **Month.** Today has a ring. Tap another day: it fills, and its events show below. Previous and next month work, including across a year. Tap carefully on the narrowest phone you have: **do the day cells feel big enough, and does a tap ever land on the wrong day?**
+55. **Add events.** Under Caregiver, "Calendar events": add one with a time, one all day, and one marked private. They show on the right days; the private one says "Private event" and keeps the time. Edit and delete one.
+56. **Reading.** VoiceOver reads each day as its full date, then "today" and the number of events, and reads each event as its time and name. At 200% text the grid and the events are not cut off. Dark mode looks right.
+57. **No reminders.** No notification arrives for an event (that is by design).

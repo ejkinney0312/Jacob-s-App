@@ -18,7 +18,7 @@ Written 2026-11-12 from the code as it is today. The repo is public, so no perso
 | Anything shown on a locked phone? | A reminder reads "Mend / A reminder is ready." unless a caregiver turns on "show the words" for that reminder. |
 | Links out of the app | Only "Open phone settings" (to allow notifications). |
 
-**What a caregiver can type in:** chore wording, reward names, and routine reminders (which could name a medicine or a care task). This is stored only on that phone. It is the household's own information, entered by them, and the developer never receives it.
+**What a caregiver can type in:** chore wording, reward names, routine reminders (which could name a medicine or a care task) and calendar events (which could name an appointment). This is stored only on that phone. It is the household's own information, entered by them, and the developer never receives it.
 
 ## 2. Draft privacy policy (plain language)
 
@@ -27,7 +27,7 @@ Written 2026-11-12 from the code as it is today. The repo is public, so no perso
 >
 > Mend is a chore and routine app. It is made by [DEVELOPER NAME] ("we").
 >
-> **What stays on your phone.** Everything you enter or earn in Mend stays on your phone. That includes quests and chores, progress, rewards, reminders, settings and the caregiver PIN. We do not have a server, and the app does not send this information to us or to anyone else.
+> **What stays on your phone.** Everything you enter or earn in Mend stays on your phone. That includes quests and chores, progress, rewards, reminders, calendar events, settings and the caregiver PIN. We do not have a server, and the app does not send this information to us or to anyone else.
 >
 > **What we collect.** We do not collect, receive, sell or share personal information. The app has no accounts, no advertising, no analytics and no tracking.
 >

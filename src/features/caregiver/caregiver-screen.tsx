@@ -13,6 +13,7 @@ import type { CaregiverPinService, PinStatus } from '@/services/caregiver-pin';
 import { ApprovalsPanel } from './approvals-panel';
 import { describeGuessFailure } from './messages';
 import { ChoreEditor } from './chore-editor';
+import { EventsPanel } from './events-panel';
 import { QuestsPanel } from './quests-panel';
 import { RemindersPanel } from './reminders-panel';
 import { RoutinesPanel } from './routines-panel';
@@ -388,6 +389,7 @@ function Home({
       <QuestsPanel onEdit={onEditQuest} onEditChores={onEditChores} />
       <RemindersPanel />
       <RoutinesPanel />
+      <EventsPanel />
       <RewardsPanel />
       <Button chunky label="Lock now" onPress={onLock} />
       <Button chunky label="New recovery code" variant="secondary" onPress={onNewCode} />

@@ -30,7 +30,7 @@ export default function AppTabs() {
             <TabButton>Village</TabButton>
           </TabTrigger>
           <TabTrigger name="health" href="/health" asChild>
-            <TabButton>Health</TabButton>
+            <TabButton>Calendar</TabButton>
           </TabTrigger>
           <TabTrigger name="caregiver" href="/caregiver" asChild>
             <TabButton>Caregiver</TabButton>

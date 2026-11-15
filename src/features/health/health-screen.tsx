@@ -5,7 +5,6 @@ import { Linking, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { ChunkyCard } from '@/components/chunky-card';
-import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { listRoutines } from '@/db/routines';
@@ -24,10 +23,10 @@ interface Loaded {
 }
 
 /**
- * The Health tab: the care and everyday reminders a caregiver has set up, and when each is next due today. It only
- * reminds. It gives no advice and records nothing about whether anything was done.
+ * The care and everyday reminders a caregiver has set up, and when each is next due today, as a section of the
+ * Calendar tab. It only reminds. It gives no advice and records nothing about whether anything was done.
  */
-export function HealthScreen() {
+export function CareReminders() {
   const db = useSQLiteContext();
   const theme = useTheme();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -58,9 +57,9 @@ export function HealthScreen() {
   const leftOut = new Set(loaded?.leftOut);
 
   return (
-    <Screen tone="health">
-      <ThemedText type="display" accessibilityRole="header">
-        Health
+    <>
+      <ThemedText type="subtitle" accessibilityRole="header">
+        Care reminders
       </ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
         Reminders set up by a caregiver. They only remind: Mend gives no medical advice and does not keep track of whether anything was done.
@@ -118,7 +117,7 @@ export function HealthScreen() {
           time zone.
         </ThemedText>
       )}
-    </Screen>
+    </>
   );
 }
 
