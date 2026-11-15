@@ -175,3 +175,15 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 60. **Honest about the past.** Weeks before today's build say "Not recorded yet" under "Missions finished without help". The page says when counting began. Quests finished shows your real earlier weeks.
 61. **Numbers.** "Quests finished" matches what you remember for a week (the percent is finished out of scheduled). Today is not counted. A day you did not open the app counts as scheduled but not finished.
 62. **Tone and reading.** Nothing is red or alarming. VoiceOver reads each row as one item with its words. At 200% text nothing is cut off. Leave the Caregiver tab and come back: it asks for the PIN again and starts on the home view.
+
+## Results: iPhone 17 Pro, preview build from commit 5e089f0 (2026-11-14, reported by Erin)
+Android: not tested. Erin installed the build over the old one and reported "everything works". That is one overall report, not a result for each item, so it is recorded as an overall pass.
+
+| Item | Result |
+|---|---|
+| Upgrade over the old build (52, 58) | Pass, reported as working. |
+| Redesign, Village scene, mission screen, Health, Caregiver (29 to 51) | Pass overall, reported as working. |
+| Calendar (53 to 57) | Pass overall, reported as working. |
+| Help recording and metrics page (59 to 62) | Pass overall, reported as working. |
+
+**Not reported, so still not tested:** dark mode, 200% text and VoiceOver on the new screens, the narrowest phone for the Calendar day cells, and Android.
