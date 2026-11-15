@@ -47,14 +47,23 @@ export function RookSays({ line, audioEnabled, onAnother }: RookSaysProps) {
           <ThemedText type="small" themeColor="textSecondary">
             Demo lines
           </ThemedText>
-          <Button
-            label={audioEnabled ? 'Hear Rook' : 'Audio is off'}
-            variant="secondary"
-            disabled={!audioEnabled}
-            hint="Reads what Rook says out loud"
-            onPress={() => speak(line.text)}
-          />
-          {onAnother && <Button label="Another line" variant="secondary" onPress={onAnother} />}
+          {/* Side by side to keep the card short; at large text they wrap onto their own lines. */}
+          <View style={styles.actions}>
+            <View style={styles.action}>
+              <Button
+                label={audioEnabled ? 'Hear Rook' : 'Audio is off'}
+                variant="secondary"
+                disabled={!audioEnabled}
+                hint="Reads what Rook says out loud"
+                onPress={() => speak(line.text)}
+              />
+            </View>
+            {onAnother && (
+              <View style={styles.action}>
+                <Button label="Another line" variant="secondary" onPress={onAnother} />
+              </View>
+            )}
+          </View>
         </ChunkyCard>
         <View style={[styles.tail, { backgroundColor: theme.backgroundElement, borderColor: theme.ink }]} />
       </View>
@@ -78,6 +87,8 @@ const styles = StyleSheet.create({
   },
   bubble: { flex: 1 },
   card: { gap: Spacing.two },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
+  action: { flexGrow: 1, flexBasis: 96 },
   // A small rotated square on the bubble's left edge: its left and bottom edges make the pointer toward Rook.
   tail: {
     position: 'absolute',

@@ -558,3 +558,9 @@ From Erin's screenshots of the build: the tab bar, the dark pages and a few smal
 - Checks run: `tsc` clean, lint clean, 60 suites / 1621 tests pass (new: the tile list is complete, ordered, labelled and has an icon for each platform; reordering it fails the test). There is no render test for the screen itself.
 - **Not tested on a device.** The tile layout, the back-and-forth between pages, the tile icon names and 200% text.
 - **Not built:** a count on the Approvals area beyond the panel itself, and tile badges.
+
+## Today: a shorter Rook card (2026-11-15)
+- "Hear Rook" and "Another line" now sit side by side in Rook's speech bubble instead of stacked full width, so the card is shorter and the quests start higher. At large text (or a narrow phone) they wrap onto their own lines. Same buttons, same sizes (48 high), same labels and hints; the change is in `src/features/rook/rook-says.tsx` only.
+- Checks run: `tsc` clean, lint clean, 60 suites / 1621 tests pass (layout only, no new tests).
+- **Not tested on a device.** Whether both labels fit side by side on your phone, and at 200% text.
+- **Left alone:** the "Earned so far" card, which repeats part of Progress. Say if you want it shorter or removed from Today.

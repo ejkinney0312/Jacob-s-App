@@ -204,3 +204,6 @@ Android: not tested. Erin installed the build over the old one and reported "eve
 71. **Everything still works.** On each page do what you did before: edit a quest's chores and rewards (saving returns to the Quests page), add a reminder, add a routine, add and delete an event, look at the reward store, open Metrics. Nothing should be missing.
 72. **Locking.** "Lock now", leaving the tab and 5 minutes without a touch all lock it; after you unlock again you start on the menu, not on the page you were on.
 73. **Reading.** At 200% text the tiles take a full row each and nothing is cut off. VoiceOver reads each tile as its title and summary ("Quests. Chores, rewards, on or off") and calls it a button.
+
+## Today: Rook card
+74. **Buttons.** "Hear Rook" and "Another line" sit side by side under Rook's words, each easy to tap, with the quests starting higher than before. If the labels do not fit on your phone they wrap onto two lines instead; tell me if one is cut off. At 200% text they stack and nothing is cut off. With audio off the first one says "Audio is off" and is quiet but readable.
