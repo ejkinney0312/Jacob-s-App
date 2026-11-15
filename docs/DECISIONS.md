@@ -608,3 +608,18 @@ Erin asked for a calendar of **events a caregiver adds**, on **its own tab**. No
 | 6 | **Not built yet:** repeating events, event reminders, events on Today, notes or places on an event, a week view, and a picker instead of typed year/month/day boxes. | Small first version; each is a separate decision. |
 | 7 | **Touch size.** The day cells are about 44 to 47 wide on most phones (a 7-column grid on a phone), so each has a small extra touch margin to reach 48. | The 48-unit rule; checked on a device, not by test. |
 | 8 | Privacy: events are text a caregiver types and stay on the phone. `docs/PRIVACY_DRAFT.md` now lists them. | Draft answers must match what the app does. |
+
+## Caregiver metrics page (2026-11-14)
+
+Erin asked for a metrics page inside the Caregiver tab, with **help taps recorded** and a **weekly percentage**. It is the start of F15 ("Skip and insights report", P1), which also names reporting of skipped quests and rescheduling; neither is built.
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | **A "See metrics" button at the top of Caregiver home opens a metrics view** (behind the PIN, with a back button). It is not a new tab. It closes when caregiver mode locks. | Erin's request; only a caregiver sees it. |
+| 2 | **The last 4 whole weeks, up to yesterday.** Today is left out: a half-finished day must not look like a missed one. | Fair counts. |
+| 3 | **Quests finished vs scheduled, each week, with a whole-number percent** (the "quests completed vs. scheduled" metric in the PRD). Scheduled comes from each quest's *current* schedule, counted only from the day the app was first opened (earlier days are never "missed"). A quest finished on a day it is no longer scheduled still counts as scheduled, so a week cannot pass 100%. Weeks with nothing scheduled show words, not a percent. | Erin chose a percent. The caveats are stated on the page. |
+| 4 | **New recording: each time "I need help" is opened, the mission and the time are saved** (`help_events`, migration 13), best effort, never blocking help. Nothing typed or spoken. Counting begins when the migration ran (remembered as `help_tracking_since`), and earlier weeks say **"Not recorded yet"**, never "no help needed". | The PRD's "missions without tapping I need help" metric and its "problem steps". Honest about what was not measured. |
+| 5 | **Shown:** missions finished without help per week (a count and a bar); the five missions that got help on the most separate days (opening help twice on one mission counts once); finishes per quest; and total XP, emeralds and blocks earned so far. | Plain counts a caregiver can act on. |
+| 6 | **Tone:** plain counts and neutral bars. No streaks, no red or warning colors, no "target" line, and a note on the page that help is "a count, not a mark against anyone". The percent is the one grade-like number; it is there because Erin asked for it. | The PRD forbids punishment and shaming. |
+| 7 | **Privacy:** the log stays on the phone and is deleted with the app. `docs/PRIVACY_DRAFT.md` now says so, and says sending it anywhere would change the answers. | Draft answers must match the app. |
+| 8 | **Not built:** "Reminder-to-start time" and "skip rate" (the app records neither and has no skip action), a chart over more than 4 weeks, exporting, and rescheduling missed quests. | Each needs new recording or a decision. |

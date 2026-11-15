@@ -2,6 +2,7 @@ import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useRef, useState } from 'react';
 
+import { recordHelpOpened } from '@/db/help';
 import {
   completeMission,
   loadQuestFlow,
@@ -10,6 +11,7 @@ import {
   pauseQuest,
   type QuestFlowView,
 } from '@/db/quest-flow';
+import { missionInstanceId } from '@/domain/schedule';
 import type { RewardValue } from '@/domain/types';
 import { syncReminders } from '@/features/reminders/sync';
 
@@ -88,10 +90,20 @@ export function useQuestFlow(instanceId: string) {
     }
   }, [db, instanceId]);
 
+  /** Notes that help was opened on this mission, for the caregiver's metrics. Never gets in the way of help itself. */
+  const recordHelp = useCallback(
+    (missionId: string) => {
+      recordHelpOpened(db, missionInstanceId(instanceId, missionId)).catch(() => {
+        // Only a count for the caregiver; help opens either way.
+      });
+    },
+    [db, instanceId],
+  );
+
   const retry = useCallback(() => {
     setState({ status: 'loading' });
     void reload();
   }, [reload]);
 
-  return { state, complete, pause, retry, celebration };
+  return { state, complete, pause, recordHelp, retry, celebration };
 }

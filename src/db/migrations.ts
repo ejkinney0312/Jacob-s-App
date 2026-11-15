@@ -316,6 +316,22 @@ export const MIGRATIONS: readonly Migration[] = [
       CREATE INDEX calendar_events_by_date ON calendar_events (local_date);
     `,
   },
+  {
+    version: 13,
+    description: 'A record of each time "I need help" was opened on a mission, for the caregiver metrics page',
+    sql: `
+      -- Only which mission on which day, and when. No text, no PIN, nothing typed. It stays on this phone and is read only
+      -- in caregiver mode. Counting starts when this table was created, which is remembered below so that earlier weeks
+      -- are shown as "not recorded" rather than as "no help needed".
+      CREATE TABLE help_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        mission_instance_id TEXT NOT NULL REFERENCES mission_instances(id) ON DELETE CASCADE,
+        opened_at TEXT NOT NULL
+      );
+      CREATE INDEX help_events_by_mission_instance ON help_events (mission_instance_id);
+      INSERT OR IGNORE INTO settings (key, value) VALUES ('help_tracking_since', date('now', 'localtime'));
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

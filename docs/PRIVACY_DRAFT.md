@@ -14,6 +14,7 @@ Written 2026-11-12 from the code as it is today. The repo is public, so no perso
 | Where is data kept? | On the phone only: a local SQLite database (quests, progress, rewards, reminders, settings) and secure storage (the PIN and recovery-code verifiers, never the PIN itself). |
 | Push notifications? | **No remote push** (`enableRemoteNotifications: false`). Reminders are scheduled **on the phone** and never leave it. |
 | Microphone, camera, location, contacts, photos? | **None.** Microphone and recording are switched off in `app.json`. |
+| A record of using the app | **Yes, on the phone only.** Each time "I need help" is opened on a mission, the app notes which mission and when (`help_events`), and the days quests were finished are already kept. A caregiver sees counts of these on a metrics page behind the PIN. Nothing typed or spoken is kept, nothing is sent anywhere, and it is not used for analytics or tracking. Removing the app deletes it. |
 | Sound | The app plays bundled voice clips and the phone's own text-to-speech. Nothing is recorded. |
 | Anything shown on a locked phone? | A reminder reads "Mend / A reminder is ready." unless a caregiver turns on "show the words" for that reminder. |
 | Links out of the app | Only "Open phone settings" (to allow notifications). |
@@ -31,7 +32,7 @@ Written 2026-11-12 from the code as it is today. The repo is public, so no perso
 >
 > **What we collect.** We do not collect, receive, sell or share personal information. The app has no accounts, no advertising, no analytics and no tracking.
 >
-> **Care and routine reminders.** A caregiver can add reminders, for example to drink water or to take something at a set time. These are only reminders that a caregiver wrote. Mend does not give medical advice and does not record whether a reminder was done. Reminder text stays on the phone. By default a notification shows only "A reminder is ready." and not what it is for, so it does not reveal anything on a locked screen. A caregiver can choose to show the words.
+> **Care and routine reminders.** A caregiver can add reminders, for example to drink water or to take something at a set time. These are only reminders that a caregiver wrote. Mend does not give medical advice and does not record whether a reminder was done. Mend does keep simple counts of how the app is used on your phone, such as which days quests were finished and when "I need help" was opened, so a caregiver can see them on a page behind the PIN. These counts stay on your phone. Reminder text stays on the phone. By default a notification shows only "A reminder is ready." and not what it is for, so it does not reveal anything on a locked screen. A caregiver can choose to show the words.
 >
 > **Notifications.** Mend asks permission to send reminders. They are created and delivered by your phone. You can turn them off at any time in your phone's settings.
 >
@@ -90,6 +91,6 @@ If any of this is added, the privacy answers, the policy and the build permissio
 - Syncing between devices or push alerts (F13): needs accounts, a server, deletion, and a very different data-collection answer.
 - Photos or video (F17): camera and photo access, and where they are stored.
 - Recording a caregiver's voice in the app (F16): microphone permission.
-- Any analytics or crash reporting, even for debugging.
+- Any analytics or crash reporting, even for debugging. (The caregiver metrics page is counts kept on the phone and shown only there; sending them anywhere, even to a second device, would change the answers.)
 - Any network call, including checking for updates.
 - Sharing or exporting data.

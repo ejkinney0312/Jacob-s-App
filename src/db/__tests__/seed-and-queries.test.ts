@@ -62,7 +62,8 @@ describe('seedDemoContent', () => {
     await expect(seedDemoContent(failing)).rejects.toThrow('disk full');
 
     expect(await listQuests(db)).toEqual([]);
-    expect(await db.getFirstAsync('SELECT COUNT(*) AS n FROM settings')).toEqual({ n: 0 });
+    // No "seeded" marker was left; the only setting is the one the migrations write themselves.
+    expect(await db.getAllAsync('SELECT key FROM settings')).toEqual([{ key: 'help_tracking_since' }]);
   });
 });
 

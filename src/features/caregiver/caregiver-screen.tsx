@@ -14,6 +14,7 @@ import { ApprovalsPanel } from './approvals-panel';
 import { describeGuessFailure } from './messages';
 import { ChoreEditor } from './chore-editor';
 import { EventsPanel } from './events-panel';
+import { MetricsView } from './metrics-view';
 import { QuestsPanel } from './quests-panel';
 import { RemindersPanel } from './reminders-panel';
 import { RoutinesPanel } from './routines-panel';
@@ -34,6 +35,7 @@ export function CaregiverScreen() {
   const [editingQuestId, setEditingQuestId] = useState<string | null>(null);
   const [editingChoresId, setEditingChoresId] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const [showMetrics, setShowMetrics] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!service) return;
@@ -48,7 +50,10 @@ export function CaregiverScreen() {
   useFocusEffect(
     useCallback(() => {
       void refresh();
-      return () => lock();
+      return () => {
+        lock();
+        setShowMetrics(false);
+      };
     }, [refresh, lock]),
   );
 
@@ -86,6 +91,8 @@ export function CaregiverScreen() {
     content =
       mode === 'newCode' ? (
         <NewCodeForm service={service} onDone={(code) => { setRecoveryCode(code); setMode('default'); }} onBack={() => setMode('default')} />
+      ) : showMetrics ? (
+        <MetricsView onBack={() => setShowMetrics(false)} />
       ) : editingChoresId !== null ? (
         <ChoreEditor
           questId={editingChoresId}
@@ -104,6 +111,7 @@ export function CaregiverScreen() {
         <Home
           onLock={lock}
           onNewCode={() => setMode('newCode')}
+          onOpenMetrics={() => setShowMetrics(true)}
           onEditQuest={(id) => {
             setSavedMessage(null);
             setEditingQuestId(id);
@@ -368,12 +376,14 @@ function NewCodeForm({
 function Home({
   onLock,
   onNewCode,
+  onOpenMetrics,
   onEditQuest,
   onEditChores,
   savedMessage,
 }: {
   onLock: () => void;
   onNewCode: () => void;
+  onOpenMetrics: () => void;
   onEditQuest: (questId: string) => void;
   onEditChores: (questId: string) => void;
   savedMessage: string | null;
@@ -385,6 +395,7 @@ function Home({
         body="It locks when you leave this tab, when the app goes to the background, or after 5 minutes without a touch."
       />
       {savedMessage && <Message text={savedMessage} />}
+      <Button chunky label="See metrics" variant="secondary" hint="Opens plain counts for the last four weeks" onPress={onOpenMetrics} />
       <ApprovalsPanel />
       <QuestsPanel onEdit={onEditQuest} onEditChores={onEditChores} />
       <RemindersPanel />

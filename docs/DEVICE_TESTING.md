@@ -168,3 +168,10 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 55. **Add events.** Under Caregiver, "Calendar events": add one with a time, one all day, and one marked private. They show on the right days; the private one says "Private event" and keeps the time. Edit and delete one.
 56. **Reading.** VoiceOver reads each day as its full date, then "today" and the number of events, and reads each event as its time and name. At 200% text the grid and the events are not cut off. Dark mode looks right.
 57. **No reminders.** No notification arrives for an event (that is by design).
+
+## Caregiver metrics page
+58. **Upgrade.** Install over the old build: everything is still there (the database moves to version 13).
+59. **Recording.** On a mission, tap "I need help", then "Back to mission". Then open Caregiver, enter your PIN and tap "See metrics": the mission appears under "Missions that got the most help" with "help opened on 1 day". Tapping help again on the same mission the same day does not change the count.
+60. **Honest about the past.** Weeks before today's build say "Not recorded yet" under "Missions finished without help". The page says when counting began. Quests finished shows your real earlier weeks.
+61. **Numbers.** "Quests finished" matches what you remember for a week (the percent is finished out of scheduled). Today is not counted. A day you did not open the app counts as scheduled but not finished.
+62. **Tone and reading.** Nothing is red or alarming. VoiceOver reads each row as one item with its words. At 200% text nothing is cut off. Leave the Caregiver tab and come back: it asks for the PIN again and starts on the home view.

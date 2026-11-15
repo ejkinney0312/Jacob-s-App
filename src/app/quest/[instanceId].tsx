@@ -29,7 +29,7 @@ function backToToday() {
 
 export default function QuestScreen() {
   const { instanceId } = useLocalSearchParams<{ instanceId: string }>();
-  const { state, complete, pause, retry, celebration } = useQuestFlow(instanceId);
+  const { state, complete, pause, recordHelp, retry, celebration } = useQuestFlow(instanceId);
   const { audioEnabled } = useAudioEnabled();
   const { hapticsEnabled } = useHapticsEnabled();
   const screenReader = useScreenReader();
@@ -180,7 +180,15 @@ export default function QuestScreen() {
           disabled={!audioEnabled}
           onPress={() => narrate(current.instruction, clipId)}
         />
-        <Button chunky label="I need help" variant="secondary" onPress={() => setHelpOpen(true)} />
+        <Button
+          chunky
+          label="I need help"
+          variant="secondary"
+          onPress={() => {
+            recordHelp(current.id);
+            setHelpOpen(true);
+          }}
+        />
         <Button
           chunky
           label="Pause"
