@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import {
   addMission,
@@ -136,15 +136,15 @@ export function ChoreEditor({ questId, onDone }: { questId: string; onDone: () =
         </ThemedText>
       )}
 
-      <ThemedView type="backgroundElement" style={styles.panel}>
+      <ChunkyCard style={styles.panel}>
         <TextField label="Quest name" value={title} onChangeText={setTitle} maxLength={MAX_CHORE_TITLE} />
-        <Button label="Save name" variant="secondary" disabled={busy} onPress={saveTitle} />
-      </ThemedView>
+        <Button chunky label="Save name" variant="secondary" disabled={busy} onPress={saveTitle} />
+      </ChunkyCard>
 
       {missions.map((mission, index) => {
         const draft = drafts[mission.id] ?? toDraft(mission);
         return (
-          <ThemedView key={mission.id} type="backgroundElement" style={styles.panel}>
+          <ChunkyCard key={mission.id} style={styles.panel}>
             <ThemedText type="smallBold" accessibilityRole="header">
               Mission {index + 1} of {missions.length}
             </ThemedText>
@@ -158,7 +158,7 @@ export function ChoreEditor({ questId, onDone }: { questId: string; onDone: () =
               note="This is what is read aloud."
             />
             <TextField label="Tip (optional)" value={draft.tip} onChangeText={(v) => patch(mission.id, { tip: v })} maxLength={MAX_CHORE_TEXT} multiline />
-            <Button label="Save wording" disabled={busy} hint={`Saves the wording for mission ${index + 1}`} onPress={() => saveMission(mission)} />
+            <Button chunky label="Save wording" disabled={busy} hint={`Saves the wording for mission ${index + 1}`} onPress={() => saveMission(mission)} />
             <SwitchRow
               label={`Mission ${index + 1} needs a caregiver to approve`}
               value={mission.requiresApproval}
@@ -168,12 +168,14 @@ export function ChoreEditor({ questId, onDone }: { questId: string; onDone: () =
               <SwitchRowText title="Needs approval" caption={mission.requiresApproval ? 'On · pays after you approve it' : 'Off · pays right away'} />
             </SwitchRow>
             <Button
+              chunky
               label="Move earlier"
               variant="secondary"
               disabled={busy || index === 0}
               onPress={() => void run(async () => describe(await moveMission(db, mission.id, 'earlier'), `Moved to mission ${index}.`))}
             />
             <Button
+              chunky
               label="Move later"
               variant="secondary"
               disabled={busy || index === missions.length - 1}
@@ -185,6 +187,7 @@ export function ChoreEditor({ questId, onDone }: { questId: string; onDone: () =
                   Remove &quot;{mission.title}&quot; from new days? A day that has already started keeps it, and what it paid stays.
                 </ThemedText>
                 <Button
+                  chunky
                   label="Yes, remove it"
                   disabled={busy}
                   onPress={() =>
@@ -194,10 +197,11 @@ export function ChoreEditor({ questId, onDone }: { questId: string; onDone: () =
                     })
                   }
                 />
-                <Button label="Keep it" variant="secondary" onPress={() => setConfirmRemove(null)} />
+                <Button chunky label="Keep it" variant="secondary" onPress={() => setConfirmRemove(null)} />
               </>
             ) : (
               <Button
+                chunky
                 label="Remove from new days"
                 variant="secondary"
                 disabled={busy}
@@ -205,11 +209,11 @@ export function ChoreEditor({ questId, onDone }: { questId: string; onDone: () =
                 onPress={() => setConfirmRemove(mission.id)}
               />
             )}
-          </ThemedView>
+          </ChunkyCard>
         );
       })}
 
-      <ThemedView type="backgroundElement" style={styles.panel}>
+      <ChunkyCard style={styles.panel}>
         <ThemedText type="smallBold" accessibilityRole="header">
           Add a mission
         </ThemedText>
@@ -228,10 +232,10 @@ export function ChoreEditor({ questId, onDone }: { questId: string; onDone: () =
           maxLength={MAX_CHORE_TEXT}
           multiline
         />
-        <Button label="Add mission" disabled={busy} onPress={add} />
-      </ThemedView>
+        <Button chunky label="Add mission" disabled={busy} onPress={add} />
+      </ChunkyCard>
 
-      <Button label="Done" variant="secondary" onPress={onDone} />
+      <Button chunky label="Done" variant="secondary" onPress={onDone} />
     </>
   );
 }

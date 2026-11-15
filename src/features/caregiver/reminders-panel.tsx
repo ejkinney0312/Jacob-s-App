@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -87,7 +88,7 @@ export function RemindersPanel() {
   };
 
   return (
-    <ThemedView type="backgroundElement" style={styles.panel}>
+    <ChunkyCard style={styles.panel}>
       <ThemedText type="subtitle" accessibilityRole="header">
         Reminders
       </ThemedText>
@@ -104,13 +105,13 @@ export function RemindersPanel() {
         {permission === 'denied' && (
           <>
             <ThemedText type="small">{NOTIFICATIONS_OFF_NOTE}</ThemedText>
-            <Button label="Open phone settings" variant="secondary" onPress={() => void Linking.openSettings()} />
+            <Button chunky label="Open phone settings" variant="secondary" onPress={() => void Linking.openSettings()} />
           </>
         )}
         {permission === 'undetermined' && (
           <>
             <ThemedText type="small">Allow notifications so reminders can be shown.</ThemedText>
-            <Button label="Allow notifications" variant="secondary" onPress={() => void allowNotifications()} />
+            <Button chunky label="Allow notifications" variant="secondary" onPress={() => void allowNotifications()} />
           </>
         )}
         {permission === 'granted' && nextText && <ThemedText type="small">{nextText}</ThemedText>}
@@ -136,7 +137,7 @@ export function RemindersPanel() {
           onMessage={setMessage}
         />
       ))}
-    </ThemedView>
+    </ChunkyCard>
   );
 }
 
@@ -200,7 +201,7 @@ function QuietHoursCard({
         <NumberField label="Hour (0 to 23)" value={endHour} onChangeText={setEndHour} />
         <NumberField label="Minute (0 to 59)" value={endMinute} onChangeText={setEndMinute} />
       </View>
-      <Button label="Save quiet hours" variant="secondary" disabled={busy} onPress={() => void save()} />
+      <Button chunky label="Save quiet hours" variant="secondary" disabled={busy} onPress={() => void save()} />
     </ThemedView>
   );
 }
@@ -271,7 +272,7 @@ function ReminderRow({
         maxLength={MAX_REMINDER_MESSAGE_LENGTH}
         note="Shown on the lock screen, so keep it general. If left empty: “A quest is ready when you are.”"
       />
-      <Button label="Save reminder" variant="secondary" disabled={busy} hint={`Saves the reminder for ${quest.title}`} onPress={() => void save()} />
+      <Button chunky label="Save reminder" variant="secondary" disabled={busy} hint={`Saves the reminder for ${quest.title}`} onPress={() => void save()} />
     </ThemedView>
   );
 }

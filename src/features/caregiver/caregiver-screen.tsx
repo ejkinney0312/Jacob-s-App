@@ -3,9 +3,9 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { describePinProblem, PIN_LENGTH } from '@/domain/caregiver-pin';
 import type { CaregiverPinService, PinStatus } from '@/services/caregiver-pin';
@@ -65,7 +65,7 @@ export function CaregiverScreen() {
     content = (
       <>
         <ThemedText>We couldn&apos;t read the PIN settings on this phone.</ThemedText>
-        <Button label="Try again" onPress={() => void refresh()} />
+        <Button chunky label="Try again" onPress={() => void refresh()} />
       </>
     );
   } else if (recoveryCode !== null) {
@@ -132,7 +132,7 @@ export function CaregiverScreen() {
   return (
     <Screen tone="caregiver">
       <View onTouchStart={touch} style={styles.stack}>
-        <ThemedText type="title" accessibilityRole="header">
+        <ThemedText type="display" accessibilityRole="header">
           Caregiver
         </ThemedText>
         {content}
@@ -143,12 +143,12 @@ export function CaregiverScreen() {
 
 function Notice({ title, body }: { title: string; body: string }) {
   return (
-    <ThemedView type="backgroundElement" style={styles.card}>
+    <ChunkyCard style={styles.card}>
       <ThemedText type="smallBold">{title}</ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
         {body}
       </ThemedText>
-    </ThemedView>
+    </ChunkyCard>
   );
 }
 
@@ -199,7 +199,7 @@ function SetupForm({ service, onDone }: { service: CaregiverPinService; onDone: 
       <PinField label="New PIN" value={pin} onChangeText={setPin} />
       <PinField label="Type it again" value={confirm} onChangeText={setConfirm} onSubmitEditing={() => void submit()} />
       <Message text={message} />
-      <Button label="Set PIN" onPress={() => void submit()} disabled={busy} />
+      <Button chunky label="Set PIN" onPress={() => void submit()} disabled={busy} />
     </>
   );
 }
@@ -211,12 +211,12 @@ function RecoveryCodeNotice({ code, onSaved }: { code: string; onSaved: () => vo
         title="Your recovery code"
         body="Write this down and keep it somewhere safe, not on this phone. It is the only way back in if you forget your PIN. It will not be shown again."
       />
-      <ThemedView type="backgroundElement" style={[styles.card, styles.codeBox]} accessible accessibilityLabel={`Recovery code: ${code.split('').join(' ')}`}>
+      <ChunkyCard style={[styles.card, styles.codeBox]} accessible accessibilityLabel={`Recovery code: ${code.split('').join(' ')}`}>
         <ThemedText type="title" style={styles.code} selectable={false}>
           {code}
         </ThemedText>
-      </ThemedView>
-      <Button label="I've saved it" onPress={onSaved} />
+      </ChunkyCard>
+      <Button chunky label="I've saved it" onPress={onSaved} />
     </>
   );
 }
@@ -261,8 +261,8 @@ function EntryForm({
       <Notice title="Enter your PIN" body="Caregiver tools are locked." />
       <PinField label="PIN" value={pin} onChangeText={setPin} onSubmitEditing={() => void submit()} />
       <Message text={message} />
-      <Button label="Unlock" onPress={() => void submit()} disabled={busy || pin.length !== PIN_LENGTH} />
-      <Button label="Forgot PIN?" variant="secondary" onPress={onForgot} />
+      <Button chunky label="Unlock" onPress={() => void submit()} disabled={busy || pin.length !== PIN_LENGTH} />
+      <Button chunky label="Forgot PIN?" variant="secondary" onPress={onForgot} />
     </>
   );
 }
@@ -319,8 +319,8 @@ function ForgotForm({
       <PinField label="New PIN" value={pin} onChangeText={setPin} />
       <PinField label="Type the new PIN again" value={confirm} onChangeText={setConfirm} onSubmitEditing={() => void submit()} />
       <Message text={message} />
-      <Button label="Set new PIN" onPress={() => void submit()} disabled={busy} />
-      {onBack && <Button label="Back" variant="secondary" onPress={onBack} />}
+      <Button chunky label="Set new PIN" onPress={() => void submit()} disabled={busy} />
+      {onBack && <Button chunky label="Back" variant="secondary" onPress={onBack} />}
     </>
   );
 }
@@ -358,8 +358,8 @@ function NewCodeForm({
       <Notice title="New recovery code" body="Enter your PIN to get a new recovery code. The old code will stop working." />
       <PinField label="PIN" value={pin} onChangeText={setPin} onSubmitEditing={() => void submit()} />
       <Message text={message} />
-      <Button label="Show new code" onPress={() => void submit()} disabled={busy || pin.length !== PIN_LENGTH} />
-      <Button label="Back" variant="secondary" onPress={onBack} />
+      <Button chunky label="Show new code" onPress={() => void submit()} disabled={busy || pin.length !== PIN_LENGTH} />
+      <Button chunky label="Back" variant="secondary" onPress={onBack} />
     </>
   );
 }
@@ -389,8 +389,8 @@ function Home({
       <RemindersPanel />
       <RoutinesPanel />
       <RewardsPanel />
-      <Button label="Lock now" onPress={onLock} />
-      <Button label="New recovery code" variant="secondary" onPress={onNewCode} />
+      <Button chunky label="Lock now" onPress={onLock} />
+      <Button chunky label="New recovery code" variant="secondary" onPress={onNewCode} />
     </>
   );
 }

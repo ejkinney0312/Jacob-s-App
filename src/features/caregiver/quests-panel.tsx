@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -57,7 +58,7 @@ export function QuestsPanel({ onEdit, onEditChores }: { onEdit: (questId: string
   };
 
   return (
-    <ThemedView type="backgroundElement" style={styles.panel}>
+    <ChunkyCard style={styles.panel}>
       <ThemedText type="subtitle" accessibilityRole="header">
         Quests
       </ThemedText>
@@ -75,12 +76,14 @@ export function QuestsPanel({ onEdit, onEditChores }: { onEdit: (questId: string
             <SwitchRowText title={quest.title} caption={`${describeSchedule(quest.schedule)} · ${quest.active ? 'On' : 'Off'}`} />
           </SwitchRow>
           <Button
+            chunky
             label="Edit chores"
             variant="secondary"
             hint={`Change the words, order and missions for ${quest.title}`}
             onPress={() => onEditChores(quest.id)}
           />
           <Button
+            chunky
             label="Edit rewards"
             variant="secondary"
             hint={`Change the rewards for ${quest.title}`}
@@ -88,7 +91,7 @@ export function QuestsPanel({ onEdit, onEditChores }: { onEdit: (questId: string
           />
         </ThemedView>
       ))}
-    </ThemedView>
+    </ChunkyCard>
   );
 }
 

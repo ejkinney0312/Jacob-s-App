@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -90,7 +91,7 @@ export function RewardsPanel() {
   };
 
   return (
-    <ThemedView type="backgroundElement" style={styles.panel}>
+    <ChunkyCard style={styles.panel}>
       <ThemedText type="subtitle" accessibilityRole="header">
         Reward store
       </ThemedText>
@@ -130,6 +131,7 @@ export function RewardsPanel() {
               {describeRequestStatus(request)} · {describeCost(request.costEmeralds)} used
             </ThemedText>
             <Button
+              chunky
               label="Mark as given"
               disabled={busy}
               hint={`Records that ${request.rewardTitle} was handed over. No more emeralds are used.`}
@@ -150,6 +152,7 @@ export function RewardsPanel() {
             Approving uses {describeCost(request.costEmeralds)}. You mark it given after you hand it over.
           </ThemedText>
           <Button
+            chunky
             label="Approve"
             disabled={busy || !DEFAULT_REDEMPTION_POLICY.enabled}
             hint={`Approves ${request.rewardTitle} and uses ${describeCost(request.costEmeralds)}`}
@@ -160,6 +163,7 @@ export function RewardsPanel() {
             }
           />
           <Button
+            chunky
             label="Not this time"
             variant="secondary"
             disabled={busy}
@@ -201,6 +205,7 @@ export function RewardsPanel() {
           </ThemedText>
           {!entry.refundedAt && (
             <Button
+              chunky
               label="Refund"
               variant="secondary"
               disabled={busy}
@@ -214,7 +219,7 @@ export function RewardsPanel() {
           )}
         </ThemedView>
       ))}
-    </ThemedView>
+    </ChunkyCard>
   );
 }
 
@@ -270,7 +275,7 @@ function RewardRow({
         />
       </SwitchRow>
       <NumberField label="Cost in emeralds" value={cost} onChangeText={setCost} />
-      <Button label="Save cost" variant="secondary" disabled={busy} hint={`Saves the cost of ${reward.title}`} onPress={() => void saveCost()} />
+      <Button chunky label="Save cost" variant="secondary" disabled={busy} hint={`Saves the cost of ${reward.title}`} onPress={() => void saveCost()} />
     </ThemedView>
   );
 }

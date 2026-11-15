@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { SwitchRow, SwitchRowText } from '@/components/switch-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -183,7 +184,7 @@ export function RoutinesPanel() {
     setDraft((d) => (d ? { ...d, times: d.times.map((t, i) => (i === index ? { ...t, ...change } : t)) } : d));
 
   return (
-    <ThemedView type="backgroundElement" style={styles.panel}>
+    <ChunkyCard style={styles.panel}>
       <ThemedText type="subtitle" accessibilityRole="header">
         Routine reminders
       </ThemedText>
@@ -209,6 +210,7 @@ export function RoutinesPanel() {
                 <SwitchRowText title={routine.title} caption={`${ROUTINE_CATEGORY_NAMES[routine.category]} · ${describeRoutineSchedule(routine.schedule, routine.days)} · ${routine.enabled ? 'On' : 'Off'}`} />
               </SwitchRow>
               <Button
+                chunky
                 label="Edit"
                 variant="secondary"
                 hint={`Change the ${routine.title} reminder`}
@@ -225,6 +227,7 @@ export function RoutinesPanel() {
           </ThemedText>
           {ROUTINE_PRESETS.map((preset: RoutinePreset) => (
             <Button
+              chunky
               key={preset.key}
               label={preset.title === '' ? 'Something else' : preset.title}
               variant="secondary"
@@ -270,6 +273,7 @@ export function RoutinesPanel() {
                   </View>
                   {draft.times.length > 1 && (
                     <Button
+                      chunky
                       label={`Remove time ${index + 1}`}
                       variant="secondary"
                       onPress={() => patch({ times: draft.times.filter((_, i) => i !== index) })}
@@ -277,7 +281,7 @@ export function RoutinesPanel() {
                   )}
                 </ThemedView>
               ))}
-              <Button label="Add a time" variant="secondary" onPress={() => patch({ times: [...draft.times, box({ hour: 12, minute: 0 })] })} />
+              <Button chunky label="Add a time" variant="secondary" onPress={() => patch({ times: [...draft.times, box({ hour: 12, minute: 0 })] })} />
             </>
           )}
 
@@ -302,21 +306,21 @@ export function RoutinesPanel() {
             <SwitchRowText title="Reminder is on" caption={draft.enabled ? 'On' : 'Off'} />
           </SwitchRow>
 
-          <Button label="Save reminder" disabled={busy} onPress={save} />
-          <Button label="Cancel" variant="secondary" onPress={() => setDraft(null)} />
+          <Button chunky label="Save reminder" disabled={busy} onPress={save} />
+          <Button chunky label="Cancel" variant="secondary" onPress={() => setDraft(null)} />
           {draft.id !== null &&
             (confirmDelete ? (
               <>
                 <ThemedText type="small">Delete &quot;{draft.title}&quot;? It stops reminding. Nothing else changes.</ThemedText>
-                <Button label="Yes, delete it" disabled={busy} onPress={remove} />
-                <Button label="Keep it" variant="secondary" onPress={() => setConfirmDelete(false)} />
+                <Button chunky label="Yes, delete it" disabled={busy} onPress={remove} />
+                <Button chunky label="Keep it" variant="secondary" onPress={() => setConfirmDelete(false)} />
               </>
             ) : (
-              <Button label="Delete this reminder" variant="secondary" onPress={() => setConfirmDelete(true)} />
+              <Button chunky label="Delete this reminder" variant="secondary" onPress={() => setConfirmDelete(true)} />
             ))}
         </>
       )}
-    </ThemedView>
+    </ChunkyCard>
   );
 }
 
@@ -346,8 +350,8 @@ function DayPicker({ days, onChange }: { days: Weekday[]; onChange: (days: Weekd
         })}
       </View>
       <View style={styles.row}>
-        <Button label="Every day" variant="secondary" onPress={() => onChange([...ALL_DAYS])} />
-        <Button label="Weekdays" variant="secondary" onPress={() => onChange([...WEEKDAYS])} />
+        <Button chunky label="Every day" variant="secondary" onPress={() => onChange([...ALL_DAYS])} />
+        <Button chunky label="Weekdays" variant="secondary" onPress={() => onChange([...WEEKDAYS])} />
       </View>
     </>
   );

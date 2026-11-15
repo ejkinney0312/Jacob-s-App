@@ -585,3 +585,11 @@ Erin saw the new build: the Village view still felt empty.
 |---|---|---|
 | 1 | Health follows the same look: pixel "Health" headline, each reminder on a chunky paper card with its category as a small rose tag, the "notifications are off" note on a notice-colored card with a chunky "Open phone settings" button. | Next screen after the mission screen. |
 | 2 | **No wording changed.** The screen still only reminds, gives no medical advice and records nothing about whether anything was done. No Rook, pictures or progress marks were added. | Care routines are caregiver-written reminders only (`CLAUDE.md`). A picture or praise next to a care reminder could read as advice or judgment. |
+
+## Redesign Phase 1: Caregiver (2026-11-14)
+
+| # | Decision | Reason |
+|---|---|---|
+| 1 | Caregiver follows the same look: the pixel "Caregiver" headline, every outer panel and notice on a chunky card, and chunky buttons throughout (the same `chunky` option as the mission screen). The smaller cards inside a panel stay flat, so cards are not nested inside cards. | Last main screen in the redesign. |
+| 2 | **Looks only.** No wording, order, accessible label or behavior changed. The PIN field, PIN service, session locking and recovery code are untouched, and the recovery code stays in the normal font. | PIN and recovery behavior are security-sensitive and were verified on a device; this change should not touch them. |
+| 3 | No Rook, pictures or praise in Caregiver. | Adult tools; care reminders must not look like advice. |

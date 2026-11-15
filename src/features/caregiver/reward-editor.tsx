@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { updateQuestRewards } from '@/db/caregiver-edits';
 import { listQuests } from '@/db/quests';
@@ -80,16 +80,16 @@ export function RewardEditor({ questId, onDone, onCancel }: { questId: string; o
 
   return (
     <>
-      <ThemedView type="backgroundElement" style={styles.card}>
+      <ChunkyCard style={styles.card}>
         <ThemedText type="smallBold">Edit rewards</ThemedText>
         <ThemedText type="small">{quest.title}</ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
           Changes apply from now on. Anything already earned stays as it is.
         </ThemedText>
-      </ThemedView>
+      </ChunkyCard>
 
       {quest.missions.map((mission) => (
-        <ThemedView key={mission.id} type="backgroundElement" style={styles.card}>
+        <ChunkyCard key={mission.id} style={styles.card}>
           <ThemedText type="smallBold">
             Mission {mission.position}: {mission.title}
           </ThemedText>
@@ -98,25 +98,25 @@ export function RewardEditor({ questId, onDone, onCancel }: { questId: string; o
             <NumberField label="Emeralds" value={missions[mission.id]?.emeralds ?? ''} onChangeText={(v) => setBox(mission.id, 'emeralds', v)} />
             <NumberField label="Blocks" value={missions[mission.id]?.blocks ?? ''} onChangeText={(v) => setBox(mission.id, 'blocks', v)} />
           </View>
-        </ThemedView>
+        </ChunkyCard>
       ))}
 
-      <ThemedView type="backgroundElement" style={styles.card}>
+      <ChunkyCard style={styles.card}>
         <ThemedText type="smallBold">Bonus for finishing the quest</ThemedText>
         <View style={styles.fields}>
           <NumberField label="XP" value={bonus.xp} onChangeText={(v) => setBonus({ ...bonus, xp: v })} />
           <NumberField label="Emeralds" value={bonus.emeralds} onChangeText={(v) => setBonus({ ...bonus, emeralds: v })} />
           <NumberField label="Blocks" value={bonus.blocks} onChangeText={(v) => setBonus({ ...bonus, blocks: v })} />
         </View>
-      </ThemedView>
+      </ChunkyCard>
 
       {message && (
         <ThemedText type="small" accessibilityLiveRegion="polite" accessibilityRole="alert">
           {message}
         </ThemedText>
       )}
-      <Button label="Save rewards" onPress={() => void save()} disabled={busy} />
-      <Button label="Cancel" variant="secondary" onPress={onCancel} />
+      <Button chunky label="Save rewards" onPress={() => void save()} disabled={busy} />
+      <Button chunky label="Cancel" variant="secondary" onPress={onCancel} />
     </>
   );
 }

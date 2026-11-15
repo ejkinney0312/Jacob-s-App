@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -56,7 +57,7 @@ export function ApprovalsPanel() {
   };
 
   return (
-    <ThemedView type="backgroundElement" style={styles.panel}>
+    <ChunkyCard style={styles.panel}>
       <ThemedText type="subtitle" accessibilityRole="header">
         Approvals
       </ThemedText>
@@ -84,6 +85,7 @@ export function ApprovalsPanel() {
             Approving adds {describeReward(item.reward)}.
           </ThemedText>
           <Button
+            chunky
             label="Approve"
             disabled={busy}
             hint={`Approves ${item.missionTitle} from ${item.questTitle}`}
@@ -96,6 +98,7 @@ export function ApprovalsPanel() {
             }
           />
           <Button
+            chunky
             label="Ask for another try"
             variant="secondary"
             disabled={busy}
@@ -104,7 +107,7 @@ export function ApprovalsPanel() {
           />
         </ThemedView>
       ))}
-    </ThemedView>
+    </ChunkyCard>
   );
 }
 

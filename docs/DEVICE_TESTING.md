@@ -155,3 +155,8 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 ## Redesign Phase 1: Health
 47. **Look.** Health has the pixel headline and each reminder on a chunky card with its category as a small tag. With notifications off, a notice card and an "Open phone settings" button show. Tell me what feels off.
 48. **Words and reading.** The wording is the same as before. VoiceOver reads each reminder as one item (title, schedule, next time). At 200% text nothing is cut off.
+
+## Redesign Phase 1: Caregiver
+49. **PIN still works.** Open Caregiver: the pixel headline shows. Enter a wrong PIN, then the right one. Try "Forgot PIN?" only if you have your recovery code to hand. Nothing about how the PIN behaves should be different.
+50. **Look.** Each panel (approvals, quests, reminders, routines, rewards) is on a chunky card with chunky buttons. Tell me what feels off, especially anything harder to read or tap than before.
+51. **Editing.** Edit a quest's color or chores, add a reminder, add a routine and change a reward; each still saves. At 200% text nothing is cut off, and VoiceOver reads the same labels as before.

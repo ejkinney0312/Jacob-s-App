@@ -516,3 +516,9 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - Checks run: `tsc` clean, lint clean, 55 suites / 1501 tests pass (no new logic, so no new tests; the health tone's colors are already covered by the contrast tests). The screen itself has no automated test.
 - **Not tested on a device:** all of it, in particular the card layout at 200% text, VoiceOver reading each reminder as one item, and dark mode. A new build is needed.
 - **Not changed:** Caregiver, the celebration.
+
+## Redesign Phase 1: Caregiver (2026-11-14)
+- Caregiver now has the pixel headline, chunky cards for every panel, notice and editor section, and chunky buttons throughout (8 files in `src/features/caregiver/`). The change was made by a script that swaps each outer container and its matching closing tag, then reviewed. Files that handle the PIN, recovery code, session locking and the PIN field were not touched.
+- Checks run: `tsc` clean, lint clean, 55 suites / 1501 tests pass (unchanged; no logic changed, so no new tests or deliberate breaks). The screens have no automated tests.
+- **Not tested on a device:** all of it. Most important: the PIN screens still work (enter a PIN, wrong PIN, Forgot PIN, recovery code), every editor still saves, nothing is cut off at 200% text, and the long panels (reminders, routines) still read well with the thicker cards.
+- **Not changed:** the celebration. This finishes the main-screen restyle: Today, Progress, Village, mission screen, Health and Caregiver.
