@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
+import { ChunkyCard } from '@/components/chunky-card';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import type { Tone } from '@/constants/palette';
@@ -107,29 +108,34 @@ function CelebrationBody({ questTitle, bonus, audioEnabled, tone, still, onDone 
         </Animated.View>
 
         <Animated.View style={[styles.text, { opacity: text }]}>
-          {/* Rook cheers. A still picture: it fades in with the words and never moves. */}
-          <RookPicture pose="cheer" size={176} />
-          <ThemedText type="title" style={styles.centered} accessibilityRole="header">
-            {copy.headline}
-          </ThemedText>
-          <ThemedText themeColor="textSecondary" style={styles.centered}>
-            {questTitle}
-          </ThemedText>
-          {copy.bonusLine && (
-            <ThemedText type="subtitle" style={styles.centered}>
-              {copy.bonusLine}
+          {/* Rook cheers on a light card. A still picture: it fades in with the words and never moves. */}
+          <ChunkyCard color={theme.card} style={styles.card}>
+            <RookPicture pose="cheer" size={176} />
+            <ThemedText type="display" style={styles.centered} accessibilityRole="header">
+              {copy.headline}
             </ThemedText>
+            <ThemedText themeColor="textSecondary" style={styles.centered}>
+              {questTitle}
+            </ThemedText>
+          </ChunkyCard>
+          {copy.bonusLine && (
+            <ChunkyCard color={theme.primary} style={styles.card}>
+              <ThemedText type="subtitle" themeColor="onPrimary" style={styles.centered}>
+                {copy.bonusLine}
+              </ThemedText>
+            </ChunkyCard>
           )}
           <ThemedText style={styles.centered}>{copy.closing}</ThemedText>
         </Animated.View>
       </View>
-      <Button label="Back to Today" onPress={onDone} />
+      <Button label="Back to Today" chunky onPress={onDone} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', gap: Spacing.four, paddingVertical: Spacing.five },
-  text: { alignItems: 'center', gap: Spacing.two },
+  text: { alignItems: 'stretch', gap: Spacing.three },
+  card: { alignItems: 'center', gap: Spacing.two },
   centered: { textAlign: 'center' },
 });

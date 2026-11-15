@@ -187,3 +187,8 @@ Android: not tested. Erin installed the build over the old one and reported "eve
 | Help recording and metrics page (59 to 62) | Pass overall, reported as working. |
 
 **Not reported, so still not tested:** dark mode, 200% text and VoiceOver on the new screens, the narrowest phone for the Calendar day cells, and Android.
+
+## Redesign Phase 1: celebration
+63. **Look.** Finish a quest: Rook and the pixel headline are on a chunky card, the bonus (if any) is on a colored card, and "Back to Today" is a chunky button. Tell me what feels off.
+64. **Same behavior.** The block settles in and the words fade in once, with one soft chime; nothing loops or flashes. With Reduce Motion on, nothing moves. With the sound off or the phone on silent, it is quiet.
+65. **Reading.** VoiceOver announces the finish once and reads the headline as a heading. At 200% text nothing is cut off and "Back to Today" can be reached. Dark mode looks right.

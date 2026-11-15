@@ -623,3 +623,6 @@ Erin asked for a metrics page inside the Caregiver tab, with **help taps recorde
 | 6 | **Tone:** plain counts and neutral bars. No streaks, no red or warning colors, no "target" line, and a note on the page that help is "a count, not a mark against anyone". The percent is the one grade-like number; it is there because Erin asked for it. | The PRD forbids punishment and shaming. |
 | 7 | **Privacy:** the log stays on the phone and is deleted with the app. `docs/PRIVACY_DRAFT.md` now says so, and says sending it anywhere would change the answers. | Draft answers must match the app. |
 | 8 | **Not built:** "Reminder-to-start time" and "skip rate" (the app records neither and has no skip action), a chart over more than 4 weeks, exporting, and rescheduling missed quests. | Each needs new recording or a decision. |
+
+## Celebration restyle (2026-11-14)
+The finished screen uses the same chunky cards, pixel headline and chunky button as the other screens. Rook stays on a light card so the smooth art reads in dark mode. Motion, sound and wording are unchanged, so Reduce Motion, silent mode and the "pays nothing" rule still hold.
