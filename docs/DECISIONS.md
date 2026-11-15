@@ -626,3 +626,6 @@ Erin asked for a metrics page inside the Caregiver tab, with **help taps recorde
 
 ## Celebration restyle (2026-11-14)
 The finished screen uses the same chunky cards, pixel headline and chunky button as the other screens. Rook stays on a light card so the smooth art reads in dark mode. Motion, sound and wording are unchanged, so Reduce Motion, silent mode and the "pays nothing" rule still hold.
+
+## Dark mode: one page, sectional accents (2026-11-15)
+In dark mode the section pages share one near-black page and one neutral card, and the section's color shows in its accents. Reason: tinted pages with the same brown card on all of them looked muddy and inconsistent in Erin's screenshots. Quest colors still tint the quest screens. Light mode keeps its tinted pages.

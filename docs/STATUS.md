@@ -541,3 +541,13 @@ Things I can still do without a phone: remove unused starter packages (needs a c
 - Restyled the quest-finished screen (`src/features/quest/celebration.tsx`): Rook, the pixel "Quest complete" headline and the quest name sit on one chunky card; the bonus is on a chunky card in the quest's deep color; "Back to Today" is a chunky button. The block, fade, chime, announcement and Reduce Motion behavior are unchanged; the payout logic was not touched.
 - Checks run: `tsc` clean, lint clean, 59 suites / 1597 tests pass (no new tests: the change is layout only and the celebration rules in `src/domain/celebration.ts` are already tested).
 - **Not tested on a device.** This was the last screen with the old look; the Redesign Phase 1 screens are now all restyled.
+
+## Polish pass: tabs and dark mode (2026-11-15)
+From Erin's screenshots of the build: the tab bar, the dark pages and a few small layout bugs.
+- **Tab bar:** one icon style (outline, filled when selected): Today a sun, Progress a star, Village a house, Calendar a calendar, Caregiver a lock. The selected tab uses the palette's accent instead of the system blue.
+- **Dark mode:** the five section pages (Today, Progress, Village, Calendar, Caregiver) share one near-black page; each keeps its own accent color. Cards are a neutral slate (they were warm brown on every page), the outline is a softer gray-blue, and the shadow is a neutral slate. Quest colors are unchanged and still tint the quest screens and tiles.
+- **Buttons:** secondary chunky buttons now sit on the neutral card color (so "Forgot PIN?", "See metrics" and "Edit chores" no longer look brown on a violet page). A disabled chunky button is a flat quiet tile with secondary text, not a faded copy of the primary color.
+- **Small fixes:** Progress stat tiles are equal height ("Days with a finished quest" is now "Active days"); "0 of 48" on Village uses the pixel font for the numbers and the normal font for "of"; the PIN field is a chunky card like the buttons around it. `ChunkyCard` has a new `outerStyle` prop.
+- **Checked and not changed:** the unlocked Caregiver headline looked higher than the others in the screenshots, but both states render the same headline in the same place; the unlocked screenshot was most likely scrolled a little.
+- Checks run: `tsc` clean, lint clean, 59 suites / 1618 tests pass (new: dark section pages are identical and keep distinct accents; cards stay apart from the page in every tone). A deliberate break (one section drifting back to its own dark page) fails the test.
+- **Not tested on a device.** Light mode was not seen in the screenshots. The tab icons and the tint need a device: SF Symbol names `sun.max`, `lock` and the `tintColor` prop were set from the Expo docs, not run.

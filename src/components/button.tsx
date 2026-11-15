@@ -34,10 +34,11 @@ export function Button({ label, onPress, variant = 'primary', disabled = false, 
         onPress={onPress}>
         {({ pressed }) => (
           <ChunkyCard
-            color={primary ? theme.primary : theme.card}
+            // Disabled is a quiet, flat tile with secondary text rather than a faded copy of the primary color.
+            color={disabled ? theme.backgroundSelected : primary ? theme.primary : theme.card}
             pressed={pressed && !disabled}
-            style={[styles.chunky, { minHeight: minHeight - SHADOW_ALLOWANCE, opacity: disabled ? 0.6 : 1 }]}>
-            <ThemedText type="smallBold" themeColor={primary ? 'onPrimary' : 'text'}>
+            style={[styles.chunky, { minHeight: minHeight - SHADOW_ALLOWANCE }]}>
+            <ThemedText type="smallBold" themeColor={disabled ? 'textSecondary' : primary ? 'onPrimary' : 'text'}>
               {label}
             </ThemedText>
           </ChunkyCard>

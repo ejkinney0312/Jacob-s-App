@@ -14,17 +14,19 @@ interface ChunkyCardProps extends Omit<ViewProps, 'style' | 'children'> {
   /** Moves the card down and across onto its shadow, so a pressed tile looks pushed in. */
   pressed?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Style for the box that holds the card and its shadow, for example `flex: 1` to fill a row. */
+  outerStyle?: StyleProp<ViewStyle>;
 }
 
 /**
  * A card with a thick outline and a hard offset shadow: the chunky, cozy look. The outline and shadow are decoration
  * only; the words inside carry the meaning. Nothing animates.
  */
-export function ChunkyCard({ children, color, pressed = false, style, ...rest }: ChunkyCardProps) {
+export function ChunkyCard({ children, color, pressed = false, style, outerStyle, ...rest }: ChunkyCardProps) {
   const theme = useTheme();
   const shift = pressed ? SHADOW_OFFSET / 2 : 0;
   return (
-    <View style={styles.wrap} {...rest}>
+    <View style={[styles.wrap, outerStyle]} {...rest}>
       <View style={[styles.shadow, { backgroundColor: theme.shadow }]} />
       <View
         style={[

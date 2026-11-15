@@ -73,7 +73,11 @@ export function VillageScreen() {
               Building blocks
             </ThemedText>
             <ThemedText type="stat" themeColor="onPrimary">
-              {snapshot.state.blocksPlaced} of {snapshot.state.blocksNeeded}
+              {snapshot.state.blocksPlaced}
+              <ThemedText type="smallBold" themeColor="onPrimary">
+                {' of '}
+              </ThemedText>
+              {snapshot.state.blocksNeeded}
             </ThemedText>
             <ThemedText themeColor="onPrimary">blocks placed</ThemedText>
             <ThemedText type="small" themeColor="onPrimary">

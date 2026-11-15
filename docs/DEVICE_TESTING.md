@@ -192,3 +192,9 @@ Android: not tested. Erin installed the build over the old one and reported "eve
 63. **Look.** Finish a quest: Rook and the pixel headline are on a chunky card, the bonus (if any) is on a colored card, and "Back to Today" is a chunky button. Tell me what feels off.
 64. **Same behavior.** The block settles in and the words fade in once, with one soft chime; nothing loops or flashes. With Reduce Motion on, nothing moves. With the sound off or the phone on silent, it is quiet.
 65. **Reading.** VoiceOver announces the finish once and reads the headline as a heading. At 200% text nothing is cut off and "Back to Today" can be reached. Dark mode looks right.
+
+## Polish pass: tabs and dark mode
+66. **Tab bar.** Icons are a sun, star, house, calendar and lock, all the same style; the selected one is filled and in the accent color. Does each icon say what the tab is? Does the selected tab read clearly in light and dark?
+67. **Dark pages.** Go through all five tabs in dark mode: the pages are the same near-black, the cards are slate (not brown), the outlines are softer. Does anything look too dim or flat? Light mode should look as before.
+68. **Buttons and fields.** "Forgot PIN?", "See metrics" and "Edit chores" match their page. The PIN field is a chunky card, still easy to tap. The disabled "Unlock" looks quiet but its words can be read.
+69. **Layout.** The three Progress tiles are the same height. Village says "0 of 48" with the numbers in the pixel font. At 200% text nothing is cut off.

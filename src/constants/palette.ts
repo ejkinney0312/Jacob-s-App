@@ -36,9 +36,10 @@ export const Colors = {
     border: '#8A93A3',
     notice: '#3A3216',
     onNotice: '#F6E9B8',
-    ink: '#E8E2D4',
-    shadow: '#3D3A48',
-    card: '#2A2418',
+    // A softer outline than the text color, so stacked cards stay calm on the dark page.
+    ink: '#9AA3B5',
+    shadow: '#2F3744',
+    card: '#222833',
   },
 } as const;
 
@@ -57,26 +58,29 @@ export type QuestTone = 'teal' | 'orange' | 'plum' | 'indigo' | 'olive';
 
 type ToneColors = Record<'background' | 'backgroundElement' | 'backgroundSelected' | 'primary' | 'onPrimary' | 'link', string>;
 
+/** One near-black page for every section in dark mode. The section's color shows in its accents (primary), not in the page. */
+const DARK_PAGE = { background: '#12161C', backgroundElement: '#1D232C', backgroundSelected: '#2A323E' } as const;
+
 export const Tones: Record<Tone, { light: ToneColors; dark: ToneColors }> = {
   // Warm cream with a green primary: the daily quests. The quest tiles bring the color (see `QUEST_TONES`).
   today: {
     light: { background: '#FBF4E4', backgroundElement: '#F4E9CF', backgroundSelected: '#EADBB5', primary: '#1F6B45', onPrimary: '#FFFFFF', link: '#17497F' },
-    dark: { background: '#1A1610', backgroundElement: '#272016', backgroundSelected: '#362C1C', primary: '#8FD0B5', onPrimary: '#0F1A16', link: '#8EC2F5' },
+    dark: { ...DARK_PAGE, primary: '#8FD0B5', onPrimary: '#0F1A16', link: '#8EC2F5' },
   },
   // Gold: what has been earned.
   progress: {
     light: { background: '#FCF1D6', backgroundElement: '#F7E1A8', backgroundSelected: '#EFD083', primary: '#8A5A00', onPrimary: '#FFFFFF', link: '#17497F' },
-    dark: { background: '#1D1808', backgroundElement: '#2F2710', backgroundSelected: '#42371A', primary: '#EBC25B', onPrimary: '#241B00', link: '#8EC2F5' },
+    dark: { ...DARK_PAGE, primary: '#EBC25B', onPrimary: '#241B00', link: '#8EC2F5' },
   },
   // Sky blue: the village.
   village: {
     light: { background: '#E3F0FB', backgroundElement: '#C8E1F6', backgroundSelected: '#ADD2F0', primary: '#1F5C99', onPrimary: '#FFFFFF', link: '#0F3F73' },
-    dark: { background: '#0D1822', backgroundElement: '#172A3A', backgroundSelected: '#223D52', primary: '#8EC2F5', onPrimary: '#0B1A28', link: '#9CCBF7' },
+    dark: { ...DARK_PAGE, primary: '#8EC2F5', onPrimary: '#0B1A28', link: '#9CCBF7' },
   },
   // Rose: care and everyday reminders.
   health: {
     light: { background: '#FCE9EA', backgroundElement: '#F7CFD3', backgroundSelected: '#F4C4C9', primary: '#A32D4B', onPrimary: '#FFFFFF', link: '#17497F' },
-    dark: { background: '#1F1013', backgroundElement: '#33191E', backgroundSelected: '#472329', primary: '#F2A3B3', onPrimary: '#2A0A12', link: '#8EC2F5' },
+    dark: { ...DARK_PAGE, primary: '#F2A3B3', onPrimary: '#2A0A12', link: '#8EC2F5' },
   },
   // The quest colors, kept apart from the green of Today and the section colors.
   teal: {
@@ -102,7 +106,7 @@ export const Tones: Record<Tone, { light: ToneColors; dark: ToneColors }> = {
   // Violet: caregiver mode.
   caregiver: {
     light: { background: '#EFE9FA', backgroundElement: '#DDD1F3', backgroundSelected: '#D3C6EE', primary: '#5B3F9E', onPrimary: '#FFFFFF', link: '#17497F' },
-    dark: { background: '#15111F', backgroundElement: '#231C33', backgroundSelected: '#33294A', primary: '#C3B0F0', onPrimary: '#1A1030', link: '#8EC2F5' },
+    dark: { ...DARK_PAGE, primary: '#C3B0F0', onPrimary: '#1A1030', link: '#8EC2F5' },
   },
 };
 

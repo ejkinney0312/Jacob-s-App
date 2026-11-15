@@ -57,6 +57,7 @@ describe.each(['light', 'dark'] as const)('%s theme contrast', (mode) => {
 
 // A tone replaces some colors and keeps the rest, so check the merged palette against the same pairs.
 const TONES = Object.keys(Tones) as Tone[];
+const SECTION_TONES: Tone[] = ['today', 'progress', 'village', 'health', 'caregiver'];
 
 describe.each(TONES.flatMap((tone) => (['light', 'dark'] as const).map((mode) => [tone, mode] as const)))(
   '%s tone, %s theme',
@@ -71,12 +72,37 @@ describe.each(TONES.flatMap((tone) => (['light', 'dark'] as const).map((mode) =>
       expect(contrast(palette[fg], palette[bg])).toBeGreaterThanOrEqual(3);
     });
 
-    it('is visibly different from the plain page, so the color is real', () => {
-      expect(palette.background).not.toBe(Colors[mode].background);
+    // In dark mode the section tones share the plain near-black page (checked below); every other tone has its own page.
+    const sharesDarkPage = mode === 'dark' && SECTION_TONES.includes(tone);
+    if (!sharesDarkPage) {
+      it('is visibly different from the plain page, so the color is real', () => {
+        expect(palette.background).not.toBe(Colors[mode].background);
+        expect(contrast(palette.background, palette.backgroundElement)).toBeGreaterThan(1.05);
+      });
+    }
+
+    it('keeps its cards visibly apart from the page', () => {
       expect(contrast(palette.background, palette.backgroundElement)).toBeGreaterThan(1.05);
+      expect(contrast(palette.background, palette.card)).toBeGreaterThan(1.05);
     });
   },
 );
+
+describe('the dark page', () => {
+  it.each(SECTION_TONES)('%s uses the same near-black page as every other section', (tone) => {
+    const { background, backgroundElement, backgroundSelected } = Tones[tone].dark;
+    expect({ background, backgroundElement, backgroundSelected }).toEqual({
+      background: Colors.dark.background,
+      backgroundElement: Colors.dark.backgroundElement,
+      backgroundSelected: Colors.dark.backgroundSelected,
+    });
+  });
+
+  it('still lets each section keep its own accent', () => {
+    const accents = SECTION_TONES.map((tone) => Tones[tone].dark.primary);
+    expect(new Set(accents).size).toBe(SECTION_TONES.length);
+  });
+});
 
 describe('laying a tone over the palette', () => {
   it.each(TONES)('%s changes only the page colors and leaves text, border and notice alone', (tone) => {

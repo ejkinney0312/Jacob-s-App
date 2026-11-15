@@ -11,13 +11,12 @@ export default function AppTabs() {
     <NativeTabs
       backgroundColor={colors.background}
       indicatorColor={colors.backgroundElement}
+      // One accent for the selected tab on every screen, instead of the system blue.
+      tintColor={colors.primary}
       labelStyle={{ selected: { color: colors.text } }}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Today</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
+        <NativeTabs.Trigger.Icon sf={{ default: 'sun.max', selected: 'sun.max.fill' }} md="wb_sunny" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="progress">
@@ -37,10 +36,7 @@ export default function AppTabs() {
 
       <NativeTabs.Trigger name="caregiver">
         <NativeTabs.Trigger.Label>Caregiver</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
+        <NativeTabs.Trigger.Icon sf={{ default: 'lock', selected: 'lock.fill' }} md="lock" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

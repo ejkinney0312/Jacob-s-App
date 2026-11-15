@@ -72,7 +72,7 @@ export function ProgressScreen() {
           <View style={styles.stats}>
             <StatTile value={snapshot.stats.missionsPaid} label="Missions done" />
             <StatTile value={snapshot.stats.questsFinished} label="Quests finished" />
-            <StatTile value={snapshot.stats.daysWithFinishedQuest} label="Days with a finished quest" />
+            <StatTile value={snapshot.stats.daysWithFinishedQuest} label="Active days" />
           </View>
           <ThemedText type="small" themeColor="textSecondary">
             Earned in total: {describeReward(snapshot.stats)}. These only go up.
@@ -108,7 +108,7 @@ export function ProgressScreen() {
 function StatTile({ value, label }: { value: number; label: string }) {
   return (
     <View style={styles.stat}>
-      <ChunkyCard accessible accessibilityLabel={`${value} ${label}`} style={styles.statCard}>
+      <ChunkyCard accessible accessibilityLabel={`${value} ${label}`} outerStyle={styles.fill} style={[styles.fill, styles.statCard]}>
         <ThemedText type="stat">{value}</ThemedText>
         <ThemedText type="small" themeColor="textSecondary">
           {label}
@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
   // Each tile takes a third of the row, and wraps onto its own line when the text is large.
   stat: { flexGrow: 1, flexBasis: 104, minWidth: 104 },
   statCard: { gap: Spacing.half },
+  fill: { flex: 1 },
   badge: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
   frame: {
     width: 64,
