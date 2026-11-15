@@ -551,3 +551,10 @@ From Erin's screenshots of the build: the tab bar, the dark pages and a few smal
 - **Checked and not changed:** the unlocked Caregiver headline looked higher than the others in the screenshots, but both states render the same headline in the same place; the unlocked screenshot was most likely scrolled a little.
 - Checks run: `tsc` clean, lint clean, 59 suites / 1618 tests pass (new: dark section pages are identical and keep distinct accents; cards stay apart from the page in every tone). A deliberate break (one section drifting back to its own dark page) fails the test.
 - **Not tested on a device.** Light mode was not seen in the screenshots. The tab icons and the tint need a device: SF Symbol names `sun.max`, `lock` and the `tintColor` prop were set from the Expo docs, not run.
+
+## Caregiver menu (2026-11-15)
+- Caregiver home is now a menu: the status card and **Lock now** at the top, **Approvals** (the one thing that waits for you), six tiles (Quests, Reminders, Routines, Calendar events, Rewards, Metrics) and **New recovery code**. Each tile opens its own page with **Back to Caregiver**; the pages are the existing panels, unchanged. Saving a quest's rewards or leaving the chore editor returns to the Quests page. Unlocking, locking or leaving the tab always returns to the menu.
+- Code: `src/features/caregiver/caregiver-sections.ts` (the tile list), `menu-tile.tsx`, and `caregiver-screen.tsx` (`Home`, `SectionPage`, one `section` state that replaced `showMetrics`). The PIN forms and the PIN service were not touched.
+- Checks run: `tsc` clean, lint clean, 60 suites / 1621 tests pass (new: the tile list is complete, ordered, labelled and has an icon for each platform; reordering it fails the test). There is no render test for the screen itself.
+- **Not tested on a device.** The tile layout, the back-and-forth between pages, the tile icon names and 200% text.
+- **Not built:** a count on the Approvals area beyond the panel itself, and tile badges.

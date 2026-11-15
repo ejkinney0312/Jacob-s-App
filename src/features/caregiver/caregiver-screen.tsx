@@ -12,8 +12,10 @@ import type { CaregiverPinService, PinStatus } from '@/services/caregiver-pin';
 
 import { ApprovalsPanel } from './approvals-panel';
 import { describeGuessFailure } from './messages';
+import { CAREGIVER_SECTIONS, type CaregiverSectionId } from './caregiver-sections';
 import { ChoreEditor } from './chore-editor';
 import { EventsPanel } from './events-panel';
+import { MenuTile } from './menu-tile';
 import { MetricsView } from './metrics-view';
 import { QuestsPanel } from './quests-panel';
 import { RemindersPanel } from './reminders-panel';
@@ -35,7 +37,8 @@ export function CaregiverScreen() {
   const [editingQuestId, setEditingQuestId] = useState<string | null>(null);
   const [editingChoresId, setEditingChoresId] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
-  const [showMetrics, setShowMetrics] = useState(false);
+  // The page the caregiver is on: the menu (null) or one section. Metrics is a section too.
+  const [section, setSection] = useState<CaregiverSectionId | null>(null);
 
   const refresh = useCallback(async () => {
     if (!service) return;
@@ -52,7 +55,7 @@ export function CaregiverScreen() {
       void refresh();
       return () => {
         lock();
-        setShowMetrics(false);
+        setSection(null);
       };
     }, [refresh, lock]),
   );
@@ -60,6 +63,7 @@ export function CaregiverScreen() {
   const finishSetup = (code: string) => {
     setRecoveryCode(code);
     setMode('default');
+    setSection(null);
     unlock();
     void refresh();
   };
@@ -91,8 +95,8 @@ export function CaregiverScreen() {
     content =
       mode === 'newCode' ? (
         <NewCodeForm service={service} onDone={(code) => { setRecoveryCode(code); setMode('default'); }} onBack={() => setMode('default')} />
-      ) : showMetrics ? (
-        <MetricsView onBack={() => setShowMetrics(false)} />
+      ) : section === 'metrics' ? (
+        <MetricsView onBack={() => setSection(null)} />
       ) : editingChoresId !== null ? (
         <ChoreEditor
           questId={editingChoresId}
@@ -107,11 +111,10 @@ export function CaregiverScreen() {
           }}
           onCancel={() => setEditingQuestId(null)}
         />
-      ) : (
-        <Home
-          onLock={lock}
-          onNewCode={() => setMode('newCode')}
-          onOpenMetrics={() => setShowMetrics(true)}
+      ) : section !== null ? (
+        <SectionPage
+          section={section}
+          onBack={() => setSection(null)}
           onEditQuest={(id) => {
             setSavedMessage(null);
             setEditingQuestId(id);
@@ -122,6 +125,8 @@ export function CaregiverScreen() {
           }}
           savedMessage={savedMessage}
         />
+      ) : (
+        <Home onLock={lock} onNewCode={() => setMode('newCode')} onOpen={setSection} />
       );
   } else {
     content =
@@ -131,7 +136,10 @@ export function CaregiverScreen() {
         <EntryForm
           service={service}
           lock={status.lock}
-          onUnlocked={unlock}
+          onUnlocked={() => {
+            setSection(null);
+            unlock();
+          }}
           onForgot={() => setMode('forgot')}
           onChanged={() => void refresh()}
         />
@@ -376,17 +384,11 @@ function NewCodeForm({
 function Home({
   onLock,
   onNewCode,
-  onOpenMetrics,
-  onEditQuest,
-  onEditChores,
-  savedMessage,
+  onOpen,
 }: {
   onLock: () => void;
   onNewCode: () => void;
-  onOpenMetrics: () => void;
-  onEditQuest: (questId: string) => void;
-  onEditChores: (questId: string) => void;
-  savedMessage: string | null;
+  onOpen: (section: CaregiverSectionId) => void;
 }) {
   return (
     <>
@@ -394,22 +396,49 @@ function Home({
         title="Caregiver mode is open"
         body="It locks when you leave this tab, when the app goes to the background, or after 5 minutes without a touch."
       />
-      {savedMessage && <Message text={savedMessage} />}
-      <Button chunky label="See metrics" variant="secondary" hint="Opens plain counts for the last four weeks" onPress={onOpenMetrics} />
-      <ApprovalsPanel />
-      <QuestsPanel onEdit={onEditQuest} onEditChores={onEditChores} />
-      <RemindersPanel />
-      <RoutinesPanel />
-      <EventsPanel />
-      <RewardsPanel />
       <Button chunky label="Lock now" onPress={onLock} />
+      {/* Approvals stay here: they are the one thing that is waiting for you. */}
+      <ApprovalsPanel />
+      <View style={styles.tiles}>
+        {CAREGIVER_SECTIONS.map((section) => (
+          <MenuTile key={section.id} section={section} onPress={() => onOpen(section.id)} />
+        ))}
+      </View>
       <Button chunky label="New recovery code" variant="secondary" onPress={onNewCode} />
+    </>
+  );
+}
+
+/** One section's page: the same panel that used to sit on the long home page, with a way back. */
+function SectionPage({
+  section,
+  onBack,
+  onEditQuest,
+  onEditChores,
+  savedMessage,
+}: {
+  section: Exclude<CaregiverSectionId, 'metrics'>;
+  onBack: () => void;
+  onEditQuest: (questId: string) => void;
+  onEditChores: (questId: string) => void;
+  savedMessage: string | null;
+}) {
+  return (
+    <>
+      <Button chunky label="Back to Caregiver" variant="secondary" onPress={onBack} />
+      {savedMessage && <Message text={savedMessage} />}
+      {section === 'quests' && <QuestsPanel onEdit={onEditQuest} onEditChores={onEditChores} />}
+      {section === 'reminders' && <RemindersPanel />}
+      {section === 'routines' && <RoutinesPanel />}
+      {section === 'events' && <EventsPanel />}
+      {section === 'rewards' && <RewardsPanel />}
     </>
   );
 }
 
 const styles = StyleSheet.create({
   stack: { gap: Spacing.three },
+  tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   card: { padding: Spacing.three, borderRadius: Spacing.three, gap: Spacing.one },
   codeBox: { alignItems: 'center' },
   code: { letterSpacing: 4, textAlign: 'center' },

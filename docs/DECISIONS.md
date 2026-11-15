@@ -629,3 +629,6 @@ The finished screen uses the same chunky cards, pixel headline and chunky button
 
 ## Dark mode: one page, sectional accents (2026-11-15)
 In dark mode the section pages share one near-black page and one neutral card, and the section's color shows in its accents. Reason: tinted pages with the same brown card on all of them looked muddy and inconsistent in Erin's screenshots. Quest colors still tint the quest screens. Light mode keeps its tinted pages.
+
+## Caregiver home as a menu (2026-11-15)
+Caregiver home was one long scroll of panels inside panels. It is now a menu of tiles that each open one existing panel. Approvals stay on the menu page because waiting approvals need attention. Reason: easier to find things and calmer to read, with no change to what any panel does or to how the PIN works.

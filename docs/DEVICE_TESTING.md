@@ -165,13 +165,13 @@ Android: not tested. Everything below is Erin's report; where nothing was report
 52. **Upgrade.** Install the new build over the old one: your quests, progress, PIN and reminders are all still there (the database moved from version 11 to 12).
 53. **Tab.** The tab bar has five tabs, with Calendar where Health was. Tap a routine reminder notification: it opens Calendar, with the care reminders at the bottom.
 54. **Month.** Today has a ring. Tap another day: it fills, and its events show below. Previous and next month work, including across a year. Tap carefully on the narrowest phone you have: **do the day cells feel big enough, and does a tap ever land on the wrong day?**
-55. **Add events.** Under Caregiver, "Calendar events": add one with a time, one all day, and one marked private. They show on the right days; the private one says "Private event" and keeps the time. Edit and delete one.
+55. **Add events.** Under Caregiver, the "Calendar events" tile: add one with a time, one all day, and one marked private. They show on the right days; the private one says "Private event" and keeps the time. Edit and delete one.
 56. **Reading.** VoiceOver reads each day as its full date, then "today" and the number of events, and reads each event as its time and name. At 200% text the grid and the events are not cut off. Dark mode looks right.
 57. **No reminders.** No notification arrives for an event (that is by design).
 
 ## Caregiver metrics page
 58. **Upgrade.** Install over the old build: everything is still there (the database moves to version 13).
-59. **Recording.** On a mission, tap "I need help", then "Back to mission". Then open Caregiver, enter your PIN and tap "See metrics": the mission appears under "Missions that got the most help" with "help opened on 1 day". Tapping help again on the same mission the same day does not change the count.
+59. **Recording.** On a mission, tap "I need help", then "Back to mission". Then open Caregiver, enter your PIN and tap the "Metrics" tile: the mission appears under "Missions that got the most help" with "help opened on 1 day". Tapping help again on the same mission the same day does not change the count.
 60. **Honest about the past.** Weeks before today's build say "Not recorded yet" under "Missions finished without help". The page says when counting began. Quests finished shows your real earlier weeks.
 61. **Numbers.** "Quests finished" matches what you remember for a week (the percent is finished out of scheduled). Today is not counted. A day you did not open the app counts as scheduled but not finished.
 62. **Tone and reading.** Nothing is red or alarming. VoiceOver reads each row as one item with its words. At 200% text nothing is cut off. Leave the Caregiver tab and come back: it asks for the PIN again and starts on the home view.
@@ -198,3 +198,9 @@ Android: not tested. Erin installed the build over the old one and reported "eve
 67. **Dark pages.** Go through all five tabs in dark mode: the pages are the same near-black, the cards are slate (not brown), the outlines are softer. Does anything look too dim or flat? Light mode should look as before.
 68. **Buttons and fields.** "Forgot PIN?", "See metrics" and "Edit chores" match their page. The PIN field is a chunky card, still easy to tap. The disabled "Unlock" looks quiet but its words can be read.
 69. **Layout.** The three Progress tiles are the same height. Village says "0 of 48" with the numbers in the pixel font. At 200% text nothing is cut off.
+
+## Caregiver menu
+70. **Home.** After you unlock, Caregiver shows the "Caregiver mode is open" card, "Lock now", Approvals, then six tiles: Quests, Reminders, Routines, Calendar events, Rewards and Metrics, and "New recovery code" below. Each tile opens its own page with "Back to Caregiver" at the top. Does the menu feel clearer than the long page did?
+71. **Everything still works.** On each page do what you did before: edit a quest's chores and rewards (saving returns to the Quests page), add a reminder, add a routine, add and delete an event, look at the reward store, open Metrics. Nothing should be missing.
+72. **Locking.** "Lock now", leaving the tab and 5 minutes without a touch all lock it; after you unlock again you start on the menu, not on the page you were on.
+73. **Reading.** At 200% text the tiles take a full row each and nothing is cut off. VoiceOver reads each tile as its title and summary ("Quests. Chores, rewards, on or off") and calls it a button.
